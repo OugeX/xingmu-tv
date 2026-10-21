@@ -31,17 +31,17 @@
     },
     {
       "id": "C04",
-      "name": "applicationId = com.tvbox.app",
+      "name": "applicationId = com.xingmu.tv",
       "status": "PASS",
       "required": false,
-      "detail": "com.tvbox.app"
+      "detail": "com.xingmu.tv"
     },
     {
       "id": "C05",
       "name": "LEANBACK_LAUNCHER Activity",
       "status": "PASS",
       "required": true,
-      "detail": "leanback-launchable-activity: name='com.tvbox.app.MainActivity'  label='' icon='' banner='res/drawable/tv_banner.xml'"
+      "detail": "leanback-launchable-activity: name='com.xingmu.tv.MainActivity'  label='' icon='' banner='res/drawable/tv_banner.xml'"
     },
     {
       "id": "C06",

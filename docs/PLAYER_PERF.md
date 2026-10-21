@@ -84,7 +84,7 @@ PLAYER_EVT action=switchsrc from=bfzy1 to=ffzy t_prepare_ms=1310 t_first_frame_m
 
 验收脚本（qa 用）：
 ```bash
-adb logcat -c && adb shell am start -n com.tvbox.app/.MainActivity
+adb logcat -c && adb shell am start -n com.xingmu.tv/.MainActivity
 # 用遥控器/输入事件连切 10 个台，再 grep
 adb logcat -d | grep PLAYER_EVT
 ```

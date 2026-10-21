@@ -29,7 +29,7 @@
 | 体积 | 12,620,999 B（12.04 MB） |
 | SHA256 | `37d7fe0eec55f1b167c019e4e47e1feaf6f2a15c3b02025acc997aa783c0c151` |
 | 构建时间 | 2026-10-21 20:49（qa 构建）/ 20:52（工作区被并发重建，现文件 SHA 如上） |
-| package | `com.tvbox.app`，versionName 0.1.0，minSdk 21 / targetSdk 34 |
+| package | `com.xingmu.tv`，versionName 0.1.0，minSdk 21 / targetSdk 34 |
 | 安装 | `adb install -r` 成功，`lastUpdateTime=2026-10-21 20:57` |
 
 构建命令与结果：
@@ -62,7 +62,7 @@ pwsh -NoProfile -File tools/smoke_check.ps1 -JsonOut tools/smoke_report_t5.json
 
 - `assembleDebug --no-daemon` exit 0，36/36 tasks 成功。
 - APK 12.04MB ≤14MB，PASS。
-- `aapt2 dump badging`：`leanback-launchable-activity=com.tvbox.app.MainActivity`；`uses-feature-not-required`：leanback / touchscreen；`sdkVersion=21`、`targetSdkVersion=34`。
+- `aapt2 dump badging`：`leanback-launchable-activity=com.xingmu.tv.MainActivity`；`uses-feature-not-required`：leanback / touchscreen；`sdkVersion=21`、`targetSdkVersion=34`。
 
 ### 2.2 lint（FAIL）
 
@@ -128,7 +128,7 @@ gradle.bat lintDebug --no-daemon
 | P5 | 滚动掉帧 | 60s 连续滚动 ≤10% | **FAIL（样本）** | 20:18 安装包（11.87MB）首页 80 次 DPAD_DOWN：101 帧 / 83 janky = **82.18%**，90th 57ms、95th 89ms、99th 105ms。20:50 包重复 20 次 DOWN 即退出到系统桌面，未能取得 60s 干净样本；因此这是「明确存在严重掉帧」的失败证据，而非完整 60s 结论 |
 | P6 | APK | ≤14MB | **PASS** | 12.04MB |
 | P7 | lint Fatal | 0 | **PASS（字面）** | 0 Fatal；但 11 Error 使 `lintDebug` 失败（见 §2.2） |
-| P8 | D-pad 焦点 | 连按 50 次无丢失/积压；返回还原 | **FAIL** | 分类页连续 20–80 次 DOWN 后前台从 `com.tvbox.app` 变为 `com.dsh.tvlauncher` / `com.stv.deskplatform`，应用退出；详情页 RIGHT/UP 亦多次退到系统桌面。焦点边界行为阻断自动化与可用性 |
+| P8 | D-pad 焦点 | 连按 50 次无丢失/积压；返回还原 | **FAIL** | 分类页连续 20–80 次 DOWN 后前台从 `com.xingmu.tv` 变为 `com.dsh.tvlauncher` / `com.stv.deskplatform`，应用退出；详情页 RIGHT/UP 亦多次退到系统桌面。焦点边界行为阻断自动化与可用性 |
 | P9 | 其它 A7–A15 | 见 PLAN_ARCHITECTURE §12 | **未验证** | 起播/弱网/图片失败/StrictMode/依赖白名单/图片参数未逐项执行 |
 
 ## 6. 屏幕适配（UI_SPEC §0.5 四档）
@@ -259,7 +259,7 @@ PLAYER_EVT action=play label=20240622 ... t_prepare_ms=1335 t_first_frame_ms=133
 | R2 1280×720 A 模式 / 5 列 | **部分 FAIL**：冻结包 A 模式已生效（不再误判 C），但搜索页实测 **6 列卡片**（应为 5）；720 侧栏底项（播放源/搜索/设置）被裁剪，分类页因源离线空态未能复核列数 | `.artifacts/t13_frozen_720_dpi240_q.png`、`.artifacts/t13_frozen_720_search2.png` |
 | R2 1920×1080 6 列 | **PASS**：冻结包搜索页 6 列、侧栏 10 项可见 | `.artifacts/t13_frozen_1080_search_q.png` |
 | R2 960×540 C + 侧栏不裁剪 | **FAIL**：冻结包 960×540(dpi240) 出现 C 风格红色高亮但侧栏仍裁剪（播放源/搜索/设置不可见）；dpi160 时反而进入 A 模式（C 判定仅看 widthDp<800，未覆盖 540p） | `.artifacts/t13_frozen_540_dpi240.png`、`.artifacts/t13_frozen_540_search.png` |
-| R3 各页 25–30 次 DOWN 不退出 | **部分 PASS**：搜索 30 次、首页 30 次、分类 30 次、源管理 25 次、详情 30 次后均在 `com.tvbox.app`；设置页未取得独立样本 | `.artifacts/t13_r3_search_30down.png`、`t13_r3_home.png`、`t13_r3_category.png`、`t13_r3_sources.png`、`t13_r3_detail_30down.png` |
+| R3 各页 25–30 次 DOWN 不退出 | **部分 PASS**：搜索 30 次、首页 30 次、分类 30 次、源管理 25 次、详情 30 次后均在 `com.xingmu.tv`；设置页未取得独立样本 | `.artifacts/t13_r3_search_30down.png`、`t13_r3_home.png`、`t13_r3_category.png`、`t13_r3_sources.png`、`t13_r3_detail_30down.png` |
 | R4 lintDebug 0 Error | **PASS（21:22 源码）**：`BUILD SUCCESSFUL`，0 Error / 34 Warning（0 Fatal）；冻结件 commit e2d3f48 与 lint 源码是否完全一致未能复核 | `tools/lint_t13_final.log`、`app/build/reports/lint-results-debug.xml` |
 | R5 lldq 只走本地 + 本地命中 N 条 | **PASS（搜索页文案）**：输入 `q` 显示「本地首拼命中 6 条 · 中文关键词走服务端」，不再出现「已加载 0」；lldq 未单独截图 | `.artifacts/t13_frozen_720_dpi240_q.png` |
 | R6 选集长列表选到 index≈300 | **PASS（实测 index=309）**：20×DOWN+2×RIGHT 到 index=183；34×DOWN+2×RIGHT+OK 到 **index=309**，画面切到该集（播放器截图），`action=episode index=309 from=bfzym3u8 source=bfzy1` | `.artifacts/t5_r6_episode3.png`、`tools/t13_r6_episode3.log` |
@@ -274,7 +274,7 @@ PLAYER_EVT action=play label=20240622 ... t_prepare_ms=1335 t_first_frame_ms=133
 | R2 1280×720@240 搜索 | **PASS：5 列**（`--es screen search --es q 爱`，33 结果，5 卡片/行） | `design/mockups/r2_720_search.png` |
 | R2 960×540 | **PASS：C 保命模式，侧栏「推荐…设置/搜索」全部可见不裁剪** | `design/mockups/r2_540_sidebar.png` |
 | R2 1920×1080 | **PASS：6 列**（搜索 25 结果，6 卡片/行） | `design/mockups/r2_1080_6col.png` |
-| R3 首页 30×DOWN / 设置 25×DOWN | **PASS**：`mResumedActivity` 均为 `com.tvbox.app/.MainActivity` | `design/mockups/r3_settings_25down.png` |
+| R3 首页 30×DOWN / 设置 25×DOWN | **PASS**：`mResumedActivity` 均为 `com.xingmu.tv/.MainActivity` | `design/mockups/r3_settings_25down.png` |
 | 深链 detail 169023 → ENTER | **PASS**：《老江湖》详情加载，播放按钮焦点；ENTER 起播，`PLAYER_EVT action=play label=HD`，播放页画面已出 | `design/mockups/dlink_play.png`，`tools/v021_dlink_play.log` |
 | lint | **PASS：0 Error / 34 Warning / 0 Fatal**，`BUILD SUCCESSFUL`，exit 0 | `tools/lint_v021.log`、`app/build/reports/lint-results-debug.xml` |
 | VOD 首帧 | **FAIL(over upper)**：`t_prepare_ms=4711 t_first_frame_ms=4711`，src=804p，host=`v.fengbao14.com`，cached=0；预算 2.0/3.0s，4.711s 超 3.0s 上限 | `tools/v021_dlink_play.log` |
@@ -282,7 +282,7 @@ PLAYER_EVT action=play label=20240622 ... t_prepare_ms=1335 t_first_frame_ms=133
 - 深链日志命中 `TVBox/DetailDeepLink ... name=老江湖`；播放事件 `action=play label=HD url=https://v.fengbao14.com/video/laojianghu/... t_prepare_ms=4711 t_first_frame_ms=4711 src=804p rebuffer=0 host=v.fengbao14.com cached=0`。
 - 本项 VOD 首帧与 §7.1 的旧包 2.941s 不同：v0.2.1 该源 `v.fengbao14.com` 冷取首片耗时 4.711s，属 **prepare/取流慢**，不是解码降级（`degraded` 未出现，src=804p）。
 - 未在本轮重跑：切台 host 分组、换源、切集、10 分钟 PSS/掉帧、AVSYNC；沿用上一轮与 §7.1–7.3 的结论/待测状态。
-- 设备日志未见 `Force stopping com.tvbox.app` 外部抢占；本轮 5 项均可复现。
+- 设备日志未见 `Force stopping com.xingmu.tv` 外部抢占；本轮 5 项均可复现。
 
 ## 8. 风险与未验证清单
 
@@ -313,14 +313,14 @@ D:\tvbuild\gradle-8.7\bin\gradle.bat lintDebug --no-daemon
 
 # 安装与冷启动
 adb install -r app\build\outputs\apk\debug\app-debug.apk
-adb shell am force-stop com.tvbox.app
-adb shell am start -W -n com.tvbox.app/.MainActivity
+adb shell am force-stop com.xingmu.tv
+adb shell am start -W -n com.xingmu.tv/.MainActivity
 
 # 直达页面（QA 用）
-adb shell am start -S -W --activity-clear-task -n com.tvbox.app/.MainActivity --es screen search
-adb shell am start -S -W --activity-clear-task -n com.tvbox.app/.MainActivity --es screen sources
-adb shell am start -S -W --activity-clear-task -n com.tvbox.app/.MainActivity --es screen live
-adb shell am start -S -W --activity-clear-task -n com.tvbox.app/.MainActivity --es screen category --es typeId 20 --es title 电影
+adb shell am start -S -W --activity-clear-task -n com.xingmu.tv/.MainActivity --es screen search
+adb shell am start -S -W --activity-clear-task -n com.xingmu.tv/.MainActivity --es screen sources
+adb shell am start -S -W --activity-clear-task -n com.xingmu.tv/.MainActivity --es screen live
+adb shell am start -S -W --activity-clear-task -n com.xingmu.tv/.MainActivity --es screen category --es typeId 20 --es title 电影
 
 # 屏幕适配
 adb shell wm size 1280x720; adb shell wm density 213
@@ -329,9 +329,9 @@ adb shell wm size 3840x2160; adb shell wm density 640
 adb shell wm size reset;    adb shell wm density reset
 
 # 掉帧/内存
-adb shell dumpsys gfxinfo com.tvbox.app reset
-adb shell dumpsys gfxinfo com.tvbox.app
-adb shell dumpsys meminfo com.tvbox.app
+adb shell dumpsys gfxinfo com.xingmu.tv reset
+adb shell dumpsys gfxinfo com.xingmu.tv
+adb shell dumpsys meminfo com.xingmu.tv
 ```
 
 ## 10. 证据索引

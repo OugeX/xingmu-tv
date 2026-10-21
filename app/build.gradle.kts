@@ -17,15 +17,15 @@ plugins {
  * （android-35 已安装在 D:\tvbuild\android-sdk）。targetSdk 仍为 34。
  */
 android {
-    namespace = "com.tvbox.app"
+    namespace = "com.xingmu.tv"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.tvbox.app"
+        applicationId = "com.xingmu.tv"
         minSdk = 21
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 30
+        versionName = "0.3.0"
 
         // 只保留 zh/en，减小包体；与 docs/PLAN_ARCHITECTURE.md §包体控制一致。
         resourceConfigurations += listOf("zh", "en")

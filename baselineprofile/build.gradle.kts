@@ -15,7 +15,7 @@ plugins {
  * 本地只验证本模块能配置、能编译（assembleBenchmark），不伪造启动数字。
  */
 android {
-    namespace = "com.tvbox.app.baselineprofile"
+    namespace = "com.xingmu.tv.baselineprofile"
     compileSdk = 35
 
     defaultConfig {

@@ -18,8 +18,8 @@
 [CmdletBinding()]
 param(
     [string]$Device = '192.168.1.9:5555',
-    [string]$Package = 'com.tvbox.app',
-    [string]$Activity = 'com.tvbox.app/.MainActivity',
+    [string]$Package = 'com.xingmu.tv',
+    [string]$Activity = 'com.xingmu.tv/.MainActivity',
     [int]$DurationSec = 600,
     [int]$IntervalSec = 60,
     [int]$WarmupSec = 10,

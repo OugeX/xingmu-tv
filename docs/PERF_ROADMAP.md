@@ -79,9 +79,9 @@
 
 ```bash
 # 启动
-adb shell am force-stop com.tvbox.app && adb shell am start -W -n com.tvbox.app/.MainActivity
+adb shell am force-stop com.xingmu.tv && adb shell am start -W -n com.xingmu.tv/.MainActivity
 # 详情冷开
-adb logcat -c && adb shell am start -n com.tvbox.app/.MainActivity --es screen detail --es vodId 169023 --es sourceId bfzy1
+adb logcat -c && adb shell am start -n com.xingmu.tv/.MainActivity --es screen detail --es vodId 169023 --es sourceId bfzy1
 adb logcat -d | grep DetailPerf
 # 切台
 pwsh tools/measure_player.ps1 -Zaps 20

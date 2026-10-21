@@ -1,6 +1,6 @@
 {
  "device": "192.168.1.9:5555",
- "package": "com.tvbox.app",
+ "package": "com.xingmu.tv",
  "started_at": "2026-10-21T21:02:06+08:00",
  "duration_sec": 600,
  "interval_sec": 60,

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 窗口底色与 docs/UI_SPEC.md §1.1 的 bg (#0A0A0C) 一致；
-         业务组件禁止写死颜色，统一走 com.tvbox.app.ui.TvTheme。 -->
+         业务组件禁止写死颜色，统一走 com.xingmu.tv.ui.TvTheme。 -->
     <style name="Theme.TvBox" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowBackground">#0A0A0C</item>
         <item name="android:colorBackground">#0A0A0C</item>

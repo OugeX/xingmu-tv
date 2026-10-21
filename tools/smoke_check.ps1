@@ -226,12 +226,12 @@ if ($badgingOk) {
     foreach ($line in $badgingLines) {
         if ($line -match "^package:\s*name='([^']+)'") { $pkg = $Matches[1]; break }
     }
-    if ($pkg -eq 'com.tvbox.app') {
-        Add-Check 'C04' 'applicationId = com.tvbox.app' 'PASS' $false $pkg
+    if ($pkg -eq 'com.xingmu.tv') {
+        Add-Check 'C04' 'applicationId = com.xingmu.tv' 'PASS' $false $pkg
     } elseif ([string]::IsNullOrWhiteSpace($pkg)) {
-        Add-Check 'C04' 'applicationId = com.tvbox.app' 'WARN' $false 'badging 未解析到 package 行'
+        Add-Check 'C04' 'applicationId = com.xingmu.tv' 'WARN' $false 'badging 未解析到 package 行'
     } else {
-        Add-Check 'C04' 'applicationId = com.tvbox.app' 'WARN' $false "实际为 $pkg"
+        Add-Check 'C04' 'applicationId = com.xingmu.tv' 'WARN' $false "实际为 $pkg"
     }
 }
 

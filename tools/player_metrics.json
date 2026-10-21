@@ -1,7 +1,7 @@
 {
   "generated_at": "2026-10-21T22:46:51+08:00",
   "device": "192.168.1.9:5555",
-  "package": "com.tvbox.app",
+  "package": "com.xingmu.tv",
   "instrumentation_present": true,
   "event_count": 39,
   "live_event_count": 39,

@@ -10,7 +10,7 @@
 | 屏幕 | 1920×1080，density 240dpi → **widthDp = 1280** |
 | 内存 | MemTotal 2.87GB（非 1GB 盒子），dalvik heap 512m |
 | SoC 平台 | `maserati`（MStar 6A938 系列，支持 4K/HEVC 硬解） |
-| APK 安装 | `am start com.tvbox.app/.MainActivity` 成功，Compose 首页正常渲染 |
+| APK 安装 | `am start com.xingmu.tv/.MainActivity` 成功，Compose 首页正常渲染 |
 
 ## 对实现的直接影响
 
@@ -27,10 +27,10 @@
    ```
    adb connect 192.168.1.9:5555
    adb install -r app/build/outputs/apk/debug/app-debug.apk
-   adb shell am start -n com.tvbox.app/.MainActivity
+   adb shell am start -n com.xingmu.tv/.MainActivity
    adb exec-out screencap -p > shot.png
-   adb shell dumpsys meminfo com.tvbox.app      # PSS
-   adb shell am start -n com.tvbox.app/.MainActivity && adb shell dumpsys gfxinfo com.tvbox.app
+   adb shell dumpsys meminfo com.xingmu.tv      # PSS
+   adb shell am start -n com.xingmu.tv/.MainActivity && adb shell dumpsys gfxinfo com.xingmu.tv
    ```
 6. **过扫描**：该机型实测四边无裁切（EUI 默认无 overscan），overscan 设置默认 0%，仍保留三档可调。
 7. **摇控器**：该机为蓝牙语音遥控器，`KEYCODE_CHANNEL_UP/DOWN`、`KEYCODE_MENU`、数字键均可用；语音键走系统搜索 Intent（对应 SEARCH_SPEC P0 层，需实测系统是否响应 `RecognizerIntent`）。

@@ -29,8 +29,8 @@
 [CmdletBinding()]
 param(
     [string]$Device = '192.168.1.9:5555',
-    [string]$Package = 'com.tvbox.app',
-    [string]$Activity = 'com.tvbox.app/.MainActivity',
+    [string]$Package = 'com.xingmu.tv',
+    [string]$Activity = 'com.xingmu.tv/.MainActivity',
     [int]$Zaps = 10,
     [int]$Episodes = 5,
     [string]$VodId = '89664',

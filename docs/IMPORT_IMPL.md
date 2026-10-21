@@ -51,8 +51,8 @@ python tools/validate_sources.py --selftest                    # ✓ 旧 9/9 + �
 Kotlin 侧等价自检（不依赖 JUnit，已在真机 LeTV/X4-50（Android 6.0/API23）跑过）：
 ```
 adb push app-debug.apk /data/local/tmp/tvbox-check.apk
-adb shell CLASSPATH=/data/local/tmp/tvbox-check.apk app_process /system/bin com.tvbox.app.import.ImportSelfCheck /data/local/tmp/sources.builtin.json
-adb shell CLASSPATH=/data/local/tmp/tvbox-check.apk app_process /system/bin com.tvbox.app.import.LanImportSelfCheck 18088
+adb shell CLASSPATH=/data/local/tmp/tvbox-check.apk app_process /system/bin com.xingmu.tv.import.ImportSelfCheck /data/local/tmp/sources.builtin.json
+adb shell CLASSPATH=/data/local/tmp/tvbox-check.apk app_process /system/bin com.xingmu.tv.import.LanImportSelfCheck 18088
 ```
 `ImportSelfCheck`（55 项）：17 个负例 + 3 个正例 + 指纹/域名规则/补全/m3u/剧集解析/真实 builtin 文件（7 源 0 拒绝）。
 `LanImportSelfCheck`（21 项，真开 ServerSocket 发 HTTP）：H5/token 页、错误 token 410、配对码 403/成功、multipart 与 JSON 导入、token 单次有效、成功后自动关闭、413/415、close 后拒连；`lan` 参数用真实局域网 IP 绑定。
@@ -66,10 +66,10 @@ adb shell CLASSPATH=/data/local/tmp/tvbox-check.apk app_process /system/bin com.
 
 ```kotlin
 // App.onCreate()
-com.tvbox.app.source.SourceGraph.install(this)   // 覆盖 AppServices 默认源仓库
+com.xingmu.tv.source.SourceGraph.install(this)   // 覆盖 AppServices 默认源仓库
 
 // 导入页 onStart/onDispose
-val svc = com.tvbox.app.import.ImportService.get(context)
+val svc = com.xingmu.tv.import.ImportService.get(context)
 svc.startLanImport()   // LanImportState(qrBitmap/serviceUrl/pairingCode/expiresAt)
 svc.stopLanImport()    // 必须调用：关闭 8088
 // U 盘：svc.scanUsb() → svc.importUsbFile(file)
@@ -84,10 +84,10 @@ svc.stopLanImport()    // 必须调用：关闭 8088
 - `ui/source/ImportPanel.kt`：
   - **二维码**：`ImportService.startLanImport()` → 二维码 Bitmap + `http://<lan-ip>:<port>` + 6 位配对码 + `mm:ss` 倒计时；`lastReport` 成功后 `onImported()` 刷新列表并显示「已导入 N 个源（M 个频道）」。
   - **配对码**：大字显示 + 6 位输入核对（`verifyPairingCode`，错误码 `E_PAIR`/`E_PAIR_EXPIRED`）+ 手机配对状态（`isLanPaired`）。
-  - **本地文件**：优先 `ACTION_OPEN_DOCUMENT`（API 19+，多候选 Intent 逐个尝试）；实测 LeTV X4-50 只有不带 `CATEGORY_OPENABLE` 的 `com.stv.filemanager`，带 OPENABLE 会抛 `ActivityNotFoundException`，所以 `SafImport.resolveLaunchableIntents()` 依次尝试 OPEN_DOCUMENT(±OPENABLE)/GET_CONTENT，失败再回退到 `LocalFileScanner`（App 外部目录 `Android/data/com.tvbox.app/files/import/` 与下载目录，无需存储权限）。
+  - **本地文件**：优先 `ACTION_OPEN_DOCUMENT`（API 19+，多候选 Intent 逐个尝试）；实测 LeTV X4-50 只有不带 `CATEGORY_OPENABLE` 的 `com.stv.filemanager`，带 OPENABLE 会抛 `ActivityNotFoundException`，所以 `SafImport.resolveLaunchableIntents()` 依次尝试 OPEN_DOCUMENT(±OPENABLE)/GET_CONTENT，失败再回退到 `LocalFileScanner`（App 外部目录 `Android/data/com.xingmu.tv/files/import/` 与下载目录，无需存储权限）。
   - **U 盘**：`scanUsb()` → 「发现 N 个源文件，导入？」→ 单个/全部导入。
   - **键盘**：`ImportInputSpec` 分组键盘（数字/字母/符号）+ 候选 + 历史一键填入；聚焦输入框时外接键盘/ADB 可直接打字（`utf16CodePoint`），ENTER 提交。
 - 生命周期：进入面板启服务；离开 `DisposableEffect` 关服务；App 退到后台 `ON_STOP` 也立即关（`LanServiceLifecycleEffect`），回前台重新生成 token。
-- 调试/截图入口（QA 用）：`am start -n com.tvbox.app/.MainActivity --es screen sources --es importPanel qr|pair|file|usb|keyboard`。
+- 调试/截图入口（QA 用）：`am start -n com.xingmu.tv/.MainActivity --es screen sources --es importPanel qr|pair|file|usb|keyboard`。
 - 真机验收截图：`design/mockups/import_qr.png`（二维码）、`import_qr_result.png`（手机导入成功）、`import_qr_list.png`/`import_list_final.png`（列表刷新）、`import_pair.png`（配对码）、`import_keyboard.png`（键盘导入成功）、`import_file.png`/`import_file_list.png`（本地文件）、`import_usb.png`（无 U 盘实物时的空态）、`import_sources_clean.png`（清理后 7 内置源）。
 
