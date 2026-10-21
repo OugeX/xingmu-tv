@@ -10,6 +10,7 @@ import com.tvbox.app.data.Channel
 import com.tvbox.app.data.LiveSeed
 import com.tvbox.app.data.OverseasMap
 import com.tvbox.app.data.SourceConfig
+import com.tvbox.app.data.SourceAdminDataSource
 import com.tvbox.app.data.SourceKind
 import com.tvbox.app.data.VodDetail
 import com.tvbox.app.data.VodSummary
@@ -31,7 +32,7 @@ import java.util.Locale
  * 注册方式：App 启动时调用 `SourceGraph.install(context)`，即可覆盖
  * `data/AppServices` 的默认 LocalSourceRepository（一行接线，见 docs/IMPORT_IMPL.md）。
  */
-class SourceRepositoryImpl(context: Context) : SourceRepository {
+class SourceRepositoryImpl(context: Context) : SourceRepository, SourceAdminDataSource {
 
     private val appContext = context.applicationContext
     private val store = SourceStore(appContext)
@@ -57,8 +58,8 @@ class SourceRepositoryImpl(context: Context) : SourceRepository {
         Result.Ok(allStored().filter { it.enabled }.map { it.toSourceConfig() })
     }
 
-    /** 源管理页用：包含停用的源（按 priority 升序）。不在冻结接口里，供 UI 直接调用实现类。 */
-    suspend fun listAllSources(): Result<List<SourceConfig>> = withContext(AppDispatchers.Io) {
+    /** 源管理页用：包含停用的源（按 priority 升序）。 */
+    override suspend fun listAllSources(): Result<List<SourceConfig>> = withContext(AppDispatchers.Io) {
         ensureSeeded()
         Result.Ok(allStored().map { it.toSourceConfig() })
     }

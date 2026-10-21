@@ -80,6 +80,13 @@ class LiveController(
     private var epgIndex: EpgIndex = EpgIndex.EMPTY
     private var lastEpgFetchAt = 0L
 
+    // 安全模式（live_safe.json）：只在 API≤23 / MStar 老平台且未强制高清时生效
+    private var allChannels: List<LiveChannel> = emptyList()
+    private var baseGroups: List<LiveGroup> = emptyList()
+    private var safeMode = false
+    private var showAllChannels = false
+    private var safeDataLoaded = false
+
     /** 「4K 优先」设置：默认关；仅设备通过 MediaCodec 4K 探测时生效 */
     private var prefer4K = false
 
@@ -139,20 +146,31 @@ class LiveController(
         scope.launch {
             _state.update { it.copy(loading = true) }
             val snapshot = seedRepository.load()
-            val (groups, grouped) = buildGroups(snapshot.groups, snapshot.channels)
             prefer4K = prefs.getBoolean(KEY_PREFER_4K, false) && deviceSupports4K
             force1080 = prefs.getBoolean(KEY_FORCE_1080, false)
+            allChannels = snapshot.channels
+            baseGroups = snapshot.groups
+            safeDataLoaded = snapshot.channels.any { it.safe != null }
+            safeMode = safeDataLoaded && legacyMstarDevice && !force1080
+            showAllChannels = prefs.getBoolean(KEY_SHOW_ALL_CHANNELS, false)
+            val visible = visibleChannels(allChannels)
+            val (groups, grouped) = buildGroups(snapshot.groups, visible)
+            val hidden = (allChannels.size - visible.size).coerceAtLeast(0)
             _state.update {
                 it.copy(
                     loading = false,
                     seedAvailable = snapshot.channels.isNotEmpty(),
                     seedSource = snapshot.source,
                     groups = groups,
-                    channels = snapshot.channels,
+                    channels = visible,
                     groupedChannels = grouped,
                     prefer4K = prefer4K,
                     force1080 = force1080,
                     deviceSupports4K = deviceSupports4K,
+                    safeMode = safeMode,
+                    showAllChannels = showAllChannels,
+                    hiddenUnsafeCount = hidden,
+                    safeFilterHint = safeFilterHint(hidden),
                     message = snapshot.note,
                     error = if (snapshot.channels.isEmpty()) {
                         snapshot.note ?: "暂无频道数据"
@@ -165,9 +183,14 @@ class LiveController(
                 TvLog.w(TAG, "no channels available: ${snapshot.note}")
                 return@launch
             }
+            TvLog.i(
+                TAG,
+                "safeMode=$safeMode showAll=$showAllChannels visible=${visible.size}/${allChannels.size} " +
+                    "hidden=$hidden safeData=$safeDataLoaded",
+            )
             // 设备不支持 4K / 未开启 4K 优先时，把播放器轨道上限压到 1080p
             applyQualityCap()
-            prewarmDns(snapshot.channels)
+            prewarmDns(visible)
 
             epgUrls = epgUrlsProvider()
                 .map { it.trim() }
@@ -188,11 +211,10 @@ class LiveController(
             }
 
             val lastId = prefs.getString(KEY_LAST_CHANNEL, null)
-            val target = snapshot.channels.firstOrNull { it.id == lastId }
-                ?: snapshot.channels
-                    .filter { it.hdZone && it.bestHeight >= 1080 }
-                    .maxByOrNull { it.bestHeight }
-                ?: snapshot.channels.firstOrNull()
+            val target = visible.firstOrNull { it.id == lastId }
+                ?: visible.filter { it.hdZone && it.hasSafeSource }.maxByOrNull { it.safeHeight }
+                ?: visible.filter { it.hasSafeSource }.maxByOrNull { it.safeHeight }
+                ?: visible.firstOrNull()
             if (target != null) playChannel(target, resetHops = true)
         }
     }
@@ -335,7 +357,12 @@ class LiveController(
         playChannel(target, resetHops = true)
     }
 
-    private fun playChannel(channel: LiveChannel, resetHops: Boolean) {
+    private fun playChannel(channel: LiveChannel, resetHops: Boolean, bypassUnsafeConfirm: Boolean = false) {
+        // 安全模式 + 用户打开了「显示全部」：仅 1080p 频道先弹一次确认
+        if (safeMode && channel.safe == false && !bypassUnsafeConfirm) {
+            _state.update { it.copy(pendingUnsafe = channel, switching = false) }
+            return
+        }
         if (resetHops) {
             hopCount = 0
             failedChannelIds.clear()
@@ -461,17 +488,21 @@ class LiveController(
     private fun candidates(channel: LiveChannel): List<LiveLine> {
         val caps = DeviceCapabilities.caps
         val cap = safetyCap()
-        val playable = channel.rankedLines.filter { line ->
+        // 安全模式优先用 live_safe.json 里那条（720>576>480），不再拿 1080p 硬试
+        val safeLine = if (safeMode) channel.safeLine else null
+        val rest = channel.rankedLines.filter { line ->
             if (!line.autoPlayable) return@filter false
+            if (safeLine != null && line.url == safeLine.url) return@filter false
             if (line.displayHeight < 2000) return@filter true
             prefer4K && caps.supportsLine(line.measuredCodec, line.displayHeight)
         }
-        val withinCap = playable.filter { it.displayHeight <= cap || it.displayHeight <= 0 }
-        val capped = if (withinCap.isNotEmpty()) withinCap else playable
+        val withinCap = rest.filter { it.displayHeight <= cap || it.displayHeight <= 0 }
+        val capped = if (withinCap.isNotEmpty()) withinCap else rest
+        val ordered = if (safeLine != null) listOf(safeLine) + capped else capped
         val current = now()
-        val ready = capped.filter { (lineCooldownUntil[it.url] ?: 0L) <= current }
+        val ready = ordered.filter { (lineCooldownUntil[it.url] ?: 0L) <= current }
         // 全部在冷却时仍允许尝试，避免整台不可用（冷却只用于排序降权）
-        return if (ready.isNotEmpty()) ready else capped
+        return if (ready.isNotEmpty()) ready else ordered
     }
 
     /** 当前设备安全档位：MStar 老平台默认 720p（1080p 黑屏），可强制 1080p。 */
@@ -521,14 +552,25 @@ class LiveController(
         // 全局播放器硬上限（点播/短视频也复用同一个 PlayerControllerImpl）
         (player as? com.tvbox.app.player.PlayerControllerImpl)?.setAllowHighQuality(enabled)
         applyQualityCap()
+        // 安全模式随之开关：强制 1080 时不再过滤频道
+        safeMode = safeDataLoaded && legacyMstarDevice && !enabled
+        val visible = visibleChannels(allChannels)
+        val (groups, grouped) = buildGroups(baseGroups, visible)
+        val hidden = (allChannels.size - visible.size).coerceAtLeast(0)
         _state.update {
             it.copy(
                 force1080 = enabled,
+                safeMode = safeMode,
+                channels = visible,
+                groups = groups,
+                groupedChannels = grouped,
+                hiddenUnsafeCount = hidden,
+                safeFilterHint = safeFilterHint(hidden),
                 message = if (enabled) "已强制 1080p/4K（本机可能黑屏，仅调试用）" else "已回到 720p 安全模式",
             )
         }
         _state.value.current?.let { playChannel(it, resetHops = true) }
-        TvLog.i(TAG, "force1080=$enabled")
+        TvLog.i(TAG, "force1080=$enabled safeMode=$safeMode")
     }
 
     /** 设置项「4K 优先」：默认关；打开后仅对支持设备生效，并立刻按新顺序重选当前频道。 */
@@ -576,6 +618,68 @@ class LiveController(
             groups += group.copy(channelCount = grouped[group.name]?.size ?: 0)
         }
         return groups to grouped
+    }
+
+    // ------------------------------------------------------------------
+    // 安全模式（live_safe.json）
+    // ------------------------------------------------------------------
+
+    private fun visibleChannels(full: List<LiveChannel>): List<LiveChannel> =
+        if (safeMode && !showAllChannels) full.filter { it.safe != false } else full
+
+    private fun safeFilterHint(hidden: Int): String? =
+        if (safeMode && !showAllChannels && hidden > 0) {
+            "本机已过滤 $hidden 个仅 1080p 的频道 · 按 MENU 查看全部"
+        } else {
+            null
+        }
+
+    /** 设置/ MENU：切换“仅安全频道 / 显示全部（可能黑屏）”。 */
+    fun setShowAllChannels(enabled: Boolean) {
+        if (!safeMode) return
+        showAllChannels = enabled
+        prefs.edit().putBoolean(KEY_SHOW_ALL_CHANNELS, enabled).apply()
+        val visible = visibleChannels(allChannels)
+        val (groups, grouped) = buildGroups(baseGroups, visible)
+        val hidden = (allChannels.size - visible.size).coerceAtLeast(0)
+        _state.update {
+            it.copy(
+                channels = visible,
+                groups = groups,
+                groupedChannels = grouped,
+                showAllChannels = enabled,
+                hiddenUnsafeCount = hidden,
+                safeFilterHint = safeFilterHint(hidden),
+                message = if (enabled) "已显示全部频道（1080p 可能黑屏）" else "已隐藏仅 1080p 频道",
+            )
+        }
+        // 关闭显示全部时，若正在播 unsafe 频道，切回第一个安全频道
+        if (!enabled) {
+            val current = _state.value.current
+            if (current != null && current.safe == false) {
+                visible.firstOrNull { it.hasSafeSource }?.let { playChannel(it, resetHops = true) }
+            }
+        }
+    }
+
+    fun confirmUnsafePlay() {
+        val channel = _state.value.pendingUnsafe ?: return
+        _state.update { it.copy(pendingUnsafe = null) }
+        playChannel(channel, resetHops = true, bypassUnsafeConfirm = true)
+    }
+
+    fun cancelUnsafePlay() {
+        _state.update { it.copy(pendingUnsafe = null) }
+    }
+
+    private fun seedGroups(): List<LiveGroup> {
+        val byId = LinkedHashMap<String, LiveGroup>()
+        allChannels.forEach { channel ->
+            byId.getOrPut(channel.groupId) {
+                LiveGroup(channel.groupId, channel.groupName, channel.order)
+            }
+        }
+        return byId.values.sortedBy { it.order }
     }
 
     // ------------------------------------------------------------------
@@ -894,6 +998,9 @@ class LiveController(
                 true
             }
             LiveKeys.MENU -> {
+                if (safeMode && !showAllChannels) {
+                    setShowAllChannels(true)
+                }
                 toggleOverlay(LiveOverlay.CHANNEL_GRID)
                 true
             }
@@ -1005,5 +1112,6 @@ class LiveController(
         const val KEY_LAST_CHANNEL = "last_channel_id"
         const val KEY_PREFER_4K = "prefer_4k"
         const val KEY_FORCE_1080 = "force_1080"
+        const val KEY_SHOW_ALL_CHANNELS = "show_all_channels"
     }
 }

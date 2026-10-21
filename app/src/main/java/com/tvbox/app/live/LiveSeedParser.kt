@@ -52,6 +52,7 @@ class LiveSeedRepository(
             } else {
                 val base = parse(text, source)
                 val hdKeys = readHdKeys()
+                val safeMap = readSafeMap()
                 if (base.channels.isEmpty()) {
                     base
                 } else {
@@ -61,7 +62,18 @@ class LiveSeedRepository(
                         } else {
                             channel.bestHeight >= 1080 // live_hd.json 缺失时按实测高度兜底
                         }
-                        if (inHd) channel.copy(hdZone = true) else channel
+                        val safe = safeMap[channel.id] ?: safeMap[channelKey(channel.name, channel.groupName)]
+                        channel.copy(
+                            hdZone = inHd,
+                            safe = safe?.safe,
+                            safeUrl = safe?.url,
+                            safeHeight = safe?.height ?: 0,
+                            safeWidth = safe?.width ?: 0,
+                            safeCodec = safe?.codec,
+                            safeFps = safe?.fps ?: 0f,
+                            safeTier = safe?.tier,
+                            nullReason = safe?.reason,
+                        )
                     }
                     base.copy(channels = marked)
                 }
@@ -69,6 +81,48 @@ class LiveSeedRepository(
             cached = snapshot
             snapshot
         }
+    }
+
+    private data class SafeInfo(
+        val safe: Boolean,
+        val url: String?,
+        val height: Int,
+        val width: Int,
+        val codec: String?,
+        val fps: Float,
+        val tier: String?,
+        val reason: String?,
+    )
+
+    /** live_safe.json：本机 ≤720p 可用源（缺失时不做安全模式过滤）。 */
+    private fun readSafeMap(): Map<String, SafeInfo> = try {
+        val text = context.assets.open("live_safe.json").bufferedReader(Charsets.UTF_8).use { it.readText() }
+        val root = JSONObject(text)
+        val array = root.optJSONArray("channels") ?: JSONArray()
+        val map = HashMap<String, SafeInfo>(array.length() * 2)
+        for (i in 0 until array.length()) {
+            val obj = array.optJSONObject(i) ?: continue
+            val id = obj.optString("id", "").trim()
+            val name = obj.optString("name", "").trim()
+            if (id.isEmpty() && name.isEmpty()) continue
+            val info = SafeInfo(
+                safe = obj.optBoolean("safe", false),
+                url = pick(obj, "url"),
+                height = obj.optInt("measured_height", 0),
+                width = obj.optInt("measured_width", 0),
+                codec = pick(obj, "codec", "measured_codec"),
+                fps = obj.optDouble("fps", 0.0).toFloat(),
+                tier = pick(obj, "tier"),
+                reason = pick(obj, "reason", "null_reason"),
+            )
+            if (id.isNotEmpty()) map[id] = info
+            if (name.isNotEmpty()) map[channelKey(name, obj.optString("group", "").trim())] = info
+        }
+        TvLog.i(TAG, "live_safe.json loaded: ${map.size} entries")
+        map
+    } catch (t: Throwable) {
+        TvLog.w(TAG, "live_safe.json unavailable: ${t.message}")
+        emptyMap()
     }
 
     private fun readHdKeys(): Set<String> = try {

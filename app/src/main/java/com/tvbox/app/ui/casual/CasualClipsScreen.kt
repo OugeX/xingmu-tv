@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.tvbox.app.ui.ContentGate
 import com.tvbox.app.core.AppError
 import com.tvbox.app.core.Result
 import com.tvbox.app.data.casual.CasualRepository
@@ -105,7 +106,7 @@ fun CasualClipsScreen(
     }
 
     fun loadMore() {
-        if (loading || loadingMore || !hasMore) return
+        if (loading || loadingMore || !hasMore || ContentGate.zapping) return
         loadingMore = true
         scope.launch {
             when (val result = repo.clips(tab, page + 1)) {

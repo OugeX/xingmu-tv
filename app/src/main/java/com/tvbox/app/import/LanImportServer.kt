@@ -103,6 +103,13 @@ class LanImportServer(
     @Volatile
     private var stopped = false
 
+    /** 手机端已用配对码成功配对的时刻（TV 端配对码页显示“手机已配对”）。 */
+    @Volatile
+    var pairedAt: Long? = null
+        private set
+
+    fun isPaired(): Boolean = pairedAt != null
+
     private val used = AtomicBoolean(false)
     private val importing = AtomicBoolean(false)
     private val requestCount = AtomicInteger(0)
@@ -289,6 +296,7 @@ class LanImportServer(
             respondJson(output, 403, errorBody("E_PAIR", "配对码不正确，请核对电视上显示的 6 位数字"))
             return
         }
+        pairedAt = System.currentTimeMillis()
         respondJson(
             output,
             200,

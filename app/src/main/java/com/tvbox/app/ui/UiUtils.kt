@@ -25,17 +25,17 @@ fun baseScaleFor(widthDp: Int): Float = (widthDp / 960f).coerceIn(0.85f, 1.15f)
 
 @Composable
 @ReadOnlyComposable
-fun tvGridColumns(): Int = gridColumnsFor(
-    widthDp = LocalConfiguration.current.screenWidthDp,
-    mode = LocalTvMode.current,
-    tier = LocalTvTier.current,
-)
-
-fun gridColumnsFor(widthDp: Int, mode: TvMode, tier: FontTier): Int {
+fun tvGridColumns(): Int {
+    val config = LocalConfiguration.current
+    val density = LocalDensity.current.density
+    val tier = LocalTvTier.current
     if (tier.isLarge) return tier.columns
-    return if (mode == TvMode.LITE) 2 else when {
-        widthDp < 800 -> 4
-        widthDp < 1200 -> 5
+    if (shouldForceLiteMode()) return 2
+    // 4K：layout 仍按 1080p（6 列），仅图片尺寸按 density 提升
+    if (config.screenWidthDp * density >= 3840f && density >= 2f) return 6
+    return when {
+        config.screenWidthDp < 800 -> 4
+        config.screenWidthDp < 1200 -> 5
         else -> 6
     }
 }
@@ -44,9 +44,13 @@ fun gridColumnsFor(widthDp: Int, mode: TvMode, tier: FontTier): Int {
 @ReadOnlyComposable
 fun tvHeroHeight(): Dp = (LocalConfiguration.current.screenHeightDp * 0.59f).coerceIn(240f, 640f).dp
 
-/** 过度扫描安全区（默认左右 48dp / 上下 27dp，可在设置里调，见 UI_SPEC §0.5）。 */
-val OverscanHorizontal: Dp = 48.dp
-val OverscanVertical: Dp = 27.dp
+/** 过度扫描安全区：默认 16/9dp，设置页可在 0%/2.5%/5% 三档调整。 */
+val OverscanHorizontal: Dp = 16.dp
+val OverscanVertical: Dp = 9.dp
+
+data class Overscan(val horizontal: Dp, val vertical: Dp)
+
+val LocalOverscan = androidx.compose.runtime.staticCompositionLocalOf { Overscan(OverscanHorizontal, OverscanVertical) }
 
 @Composable
 fun tvDimens(): TvDimens {
@@ -78,11 +82,22 @@ fun tvDimens(): TvDimens {
 @ReadOnlyComposable
 fun tvWidthDp(): Int = LocalConfiguration.current.screenWidthDp
 
+/**
+ * C 保命模式判定（UI_SPEC §0.5 + t18 R2）：
+ * - 只有“真 540p/更小”（widthDp < 800）或低内存设备才强制 C；
+ * - 1280×720（widthDp≈853 / heightDp=480）必须是 A 模式 + 5 列，不再用 heightDp<600 误判；
+ * - 显存档位不足（memoryClass ≤128MB）同样降级。
+ */
 @Composable
 @ReadOnlyComposable
 fun shouldForceLiteMode(): Boolean {
     val config = LocalConfiguration.current
-    return config.smallestScreenWidthDp < 600 || config.screenHeightDp < 600
+    if (config.screenWidthDp < 800) return true
+    val context = androidx.compose.ui.platform.LocalContext.current
+    return runCatching {
+        val am = context.getSystemService(android.content.Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+        am.isLowRamDevice || am.memoryClass <= 128
+    }.getOrDefault(false)
 }
 
 /** 根据屏宽算一屏海报卡片的宽度（6 列时约 150dp）。 */

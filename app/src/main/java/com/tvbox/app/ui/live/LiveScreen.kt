@@ -38,7 +38,6 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.tvbox.app.core.TvLog
 import com.tvbox.app.live.LiveChannel
 import com.tvbox.app.live.LiveController
 import com.tvbox.app.live.LiveHealth
@@ -49,6 +48,7 @@ import com.tvbox.app.search.PinyinIndex
 import com.tvbox.app.source.SourceRepository
 import com.tvbox.app.ui.LocalTvColors
 import com.tvbox.app.ui.LocalTvDimens
+import com.tvbox.app.ui.settings.SettingsStore
 import com.tvbox.app.ui.components.TvFocusable
 import com.tvbox.app.ui.components.TvLabel
 import kotlinx.coroutines.delay
@@ -68,6 +68,7 @@ fun LiveScreen(
     val dimens = LocalTvDimens.current
 
     val player = remember { PlayerBootstrap.createAndRegister(context) }
+    val appSettings = remember { SettingsStore(context).read() }
     val live = remember(player) { LiveController(context.applicationContext, player) }
     val state by live.state.collectAsState()
 
@@ -81,6 +82,12 @@ fun LiveScreen(
         runCatching { rootFocus.requestFocus() }
     }
 
+    LaunchedEffect(Unit) {
+        live.setPrefer4K(appSettings.prefer4K)
+        player.setQuality(appSettings.qualityCap)
+        player.setAudioDelayMs(appSettings.audioDelayMs)
+    }
+
     DisposableEffect(player) {
         live.start()
         onDispose {
@@ -89,12 +96,15 @@ fun LiveScreen(
         }
     }
 
-    // 自动起播：进入直播页直接播第一个有线路的频道
-    LaunchedEffect(state.channels) {
-        if (state.current == null && state.channels.isNotEmpty()) {
-            val first = state.channels.firstOrNull { it.lines.isNotEmpty() } ?: state.channels.first()
-            TvLog.i("LiveScreen", "自动起播 ${first.name}")
-            live.switchTo(first.id)
+    // 起播策略交给 LiveController（上次频道 → 高清专区首个 ≥1080p）；这里只同步带宽门控
+    LaunchedEffect(state.switching) {
+        if (state.switching) {
+            com.tvbox.app.live.BandwidthGate.zapping = true
+            com.tvbox.app.ui.ContentGate.update(true)
+        } else {
+            kotlinx.coroutines.delay(500)
+            com.tvbox.app.live.BandwidthGate.zapping = false
+            com.tvbox.app.ui.ContentGate.update(false)
         }
     }
 

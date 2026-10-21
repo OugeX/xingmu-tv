@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -88,6 +89,13 @@ fun LiveChannelOverlay(
                 style = TextStyle(color = Color(0xFFFFC107), fontSize = 20.sp, fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             )
+            state.safeFilterHint?.let { hint ->
+                BasicText(
+                    text = hint,
+                    style = TextStyle(color = Color(0xFFFFC107), fontSize = 13.sp),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                )
+            }
             LazyColumn(state = listState, modifier = Modifier.weight(1f)) {
                 items(rows.size) { index ->
                     when (val row = rows[index]) {
@@ -186,6 +194,7 @@ private fun OverlayChannelRow(
         text = buildString {
             append(channel.numberText).append("  ").append(channel.name)
             if (channel.hdZone) append("  HD")
+            if (channel.safe == false) append("  可能黑屏")
             if (channel.health.unstable) append("  · ").append(channel.health.label)
             append("  ").append(channel.bestLabel)
             channel.bestLine?.let { line ->
@@ -308,9 +317,60 @@ fun ChannelInfoCard(
     }
 }
 
+/** showAll 下选中仅 1080p 频道的确认框（t4 在 LiveScreen 根部按 state.pendingUnsafe 渲染）。 */
 @Composable
-private fun InfoLine(label: String, value: String) {
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
+fun UnsafeChannelConfirmDialog(
+    channel: LiveChannel?,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit,
+) {
+    if (channel == null) return
+    Box(
+        modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.55f)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color(0xFF202020))
+                .padding(28.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            BasicText(
+                text = channel.name,
+                style = TextStyle(color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold),
+            )
+            Spacer(Modifier.height(8.dp))
+            BasicText(
+                text = "该频道本机可能无法显示（仅 1080p 源），仍要尝试？",
+                style = TextStyle(color = Color(0xFFFFC107), fontSize = 16.sp),
+            )
+            Spacer(Modifier.height(18.dp))
+            Row {
+                HudButton("仍要尝试") { onConfirm() }
+                Spacer(Modifier.width(12.dp))
+                HudButton("取消") { onCancel() }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HudButton(text: String, onClick: () -> Unit) {
+    BasicText(
+        text = text,
+        style = TextStyle(color = Color.White, fontSize = 18.sp),
+        modifier = Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(Color.White.copy(alpha = 0.14f))
+            .focusable()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 18.dp, vertical = 9.dp),
+    )
+}
+
+@Composable
+private fun InfoLine(label: String, value: String) {    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
         BasicText(
             text = label,
             style = TextStyle(color = Color.White.copy(alpha = 0.55f), fontSize = 14.sp),

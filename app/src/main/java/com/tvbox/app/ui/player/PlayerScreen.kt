@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -34,12 +35,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tvbox.app.core.Result
+import com.tvbox.app.core.TvLog
 import com.tvbox.app.data.MediaUrl
 import com.tvbox.app.data.VodDetail
 import com.tvbox.app.data.VodSummary
@@ -52,11 +59,15 @@ import com.tvbox.app.player.VideoSurface
 import com.tvbox.app.source.SourceRepository
 import com.tvbox.app.ui.LocalTvColors
 import com.tvbox.app.ui.LocalTvDimens
+import com.tvbox.app.ui.settings.SettingsStore
 import com.tvbox.app.ui.LocalTvTier
 import com.tvbox.app.ui.components.TvButton
 import com.tvbox.app.ui.components.TvEmptyState
 import com.tvbox.app.ui.components.TvLabel
 import com.tvbox.app.ui.components.TvLoading
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -86,6 +97,7 @@ fun PlayerScreen(
     val dimens = LocalTvDimens.current
     val scope = rememberCoroutineScope()
     val controller: PlayerControllerImpl = remember { PlayerBootstrap.createAndRegister(context) }
+    val appSettings = remember { SettingsStore(context).read() }
     val state by controller.state.collectAsState()
     val position by controller.positionMs.collectAsState()
     val duration by controller.durationMs.collectAsState()
@@ -101,10 +113,19 @@ fun PlayerScreen(
     var message by remember { mutableStateOf<String?>(null) }
     var pendingSwitch by remember { mutableStateOf<PendingSwitch?>(null) }
     var alternates by remember { mutableStateOf<List<VodSummary>>(emptyList()) }
+    var altAvailability by remember { mutableStateOf<Map<String, Boolean>>(emptyMap()) }
     var loadingAlternates by remember { mutableStateOf(false) }
     var switching by remember { mutableStateOf(false) }
 
     val focusRequester = remember { FocusRequester() }
+
+    BackHandler(enabled = showEpisodes || showSources) {
+        if (showEpisodes) {
+            showEpisodes = false
+        } else if (showSources) {
+            showSources = false
+        }
+    }
 
     fun mediaOf(req: PlaybackRequest): MediaUrl? {
         val episode = req.episodeAt(req.episodeIndex) ?: return null
@@ -127,6 +148,8 @@ fun PlayerScreen(
 
     LaunchedEffect(Unit) {
         runCatching { focusRequester.requestFocus() }
+        controller.setQuality(appSettings.qualityCap)
+        controller.setAudioDelayMs(appSettings.audioDelayMs)
         startPlay(current, current.startPositionMs, isSwitch = false)
     }
 
@@ -172,13 +195,28 @@ fun PlayerScreen(
     }
 
     LaunchedEffect(showSources) {
-        if (!showSources || alternates.isNotEmpty()) return@LaunchedEffect
-        loadingAlternates = true
-        when (val result = repo.findAlternateSources(current.vodId, current.vodName, current.year)) {
-            is Result.Ok -> alternates = result.value
-            is Result.Err -> message = result.error.display()
+        if (!showSources) return@LaunchedEffect
+        if (alternates.isEmpty()) {
+            loadingAlternates = true
+            when (val result = repo.findAlternateSources(current.vodId, current.vodName, current.year)) {
+                is Result.Ok -> alternates = result.value
+                is Result.Err -> message = result.error.display()
+            }
+            loadingAlternates = false
         }
-        loadingAlternates = false
+        if (alternates.isNotEmpty() && altAvailability.isEmpty()) {
+            altAvailability = coroutineScope {
+                alternates.take(6).map { alt ->
+                    async {
+                        val detail = repo.getDetail(alt.vodId, alt.sourceId).getOrNull()
+                        val has = detail?.let { d ->
+                            d.episodesByFrom[d.playFroms.firstOrNull()].orEmpty().any { it.index == episodeIndex }
+                        } ?: true
+                        alt.sourceId to has
+                    }
+                }.awaitAll().toMap()
+            }
+        }
     }
 
     Box(
@@ -187,9 +225,21 @@ fun PlayerScreen(
             .background(Color.Black)
             .focusRequester(focusRequester)
             .focusable()
-            .onPreviewKeyEvent {
+            .onPreviewKeyEvent { event ->
                 hudVisible = true
-                false
+                if (event.type == KeyEventType.KeyDown &&
+                    event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_MENU
+                ) {
+                    showEpisodes = true
+                    true
+                } else if (event.type == KeyEventType.KeyDown &&
+                    event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_INFO
+                ) {
+                    showSources = true
+                    true
+                } else {
+                    false
+                }
             },
     ) {
         VideoSurface(controller = controller, modifier = Modifier.fillMaxSize())
@@ -310,6 +360,7 @@ fun PlayerScreen(
                 onClose = { showEpisodes = false },
                 onPick = { index ->
                     showEpisodes = false
+                    TvLog.i("PLAYER_EVT", "action=episode index=$index from=${current.playFrom} source=${current.sourceId}")
                     val next = current.copy(episodeIndex = index)
                     startPlay(next, 0L)
                 },
@@ -321,6 +372,7 @@ fun PlayerScreen(
                 current = current,
                 currentIndex = episodeIndex,
                 alternates = alternates,
+                availability = altAvailability,
                 loading = loadingAlternates,
                 switching = switching,
                 onClose = { showSources = false },
@@ -336,8 +388,12 @@ fun PlayerScreen(
                                 if (episodes.none { it.index == episodeIndex }) {
                                     message = "《${candidate.name}》缺第 $episodeIndex 集，已留在原线路"
                                 } else {
+                                    TvLog.i("PLAYER_EVT", "action=source source=${candidate.sourceId} index=$episodeIndex")
                                     showSources = false
-                                    startPlay(candidate.toRequest(detail, firstFrom.orEmpty(), episodeIndex), 0L)
+                                    startPlay(
+                                        candidate.toRequest(detail, firstFrom.orEmpty(), episodeIndex),
+                                        position,
+                                    )
                                 }
                             }
                             is Result.Err -> message = "换源失败：${result.error.display()}"
@@ -385,6 +441,11 @@ private fun EpisodeSheet(
     onClose: () -> Unit,
     onPick: (Int) -> Unit,
 ) {
+    val focus = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(80)
+        runCatching { focus.requestFocus() }
+    }
     val colors = LocalTvColors.current
     val dimens = LocalTvDimens.current
     Box(
@@ -414,7 +475,15 @@ private fun EpisodeSheet(
                             text = if (episode.index == selectedIndex) "▶ ${episode.title}" else episode.title,
                             onClick = { onPick(episode.index) },
                             primary = episode.index == selectedIndex,
-                            modifier = Modifier.width(118.dp),
+                            modifier = Modifier
+                                .width(118.dp)
+                                .then(
+                                    if (episode.index == episodes.firstOrNull()?.index) {
+                                        Modifier.focusRequester(focus)
+                                    } else {
+                                        Modifier
+                                    },
+                                ),
                         )
                     }
                 }
@@ -428,6 +497,7 @@ private fun SourceSheet(
     current: PlaybackRequest,
     currentIndex: Int,
     alternates: List<VodSummary>,
+    availability: Map<String, Boolean>,
     loading: Boolean,
     switching: Boolean,
     onClose: () -> Unit,
@@ -455,6 +525,7 @@ private fun SourceSheet(
                 alternates.isEmpty() -> TvEmptyState("没有其它源的同名片")
                 else -> LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(alternates, key = { "${it.sourceId}|${it.vodId}" }) { candidate ->
+                        val missing = availability[candidate.sourceId] == false
                         Row(
                             Modifier.fillMaxWidth().background(colors.surface).padding(horizontal = 14.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically,
@@ -462,15 +533,16 @@ private fun SourceSheet(
                             Column(Modifier.weight(1f)) {
                                 TvLabel(candidate.name, dimens.cardTitle, colors.text, maxLines = 1)
                                 TvLabel(
-                                    "源 ${candidate.sourceId} · ${candidate.year} · ${candidate.remarks}",
+                                    if (missing) "源 ${candidate.sourceId} · 缺第 $currentIndex 集"
+                                    else "源 ${candidate.sourceId} · ${candidate.year} · ${candidate.remarks}",
                                     dimens.caption,
                                     colors.textMuted,
                                     maxLines = 1,
                                 )
                             }
                             TvButton(
-                                text = if (switching) "切换中…" else "切到该源",
-                                enabled = !switching,
+                                text = if (missing) "缺第 $currentIndex 集" else if (switching) "切换中…" else "切到该源",
+                                enabled = !switching && !missing,
                                 primary = true,
                                 onClick = { onPick(candidate) },
                             )

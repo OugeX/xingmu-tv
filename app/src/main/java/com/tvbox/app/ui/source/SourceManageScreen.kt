@@ -24,12 +24,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tvbox.app.core.AppError
+import com.tvbox.app.ui.DpadDownSink
 import com.tvbox.app.core.Result
 import com.tvbox.app.data.SourceConfig
 import com.tvbox.app.data.SourceAdminDataSource
+import com.tvbox.app.import.ImportService
 import com.tvbox.app.source.SourceRepository
 import com.tvbox.app.ui.LocalTvColors
 import com.tvbox.app.ui.LocalTvDimens
@@ -42,10 +45,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * 播放源管理页（t4 只做 UI；导入/扫码/配对码由 t10 的服务实现后接入）：
+ * 播放源管理页：
  *  - 列表：状态灯 / 名称 / 类型 / 优先级 / 延迟 / 地址；
  *  - 操作：测试连通、启用停用、上移下移（改 priority，数值小优先）、删除；
- *  - 添加入口先以卡片形式占位，点击给出明确提示，不假装能用。
+ *  - 添加播放源：二维码 / 配对码 / 本地文件 / U 盘 / 遥控器键盘，五个入口全部走
+ *    [com.tvbox.app.import.ImportService] 的同一条 L0–L4 校验管线（实现见 ImportPanel.kt）。
  */
 @Composable
 fun SourceManageScreen(
@@ -55,7 +59,11 @@ fun SourceManageScreen(
     val colors = LocalTvColors.current
     val dimens = LocalTvDimens.current
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val importService = remember(context) { ImportService.get(context) }
+    val debugPanel = rememberDebugImportPanel()
 
+    var panel by remember { mutableStateOf<ImportPanel?>(debugPanel) }
     var sources by remember { mutableStateOf<List<SourceConfig>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<AppError?>(null) }
@@ -98,6 +106,22 @@ fun SourceManageScreen(
                 is Result.Err -> message = result.error.display()
             }
         }
+    }
+
+    val activePanel = panel
+    if (activePanel != null) {
+        ImportPanelScreen(
+            panel = activePanel,
+            service = importService,
+            onClose = { panel = null },
+            onImported = { report ->
+                // 导入成功：立刻刷新列表，并在返回后显示「已导入 N 个源 / M 个频道」
+                message = report.summaryText()
+                channelCount = null
+                reload++
+            },
+        )
+        return
     }
 
     Column(Modifier.fillMaxSize()) {
@@ -204,18 +228,16 @@ fun SourceManageScreen(
         }
 
         Spacer(Modifier.height(10.dp))
-        TvLabel("添加播放源（由 engineer-import 的导入服务提供，当前仅入口）", dimens.cardTitle, colors.textSecondary, weight = FontWeight.SemiBold)
+        TvLabel("添加播放源（手机扫码 / 配对码 / 本地文件 / U 盘 / 遥控器键盘）", dimens.cardTitle, colors.textSecondary, weight = FontWeight.SemiBold)
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf("二维码", "配对码", "本地文件", "U 盘", "遥控器键盘").forEach { label ->
-                TvButton(label, onClick = {
-                    message = "「$label」导入入口已预留：等 t10 的导入服务注册后自动可用"
-                })
+            ImportPanel.values().forEach { entry ->
+                TvButton(entry.buttonLabel, onClick = { panel = entry })
             }
         }
         Spacer(Modifier.height(6.dp))
         TvLabel(
-            "说明：内置源来自 assets/sources.builtin.json；停用/删除只写用户覆盖层，不会修改内置文件。",
+            "说明：导入的源存入本地 SQLite；内置源来自 assets/sources.builtin.json，停用/删除只写用户覆盖层。手机扫码需与电视同一 WiFi。",
             dimens.caption,
             colors.textMuted,
             maxLines = 2,

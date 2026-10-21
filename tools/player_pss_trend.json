@@ -1,0 +1,139 @@
+{
+ "device": "192.168.1.9:5555",
+ "package": "com.tvbox.app",
+ "started_at": "2026-10-21T21:02:06+08:00",
+ "duration_sec": 600,
+ "interval_sec": 60,
+ "sample_count": 11,
+ "pss_avg_mb": 62.3,
+ "pss_max_mb": 72.8,
+ "jank_avg_pct": 17.27,
+ "jank_max_pct": 36.0,
+ "pss_budget_mb": 340,
+ "jank_budget_pct": 10,
+ "app_exited": true,
+ "samples": [
+  {
+   "t_sec": 0,
+   "pss_kb": 61650,
+   "pss_mb": 60.2,
+   "frames": 0,
+   "janky": 0,
+   "jank_pct": 0.0,
+   "app_alive": true,
+   "pss_result": "PASS",
+   "jank_result": "PASS"
+  },
+  {
+   "t_sec": 61,
+   "pss_kb": 55909,
+   "pss_mb": 54.6,
+   "frames": 0,
+   "janky": 0,
+   "jank_pct": 0.0,
+   "app_alive": true,
+   "pss_result": "PASS",
+   "jank_result": "PASS"
+  },
+  {
+   "t_sec": 122,
+   "pss_kb": 64935,
+   "pss_mb": 63.4,
+   "frames": 42,
+   "janky": 13,
+   "jank_pct": 30.95,
+   "app_alive": true,
+   "pss_result": "PASS",
+   "jank_result": "FAIL"
+  },
+  {
+   "t_sec": 183,
+   "pss_kb": 74530,
+   "pss_mb": 72.8,
+   "frames": 65,
+   "janky": 19,
+   "jank_pct": 29.23,
+   "app_alive": true,
+   "pss_result": "PASS",
+   "jank_result": "FAIL"
+  },
+  {
+   "t_sec": 243,
+   "pss_kb": 57314,
+   "pss_mb": 56.0,
+   "frames": 75,
+   "janky": 27,
+   "jank_pct": 36.0,
+   "app_alive": true,
+   "pss_result": "PASS",
+   "jank_result": "FAIL"
+  },
+  {
+   "t_sec": 304,
+   "pss_kb": null,
+   "pss_mb": null,
+   "frames": 0,
+   "janky": 0,
+   "jank_pct": null,
+   "app_alive": false,
+   "pss_result": "NO_DATA",
+   "jank_result": "NO_DATA"
+  },
+  {
+   "t_sec": 367,
+   "pss_kb": 71477,
+   "pss_mb": 69.8,
+   "frames": 631,
+   "janky": 98,
+   "jank_pct": 15.53,
+   "app_alive": true,
+   "pss_result": "PASS",
+   "jank_result": "WARN"
+  },
+  {
+   "t_sec": 427,
+   "pss_kb": 52123,
+   "pss_mb": 50.9,
+   "frames": 1050,
+   "janky": 124,
+   "jank_pct": 11.81,
+   "app_alive": true,
+   "pss_result": "PASS",
+   "jank_result": "WARN"
+  },
+  {
+   "t_sec": 488,
+   "pss_kb": null,
+   "pss_mb": null,
+   "frames": 0,
+   "janky": 0,
+   "jank_pct": null,
+   "app_alive": false,
+   "pss_result": "NO_DATA",
+   "jank_result": "NO_DATA"
+  },
+  {
+   "t_sec": 548,
+   "pss_kb": null,
+   "pss_mb": null,
+   "frames": 0,
+   "janky": 0,
+   "jank_pct": null,
+   "app_alive": false,
+   "pss_result": "NO_DATA",
+   "jank_result": "NO_DATA"
+  },
+  {
+   "t_sec": 608,
+   "pss_kb": 72209,
+   "pss_mb": 70.5,
+   "frames": 1250,
+   "janky": 183,
+   "jank_pct": 14.64,
+   "app_alive": true,
+   "pss_result": "PASS",
+   "jank_result": "WARN"
+  }
+ ],
+ "note": "CSV 由 tools/measure_pss.ps1 生成；JSON 因脚本 ConvertTo-Json 泛型 List 缺陷在首次运行未落盘，已修复脚本并从同一 CSV 重建。"
+}

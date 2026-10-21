@@ -1,0 +1,110 @@
+{
+  "generated_at": "2026-10-21T21:30:07+08:00",
+  "apk": "D:\\Go Web\\tv\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+  "size_bytes": 12951505,
+  "size_mb": 12.35,
+  "aapt2": "D:\\tvbuild\\android-sdk\\build-tools\\34.0.0\\aapt2.exe",
+  "result": "PASS",
+  "failures": [],
+  "warnings": [],
+  "checks": [
+    {
+      "id": "C01",
+      "name": "APK 存在",
+      "status": "PASS",
+      "required": true,
+      "detail": "D:\\Go Web\\tv\\app\\build\\outputs\\apk\\debug\\app-debug.apk (12951505 bytes / 12.35 MB)"
+    },
+    {
+      "id": "C02",
+      "name": "APK zip 可读",
+      "status": "PASS",
+      "required": true,
+      "detail": "entries=429"
+    },
+    {
+      "id": "C03",
+      "name": "aapt2 dump badging",
+      "status": "PASS",
+      "required": true,
+      "detail": "exit=0, lines=37"
+    },
+    {
+      "id": "C04",
+      "name": "applicationId = com.tvbox.app",
+      "status": "PASS",
+      "required": false,
+      "detail": "com.tvbox.app"
+    },
+    {
+      "id": "C05",
+      "name": "LEANBACK_LAUNCHER Activity",
+      "status": "PASS",
+      "required": true,
+      "detail": "leanback-launchable-activity: name='com.tvbox.app.MainActivity'  label='' icon='' banner='res/drawable-xhdpi-v4/tv_banner.png'"
+    },
+    {
+      "id": "C06",
+      "name": "uses-feature leanback required=false",
+      "status": "PASS",
+      "required": true,
+      "detail": "uses-feature-not-required: name='android.software.leanback'"
+    },
+    {
+      "id": "C07",
+      "name": "uses-feature touchscreen required=false",
+      "status": "PASS",
+      "required": true,
+      "detail": "uses-feature-not-required: name='android.hardware.touchscreen'"
+    },
+    {
+      "id": "C08",
+      "name": "assets/sources.builtin.json",
+      "status": "PASS",
+      "required": true,
+      "detail": "6187 bytes"
+    },
+    {
+      "id": "C09",
+      "name": "assets/overseas_map.json",
+      "status": "PASS",
+      "required": true,
+      "detail": "1505 bytes"
+    },
+    {
+      "id": "C10",
+      "name": "assets/pinyin_initials.json",
+      "status": "PASS",
+      "required": true,
+      "detail": "69331 bytes"
+    },
+    {
+      "id": "C11",
+      "name": "assets/live_seed.json",
+      "status": "PASS",
+      "required": true,
+      "detail": "574174 bytes"
+    },
+    {
+      "id": "C12",
+      "name": "dex 包含 MainActivity",
+      "status": "PASS",
+      "required": true,
+      "detail": "classes15.dex 命中 Lcom/tvbox/app/MainActivity;"
+    },
+    {
+      "id": "C13",
+      "name": "APK 体积",
+      "status": "PASS",
+      "required": true,
+      "detail": "12.35 MB <= 14 MB"
+    },
+    {
+      "id": "C14",
+      "name": "SDK 版本信息",
+      "status": "INFO",
+      "required": false,
+      "detail": "sdkVersion:'21'; targetSdkVersion:'34'"
+    }
+  ]
+}

@@ -30,6 +30,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.tvbox.app.ui.ContentGate
+import com.tvbox.app.ui.DpadDownSink
 import com.tvbox.app.core.AppError
 import com.tvbox.app.core.Result
 import com.tvbox.app.data.CanonicalCategory
@@ -109,7 +111,7 @@ fun CategoryScreen(
 
     val gridState = rememberLazyGridState()
     fun loadMore() {
-        if (loading || !hasMore) return
+        if (loading || !hasMore || ContentGate.zapping) return
         loading = true
         loadMoreFailed = false
         scope.launch {
@@ -238,5 +240,6 @@ fun CategoryScreen(
                 TvLabel("没有更多了", dimens.caption, colors.textMuted, maxLines = 1)
             }
         }
+        DpadDownSink()
     }
 }

@@ -110,6 +110,10 @@ fun ImportReport.logLine(): String =
  * 真正的定义在 source/SourceIssueCodes.kt，与 tools/validate_sources.py 对齐。
  */
 object ImportCodes {
+    /** TV 端配对码校验（本地 UI 用，不属于源文件校验码表）。 */
+    const val PAIR = "E_PAIR"
+    const val PAIR_EXPIRED = "E_PAIR_EXPIRED"
+
     val JSON get() = SourceIssueCodes.JSON
     val SIZE get() = SourceIssueCodes.SIZE
     val ENCODING get() = SourceIssueCodes.ENCODING

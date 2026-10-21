@@ -37,6 +37,7 @@ import com.tvbox.app.player.PlayerController
 import com.tvbox.app.player.PlayerControllerImpl
 import com.tvbox.app.player.VideoSurface
 import com.tvbox.app.ui.LocalTvDimens
+import com.tvbox.app.ui.settings.SettingsStore
 import com.tvbox.app.ui.components.TvButton
 import com.tvbox.app.ui.components.TvLabel
 import kotlinx.coroutines.delay
@@ -59,6 +60,7 @@ fun CasualVideoScreen(
     val dimens = LocalTvDimens.current
     val scope = rememberCoroutineScope()
     val controller: PlayerControllerImpl = remember { PlayerBootstrap.createAndRegister(context) }
+    val appSettings = remember { SettingsStore(context).read() }
     val state by controller.state.collectAsState()
 
     var index by remember { mutableIntStateOf(startIndex.coerceIn(0, (clips.size - 1).coerceAtLeast(0))) }
@@ -105,6 +107,8 @@ fun CasualVideoScreen(
     LaunchedEffect(Unit) {
         runCatching { rootFocus.requestFocus() }
         com.tvbox.app.data.casual.CasualGraph.radioSessionOrNull()?.stopForExternal()
+        controller.setQuality(appSettings.qualityCap)
+        controller.setAudioDelayMs(appSettings.audioDelayMs)
         controller.setLiveMode(false)
         playIndex(index)
     }

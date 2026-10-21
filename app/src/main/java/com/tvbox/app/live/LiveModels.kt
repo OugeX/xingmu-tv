@@ -127,6 +127,15 @@ data class LiveChannel(
     val bestHeight: Int = 0,
     /** 属于 live_hd.json「高清专区」 */
     val hdZone: Boolean = false,
+    /** live_safe.json：本机（≤720p）是否有可用安全源；null=数据缺失 */
+    val safe: Boolean? = null,
+    val safeUrl: String? = null,
+    val safeHeight: Int = 0,
+    val safeWidth: Int = 0,
+    val safeCodec: String? = null,
+    val safeFps: Float = 0f,
+    val safeTier: String? = null,
+    val nullReason: String? = null,
 ) {
     val id: String get() = channel.id
     val name: String get() = channel.name
@@ -146,6 +155,35 @@ data class LiveChannel(
         )
 
     val bestLine: LiveLine? get() = rankedLines.firstOrNull { it.autoPlayable }
+
+    val hasSafeSource: Boolean get() = safe == true && !safeUrl.isNullOrBlank()
+
+    /** live_safe.json 中最高 ≤720p 安全源（可能不在 seed 的 lines 里，用合成 LiveLine）。 */
+    val safeLine: LiveLine?
+        get() {
+            val url = safeUrl ?: return null
+            if (safe != true) return null
+            return LiveLine(
+                index = lines.size,
+                url = url,
+                quality = safeTier,
+                resolution = if (safeWidth > 0 && safeHeight > 0) "${safeWidth}x${safeHeight}" else null,
+                latencyMs = latencyMs,
+                fallbackOnly = false,
+                tier = safeTier,
+                measuredWidth = safeWidth,
+                measuredHeight = safeHeight,
+                measuredCodec = safeCodec,
+                measuredFps = safeFps,
+            )
+        }
+
+    val safeLabel: String
+        get() = when {
+            safeHeight > 0 -> "${safeHeight}p"
+            !safeTier.isNullOrBlank() -> safeTier
+            else -> "—"
+        }
 
     val bestLabel: String
         get() = when {
@@ -180,7 +218,12 @@ data class LiveChannelInfo(
     val channelName: String get() = channel.name
     val groupName: String get() = channel.groupName
     val logoUrl: String? get() = channel.logo
-    val lineText: String get() = "线路 ${lineIndex + 1}/$lineCount"
+    val lineText: String
+        get() = if (lineIndex in channel.lines.indices) {
+            "线路 ${lineIndex + 1}/$lineCount"
+        } else {
+            "安全源（≤720p）"
+        }
     val currentLine: LiveLine? get() = channel.lines.getOrNull(lineIndex)
     val lineLatencyText: String
         get() {
@@ -201,9 +244,16 @@ data class LiveChannelInfo(
     val measuredText: String
         get() {
             val line = currentLine
-            val height = line?.displayHeight?.takeIf { it > 0 } ?: info.height
+            val height = line?.displayHeight?.takeIf { it > 0 }
+                ?: channel.safeHeight.takeIf { it > 0 }
+                ?: info.height
             val bitrate = line?.bitrateBps?.takeIf { it > 0 } ?: info.videoBitrate
-            val codec = line?.codecLabel?.takeIf { it != "—" } ?: info.codecText
+            val codec = line?.codecLabel?.takeIf { it != "—" }
+                ?: when (channel.safeCodec?.lowercase()) {
+                    "h264", "avc" -> "H.264"
+                    "hevc", "h265" -> "HEVC"
+                    else -> info.codecText
+                }
             val decoder = when {
                 info.decoderName == null -> "—"
                 info.decoderName!!.startsWith("OMX") || info.decoderName!!.startsWith("c2.") -> "硬解"
@@ -246,6 +296,13 @@ data class LiveState(
     /** 「强制 1080p」（默认关；API≤23 默认 720p 安全模式） */
     val force1080: Boolean = false,
     val deviceSupports4K: Boolean = false,
+    /** 安全模式：API≤23 / OMX.MS.* → 只显示 live_safe.json has_safe=true 的频道 */
+    val safeMode: Boolean = false,
+    val showAllChannels: Boolean = false,
+    val hiddenUnsafeCount: Int = 0,
+    val safeFilterHint: String? = null,
+    /** showAll 下选中仅 1080p 频道时，等待用户二次确认 */
+    val pendingUnsafe: LiveChannel? = null,
 ) {
     val lineCount: Int get() = current?.lines?.size ?: 0
     val currentLine: LiveLine? get() = current?.lines?.getOrNull(lineIndex)

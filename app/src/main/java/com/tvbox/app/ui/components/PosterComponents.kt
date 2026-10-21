@@ -34,6 +34,7 @@ import coil.request.ImageRequest
 import com.tvbox.app.core.TvLog
 import com.tvbox.app.data.AppImages
 import com.tvbox.app.data.VodSummary
+import com.tvbox.app.ui.ContentGate
 import com.tvbox.app.ui.LocalTvColors
 import com.tvbox.app.ui.LocalTvDimens
 import com.tvbox.app.ui.LocalTvMode
@@ -62,7 +63,7 @@ fun PosterImage(
             .build()
     }
     Box(modifier.background(colors.surface)) {
-        if (url.isNotBlank()) {
+        if (url.isNotBlank() && !ContentGate.zapping) {
             AsyncImage(
                 model = request,
                 imageLoader = imageLoader,

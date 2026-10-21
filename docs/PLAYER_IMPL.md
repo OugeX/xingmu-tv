@@ -40,9 +40,10 @@
 - 4K：`DeviceCapabilities` 启动探测 H.264/HEVC 3840×2160@25；`LiveController.candidates()` 默认跳过 4K，`setPrefer4K(true)` 且设备支持才放开，轨道上限随之 2160；API≤23 默认 720p 安全档（`setForce1080(true)` 可强制 1080p，可能黑屏）。
 - 高清专区：`live_hd.json` 114 频道标记 `hdZone`，`buildGroups()` 在最前插入「高清专区」分组。
 - 起播兜底：高清源 5s 无首帧 → `startSlowStartFallback()` 预热下一档并切 720p；同源连续失败 3 次冷却 10 分钟；HUD 显示 `measuredText`（1080p · 5.9Mbps · 硬解 H.264）。
+- 全局 720p：API≤23 或存在 `OMX.MS.*` 时 `PlayerControllerImpl.effectiveHeight()` 把**所有** `setQuality`（直播/点播/短视频）压到 720；`setAllowHighQuality(true)` 仅调试放开（可能黑屏）；B 站 playurl 已改 qn=32→16。
+- 安全模式：`live_safe.json`（163 安全 / 103 仅 1080p）→ `LiveController` 列表只显示 `safe`，切台/数字/连播跳过 unsafe；MENU 显示全部，unsafe 先 `pendingUnsafe` 确认；优先 `safeLine`（720>576>480），HUD 用 `safeHeight/codec` 标注。
 
 ## 4. 倍速 / Seek / DVR
-
 - 5 档 `PlayerTuning.SPEEDS`；`PlayerControllerImpl.kt:189 setSpeed()` 走 `PlaybackParameters(speed, pitch=1f)`（Sonic），直播直接拒绝 + 提示；AudioTrack playbackParams 已关。
 - 点播 `seekTo` `:178`，`CLOSEST_SYNC` `:353`；HUD/长按：`PlaybackHud.kt:48 SeekKeyRepeater`（单击 ±10s，按住 400ms 后每 200ms 累加 10s）。
 - 直播 DVR：`seekBack()` `:304` / `seekToLiveEdge()` `:293`；窗口=HLS duration，<5s 视为不可回看，超窗提示「该频道不支持回看」。

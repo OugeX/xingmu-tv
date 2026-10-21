@@ -3,6 +3,7 @@ package com.tvbox.app.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,11 +27,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.sp
 import com.tvbox.app.R
 import com.tvbox.app.data.AppServices
@@ -37,6 +41,11 @@ import com.tvbox.app.data.CanonicalCategory
 import com.tvbox.app.data.FallbackSourceRepository
 import com.tvbox.app.data.LocalSourceRepository
 import com.tvbox.app.data.WatchProgressStore
+import com.tvbox.app.player.PlayerControllerImpl
+import com.tvbox.app.ui.settings.AppSettingsValues
+import com.tvbox.app.ui.settings.SettingsScreen
+import com.tvbox.app.ui.settings.SettingsStore
+import com.tvbox.app.ui.settings.overscanDp
 import com.tvbox.app.data.casual.CasualGraph
 import com.tvbox.app.data.casual.CasualRepository
 import com.tvbox.app.data.casual.ShortClip
@@ -65,6 +74,7 @@ sealed interface Dest {
     data class Play(val request: PlaybackRequest) : Dest
     data object Sources : Dest
     data object Live : Dest
+    data object Settings : Dest
     data object Casual : Dest
     data class CasualVideo(val clips: List<ShortClip>, val startIndex: Int) : Dest
 }
@@ -89,14 +99,34 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
     val pinyin = remember(context) { PinyinIndex(context) }
     val casualRepo: CasualRepository = remember(context) { CasualGraph.repository(context) }
     val progressStore = remember(context) { WatchProgressStore(context) }
-    val displayPrefs = remember(context) { DisplayPrefs(context) }
+    val settingsStore = remember(context) { SettingsStore(context) }
+    var settings by remember { mutableStateOf(settingsStore.read()) }
 
     val stack = remember { mutableStateListOf<Dest>(initialDest ?: Dest.Home) }
-    var mode by remember { mutableStateOf(initialMode) }
-    // 冷启动首帧就用持久化档位，避免先小后大闪一下
-    var tier by remember { mutableStateOf(displayPrefs.readTier()) }
+    var mode by remember { mutableStateOf(if (settings.forceLite) TvMode.LITE else initialMode) }
     val forcedLite = shouldForceLiteMode()
-    val effectiveMode = if (forcedLite) TvMode.LITE else mode
+    val effectiveMode = if (settings.forceLite || forcedLite) TvMode.LITE else mode
+    val configuration = LocalConfiguration.current
+    val (overscanH, overscanV) = overscanDp(
+        settings.overscanPercent,
+        configuration.screenWidthDp,
+        configuration.screenHeightDp,
+    )
+
+    LaunchedEffect(pinyin) {
+        kotlinx.coroutines.delay(2_000)
+        runCatching { pinyin.benchmark() }
+    }
+
+    // 播放类设置改完立即下发常驻播放器（下一次起播也生效）
+    LaunchedEffect(settings.qualityCap, settings.audioDelayMs) {
+        runCatching {
+            (AppServices.playerOrNull() as? PlayerControllerImpl)?.let { controller ->
+                if (settings.qualityCap != 0) controller.setQuality(settings.qualityCap)
+                controller.setAudioDelayMs(settings.audioDelayMs)
+            }
+        }
+    }
 
     fun push(dest: Dest) {
         stack.add(dest)
@@ -114,8 +144,9 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
     BackHandler(enabled = stack.size > 1) { pop() }
 
     TvTheme(mode = effectiveMode) {
-        CompositionLocalProvider(LocalTvTier provides tier) {
+        CompositionLocalProvider(LocalTvTier provides settings.fontTier) {
         CompositionLocalProvider(LocalTvDimens provides tvDimens()) {
+        CompositionLocalProvider(LocalOverscan provides Overscan(overscanH.dp, overscanV.dp)) {
             when (val current = stack.last()) {
                 // 播放/直播：沉浸式全屏，左侧导航整体隐藏（UI_SPEC §3.5/§3.6 硬要求）
                 is Dest.Play -> {
@@ -153,7 +184,10 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
                 else -> Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = OverscanHorizontal, vertical = OverscanVertical),
+                        .padding(
+                            horizontal = LocalOverscan.current.horizontal,
+                            vertical = LocalOverscan.current.vertical,
+                        ),
                 ) {
                     NavRail(
                         current = current,
@@ -161,20 +195,24 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
                         forcedLite = forcedLite,
                         onNavigate = ::navigateRoot,
                         onToggleMode = {
-                            mode = if (mode == TvMode.CINEMA) TvMode.LITE else TvMode.CINEMA
+                            val next = if (effectiveMode == TvMode.CINEMA) TvMode.LITE else TvMode.CINEMA
+                            mode = next
+                            settings = settings.copy(forceLite = next == TvMode.LITE)
+                            settingsStore.write(settings)
                         },
                         onCycleTier = {
-                            val next = when (tier) {
+                            val next = when (settings.fontTier) {
                                 FontTier.STANDARD -> FontTier.LARGE
                                 FontTier.LARGE -> FontTier.XLARGE
                                 FontTier.XLARGE -> FontTier.STANDARD
                             }
-                            tier = next
-                            displayPrefs.writeTier(next)
+                            settings = settings.copy(fontTier = next)
+                            settingsStore.write(settings)
                         },
                     )
                     Spacer(Modifier.width(18.dp))
                     Box(Modifier.weight(1f).fillMaxHeight()) {
+                        // R3：全局底部焦点哨兵，避免连续 DOWN 把焦点推出应用
                         when (current) {
                             is Dest.Home -> HomeScreen(
                                 repo = repo,
@@ -217,17 +255,30 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
 
                             is Dest.Sources -> SourceManageScreen(repo = repo, onBack = { pop() })
 
+                            is Dest.Settings -> SettingsScreen(
+                                values = settings,
+                                onChange = { updated ->
+                                    settings = updated
+                                    settingsStore.write(updated)
+                                },
+                                repo = repo,
+                                casualRepo = casualRepo,
+                                onBack = { pop() },
+                            )
+
                             is Dest.Casual -> CasualScreen(
                                 repo = casualRepo,
                                 onPlayVideo = { clips, index -> push(Dest.CasualVideo(clips, index)) },
                                 initialSegment = casualSegment,
                             )
 
-                            is Dest.Play, is Dest.Live, is Dest.CasualVideo -> Unit
+                            is Dest.Play, is Dest.Live, is Dest.CasualVideo, is Dest.Settings -> Unit
                         }
+                        com.tvbox.app.ui.DpadDownSink(Modifier.align(Alignment.BottomCenter))
                     }
                 }
             }
+        }
         }
         }
     }
@@ -246,8 +297,10 @@ private fun NavRail(
     val dimens = LocalTvDimens.current
     val tier = LocalTvTier.current
     val lite = mode == TvMode.LITE
+    val screenWidthDp = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp
     val width = when {
-        lite -> 300.dp
+        // 540p 电视屏宽仅 640dp：侧栏按 42% 收缩（220–300dp），避免挤压/裁剪
+        lite -> (screenWidthDp * 0.42f).coerceIn(220f, 300f).dp
         tier == FontTier.LARGE -> 190.dp
         tier == FontTier.XLARGE -> 220.dp
         else -> 150.dp
@@ -274,6 +327,7 @@ private fun NavRail(
             NavItem("直播", "直", Dest.Live) { it is Dest.Live },
             NavItem("随便", "随", Dest.Casual) { it is Dest.Casual || it is Dest.CasualVideo },
             NavItem("播放源", "源", Dest.Sources) { it is Dest.Sources },
+            NavItem("设置", "设", Dest.Settings) { it is Dest.Settings },
             NavItem("搜索", "搜", Dest.Search) { it is Dest.Search },
         )
     }
@@ -283,7 +337,8 @@ private fun NavRail(
             .width(width)
             .fillMaxHeight()
             .background(colors.surface.copy(alpha = if (lite) 0f else 0.4f))
-            .padding(vertical = 10.dp),
+            .verticalScroll(androidx.compose.foundation.rememberScrollState())
+            .padding(vertical = if (lite) 4.dp else 10.dp),
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -322,7 +377,7 @@ private fun NavRail(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(if (selected || focused) colors.surfaceHigh else Color.Transparent)
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                        .padding(horizontal = if (lite) 6.dp else 10.dp, vertical = if (lite) 3.dp else 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (lite) {
@@ -335,7 +390,7 @@ private fun NavRail(
                         Spacer(Modifier.width(10.dp))
                     }
                     Box(
-                        Modifier.size(if (tier.isLarge) 44.dp else 30.dp),
+                        Modifier.size(if (tier.isLarge) 44.dp else if (lite) 24.dp else 30.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         TvLabel(

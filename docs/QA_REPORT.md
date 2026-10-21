@@ -1,265 +1,329 @@
-# QA 验收报告（骨架）
+# QA 验收报告 — 星幕 Android TV
 
-> 状态：**工具链就绪，业务验收未开始**（2026-10-21）
-> 范围：构建/静态冒烟/直播源探测已实测；四条基本链路、音画同步、四档屏幕、性能项仍待实现完成后验收。
-> 原则：本文件只写实测结果；未验证项必须写清原因，**禁止用推测填表**。
-> 关联规格：`docs/AVSYNC_SPEC.md §5`、`docs/UI_SPEC.md §0.5`、`docs/PLAN_ARCHITECTURE.md §12`、`docs/EPISODE_SPEC.md §4`、`docs/SEARCH_SPEC.md §6`、`docs/SOURCE_IMPORT_SPEC.md §6`
+> 执行：qa · 2026-10-21 20:17–20:57（Asia/Shanghai）
+> 设备：LeTV X4-50（X4_50，Android 6.0 / API 23，物理 1920×1080 / density 240，1GB 档）
+> 构建：JDK 17.0.2 / Gradle 8.7 / Android SDK build-tools 34.0.0
+> 原则：只写实测；无法验证的项明确写「未验证」+ 原因，禁止推测。
 
-## 0. 当前结论
+## 0. 结论
 
-| 项 | 状态 | 说明 |
+| 项 | 结论 | 说明 |
 | --- | --- | --- |
-| 构建 `assembleDebug` | **PASS（已实测）** | gradle 退出码 0；`app-debug.apk` 10.72 MB；SHA256 见 §1 |
-| 静态冒烟（TV 清单/assets/dex/体积） | **PASS（已实测）** | 14 项检查全过，见 §2.2；JSON 证据 `tools/smoke_report.json` |
-| 直播种子可用率 | **快照（已实测）** | 266 频道/332 源；频道可用 244（91.7%），源可用 297（89.5%），受本机网络出口影响，见 §2.3 |
-| 四条基本链路 | **未验证** | 需要 APK 安装到 TV/模拟器并完成扫码、搜索、选集、换源操作 |
-| 音画同步（AVSYNC §5） | **未验证** | 需要 60 分钟长播、弱网、20 次切集/换源、倍速、直播切台、1GB 盒子实测 |
-| 四档屏幕适配（UI_SPEC §0.5） | **未验证** | 需要 1280×720 / 1920×1080 / 3840×2160 / 960×540 截图与列数核对 |
-| 性能 A1–A15 | **部分未验证** | 仅 A6（APK 体积）已有实测；其余需设备 `am start -W` / `dumpsys` / soak |
+| `assembleDebug` | **PASS** | exit 0；APK 12,620,999 B = **12.04 MB**（≤14MB） |
+| 静态冒烟 | **PASS** | C01–C13 PASS、C14 INFO；TV 清单/assets/dex 全部通过 |
+| lint | **FAIL（非 0 error）** | **0 Fatal / 11 Error / 34 Warning**，`lintDebug` exit 1。任务门槛写的是「致命项 0」，Fatal 确为 0，但 Lint 任务本身未通过，不能视为干净 |
+| 四条基本链路 | **FAIL / 未完成** | 扫码/配对码导入 UI 仍是占位；首拼本地命中通过；选集切换、跨源换源未取得播放态证据 |
+| 音画同步（AVSYNC §5） | **未验证（部分）** | 只完成直播切台的部分实测；60 分钟长播、弱网、倍速、20 次切集/换源、1GB 30 分钟均未执行 |
+| 性能 | **部分 FAIL** | 冷启动 median ≈995ms（PASS）、PSS 68.3MB（PASS）、APK 12.04MB（PASS）；掉帧样本 82.18%（远超 ≤10%，但为上一构建样本） |
+| 屏幕适配（§0.5 四档） | **FAIL** | 1080p 分类 6 列通过；720p 与 4K 被错误强制 C 模式（2 列，应 5/6 列）；960×540 C 模式侧栏裁剪；4K 截图受物理 1080p 面板限制 |
+
+**总体：不可签字通过。** 阻断项：源导入 UI 未接线、720p/4K 模式判定违反 §0.5、DPAD 连续下移会退出到系统桌面、lint 11 errors。
 
 ## 1. 环境与产物
 
 | 项 | 值 |
 | --- | --- |
-| 工程根目录 | `D:\Go Web\tv` |
-| JDK | `D:\tvbuild\jdk-17.0.2`（OpenJDK 17.0.2） |
-| Gradle | `D:\tvbuild\gradle-8.7\bin\gradle.bat`（8.7） |
-| Android SDK | `D:\tvbuild\android-sdk`（build-tools 34.0.0、platform 34/35） |
+| 工程 | `D:\Go Web\tv` |
 | APK | `app/build/outputs/apk/debug/app-debug.apk` |
-| APK 体积 | 11,239,018 bytes = **10.72 MB**（预算 ≤14MB / 硬上限 16MB） |
-| APK SHA256 | `740cf980de3b31931f0dc00285938dc13cd5a3075860aba8f96a466b8304ba45` |
-| 构建耗时 | 8.5s（36 tasks up-to-date，增量构建） |
-| 冒烟结论 | C01–C13 required 全部 PASS；C14 为 INFO |
-| 直播探测快照 | `2026-10-21T19:18:57+08:00`，266 频道 / 332 源 |
+| 体积 | 12,620,999 B（12.04 MB） |
+| SHA256 | `37d7fe0eec55f1b167c019e4e47e1feaf6f2a15c3b02025acc997aa783c0c151` |
+| 构建时间 | 2026-10-21 20:49（qa 构建）/ 20:52（工作区被并发重建，现文件 SHA 如上） |
+| package | `com.tvbox.app`，versionName 0.1.0，minSdk 21 / targetSdk 34 |
+| 安装 | `adb install -r` 成功，`lastUpdateTime=2026-10-21 20:57` |
 
-实测 APK 关键项：
-
-- `package: name='com.tvbox.app'`；`sdkVersion:'21'`；`targetSdkVersion:'34'`
-- `leanback-launchable-activity: name='com.tvbox.app.MainActivity'`
-- `uses-feature-not-required: name='android.software.leanback'`
-- `uses-feature-not-required: name='android.hardware.touchscreen'`
-- assets 均打入 APK：`sources.builtin.json` 6187B、`overseas_map.json` 1505B、`pinyin_initials.json` 69331B、`live_seed.json` 406146B
-- `classes6.dex` 命中 `Lcom/tvbox/app/MainActivity;`
-
-## 2. 工具链自检（已执行）
-
-### 2.1 `tools/build_apk.ps1`
-
-设计行为：自动定位/设置 `JAVA_HOME`、`ANDROID_HOME`、`ANDROID_SDK_ROOT`，执行 `gradle assembleDebug --no-daemon`；打印退出码、APK 绝对路径、字节数/MB、SHA256；构建成功但找不到 APK 时以退出码 3 明确报错。
-
-骨架未完成阶段先跑参数校验（当时 `MainActivity.kt` 尚未落盘）：
+构建命令与结果：
 
 ```powershell
-pwsh -NoProfile -File tools/build_apk.ps1 -DryRun
-# [OK] 工程根目录: D:\Go Web\tv
-# [OK] JAVA_HOME: D:\tvbuild\jdk-17.0.2
-# [OK] ANDROID_HOME: D:\tvbuild\android-sdk
-# [OK] Gradle: D:\tvbuild\gradle-8.7\bin\gradle.bat
-# [WARN] DryRun 模式：仅校验参数，不执行 gradle。
-# [INFO] 将执行: "D:\tvbuild\gradle-8.7\bin\gradle.bat" assembleDebug --no-daemon（工作目录: D:\Go Web\tv）
-# [INFO] 预期产物: D:\Go Web\tv\app\build\outputs\apk\debug\app-debug.apk
-# [OK] 参数校验通过。
-# EXIT=0
-```
-
-t8 骨架补齐后实际构建：
-
-```powershell
-pwsh -NoProfile -File tools/build_apk.ps1 -LogFile tools/build_apk.log
-# ...
-# BUILD SUCCESSFUL in 8s
-# 36 actionable tasks: 36 up-to-date
-# [INFO] gradle 退出码: 0（耗时 8.5s）
-# ========== BUILD RESULT ==========
+pwsh -NoProfile -File tools/build_apk.ps1 -LogFile tools/build_apk_t5.log
+# BUILD SUCCESSFUL in 6.7s
 # gradle 退出码 : 0
 # APK           : D:\Go Web\tv\app\build\outputs\apk\debug\app-debug.apk
-# 体积          : 11239018 bytes (10.72 MB)
-# SHA256        : 740cf980de3b31931f0dc00285938dc13cd5a3075860aba8f96a466b8304ba45
+# 体积          : 12620999 bytes (12.04 MB)
 # 体积判定      : PASS（≤14MB）
-# EXIT=0
 ```
 
-> **19:20–19:21 复测记录（重要）**：t10 正在并行编辑 `app/src/main/java/com/tvbox/app/source/**`，`compileDebugKotlin` 连续报 `SourceSpecParser.kt` / `SourceProbe.kt` / `UrlRules.kt` 的 `Unresolved reference 'SourceKind'`、`when` 非穷尽、`MacCmsClient.kt` 表达式体 return 等错误；构建返回 1，`build_apk.ps1` 按设计打印 `[FAIL] 构建失败：gradle 退出码 1` 并以退出码 2 结束。这属于**源码编辑中途的临时失败，不是工具链问题**，同时验证了脚本的失败路径；待 t10 完成后必须复跑并更新本节。此前 19:18 的成功构建证据仍然有效（当时 t8 骨架的源码可编译）。
-
-### 2.2 `tools/smoke_check.ps1`
-
-设计行为：`aapt2 dump badging` 校验 TV 必需项；检查 APK 体积；用 Zip 条目检查 4 个 assets；扫 `classes*.dex` 字符串表确认 `com.tvbox.app.MainActivity`；缺任何 required 项输出 FAIL 列表并以退出码 1 结束。
+静态冒烟：
 
 ```powershell
-pwsh -NoProfile -File tools/smoke_check.ps1 -JsonOut tools/smoke_report.json
-# C01 PASS APK 存在 11239018 bytes / 10.72 MB
-# C02 PASS APK zip 可读 entries=402
-# C03 PASS aapt2 dump badging exit=0, lines=26
-# C04 PASS applicationId = com.tvbox.app
-# C05 PASS LEANBACK_LAUNCHER Activity name='com.tvbox.app.MainActivity'
-# C06 PASS uses-feature leanback required=false
-# C07 PASS uses-feature touchscreen required=false
-# C08 PASS assets/sources.builtin.json 6187 bytes
-# C09 PASS assets/overseas_map.json 1505 bytes
-# C10 PASS assets/pinyin_initials.json 69331 bytes
-# C11 PASS assets/live_seed.json 406146 bytes
-# C12 PASS dex 包含 MainActivity classes6.dex 命中 Lcom/tvbox/app/MainActivity;
-# C13 PASS APK 体积 10.72 MB <= 14 MB
-# C14 INFO SDK 版本信息 sdkVersion:'21'; targetSdkVersion:'34'
+pwsh -NoProfile -File tools/smoke_check.ps1 -JsonOut tools/smoke_report_t5.json
+# C01-C13 PASS, C14 INFO
+# C11 assets/live_seed.json 459782 bytes
+# C12 classes4.dex 命中 Lcom/tvbox/app/MainActivity;
 # RESULT: PASS（all required checks passed, 0 warning(s)）
-# JSON 报告: D:\Go Web\tv\tools\smoke_report.json
 # EXIT=0
 ```
 
-> 说明：首次运行曾在 C06/C07 误报，原因是 `aapt2 badging` 的 feature 行带缩进（`  uses-feature-not-required:`）而正则未允许前导空白；已修正并回归通过。该回归证明脚本能区分 `uses-feature` 与 `uses-feature-not-required`，不会把 required=true 误判为通过。
+> 说明：当前工作区在 QA 期间仍被其它实现线并发修改/重建（20:52 的 APK SHA 与 20:49 构建不同）。**构建/静态冒烟**来自 20:57 安装的当前 APK（SHA 37d7…）；**UI/性能/屏幕数据**来自 20:50 安装的 12.04MB 相邻构建（SHA 026a…，源码 20:47 版）。两者差异未触及本报告结论，但严格签字前应在同一冻结 APK 上复测。
 
-### 2.3 `tools/verify_sources_live.py`
+## 2. 构建与 lint
 
-设计行为：读 `assets/live_seed.json`（缺失时用脚本内置示例），按频道并发探测全部源 URL；判定 HTTP 200 且响应前 2KB 去 BOM/空白后以 `#EXTM3U` 开头；输出源级 + 频道级可用率到 `assets/live_probe_report.json`。支持 `--limit/--workers/--timeout/--channel/--dry-run/--min-rate`。
+### 2.1 构建
 
-```bash
-PYTHONIOENCODING=utf-8 python tools/verify_sources_live.py --workers 24 --timeout 8
-# 种子: D:\Go Web\tv\assets\live_seed.json
-# 名称: live_seed_cn  频道: 266  URL: 332
-# 并发探测: workers=24, timeout=8.0s, 共 332 个 URL ...
-# ========== LIVE PROBE RESULT ==========
-# 耗时        : 23.2s
-# 频道可用    : 244/266 (91.7%)
-# 源可用      : 297/332 (89.5%)
-# HTTP 200    : 297/332
-# 含 #EXTM3U  : 297/332
-# 分组:
-#   - local: 频道 196/212 (92.5%), 源 211/227
-#   - cctv: 频道 26/28 (92.9%), 源 50/59
-#   - satellite: 频道 22/26 (84.6%), 源 36/46
-# 失败源示例: http_404 / http_403 / http_567 / timeout
-# 报告        : D:\Go Web\tv\assets\live_probe_report.json
-# EXIT=0
-```
+- `assembleDebug --no-daemon` exit 0，36/36 tasks 成功。
+- APK 12.04MB ≤14MB，PASS。
+- `aapt2 dump badging`：`leanback-launchable-activity=com.tvbox.app.MainActivity`；`uses-feature-not-required`：leanback / touchscreen；`sdkVersion=21`、`targetSdkVersion=34`。
 
-报告摘要（`assets/live_probe_report.json`）：
-
-| 指标 | 值 |
-| --- | --- |
-| 频道总数 / 可用 | 266 / 244（91.73%） |
-| 源总数 / 可用 | 332 / 297（89.46%） |
-| 失败源数 | 35 |
-| 失败原因分布 | `http_404` 15、`http_567` 9、`http_403` 7、`timeout` 4 |
-| 分组频道可用率 | cctv 92.9%、local 92.5%、satellite 84.6% |
-
-> 注意：
-> 1. 探测结果受本机网络出口影响，**不代表源永久失效**；复测会上下浮动（首次 90.2% → 修正 URL 编码后 91.7%）。
-> 2. 种子里含中文路径（如 `地方台8563/海南.php`），脚本会先做 IDNA/percent-encoding 再请求；未修正前有 14 个 `UnicodeEncodeError` 假失败，现已为 0。
-> 3. 只验证「播放列表可取且以 #EXTM3U 开头」，未验证首个分片可播；分片级健康度由 `assets/live_seed.json` 的 `segment_verified` 字段与后续播放验收覆盖。
-
-## 3. 四条基本链路验收
-
-| ID | 链路 | 通过标准 | 验收方法 | 结果 | 证据 | 未验证原因 |
-| --- | --- | --- | --- | --- | --- | --- |
-| L1 | 扫码 / 配对码导入 | 手机扫码 → 粘贴 JSON → TV 3 秒内收到并导入成功；6 位配对码可完成导入；错误码提示明确；导入页退出后端口关闭、token 一次性失效 | TV 源管理页显示二维码（`http://<ip>:8088/i/<token>`）→ 手机同 WiFi 打开 → 粘贴 `assets/sources.example.json` → 记录 ImportReport；再用配对码重复一次 |  |  |  |
-| L2 | 首拼搜索 | `lldq` → 流浪地球、`mcdjj` → 漫长的季节；多音字 `mzdjj` 也命中；首拼本地结果 ≤50ms、首屏 ≤300ms；超时源不阻塞 | 搜索页输入 `lldq` / `mcdjj` / `mzdjj`；录屏 + logcat 时间戳；断一个源验证不阻塞 |  |  |  |
-| L3 | 选集切换 | 60 集以上分页、倒序、已看标记；播放中不退出切集 ≤800ms；无黑屏 >1s、无残留音画错位 | 打开 ≥60 集剧集 → 切到第 2 页 → 连切 20 次（含首/末集）；录屏 + 计时 |  |  |  |
-| L4 | 跨源换源 | 同片跨源合并；缺集置灰；换源保持集号+位置+倍速；失败自动回旧线路 | 详情页确认「N 源可用」→ 播放中 `MENU` → 线路页签换源；记录集号/进度/倍速；断当前源验证回退 |  |  |  |
-
-> 链路的实现前置：`app/src/main/java/com/tvbox/app/source/**`（t10）、`ui/**`（t4）、`player/**`（t9）。当前 APK 已可安装，但上述交互尚未逐项验收。
-
-## 4. 音画同步验收（`docs/AVSYNC_SPEC.md §5`）
-
-设备矩阵：D1 = Amlogic S905W / 1GB / Android 7.1 / 1080p（主门槛）；D2 = RK3229 / 1GB / Android 5.1 / 720p（下限）；D3 = S905X2 / 2GB / Android 9（回归对照）。
-
-| ID | 验收项 | 通过标准 | 设备/方法 | 结果 | 证据 | 未验证原因 |
-| --- | --- | --- | --- | --- | --- | --- |
-| S1 | 长播稳定性 | 连续播放 60 分钟，抽样 5 次，音画偏差 ≤80ms | D1；拍手/口型画面人工比对 + 日志时间戳；抽 5 次 |  |  |  |
-| S2 | 弱网 | 限速 2Mbps 播放 10 分钟，无持续错位；underrun 能自动恢复 | D1；`tc`/路由器限速；记录 `onAudioUnderrun` 与恢复日志 |  |  |  |
-| S3 | 切集/换源 | 连续切 20 次，无残留错位、无黑屏 >1s | D1；连切 20 次（切集 + 换源混合）；录屏逐帧核对 |  |  |  |
-| S4 | 倍速 | 0.75×–2× 各播 3 分钟，音调正常、无累积漂移 | D1；5 档逐一播放 3 分钟；人耳 + 口型 |  |  |  |
-| S5 | 直播 | 切台 20 次，每次起播 ≤2.5s，无音画错位 | D1；20 个频道轮切；秒表/录屏 + 日志 |  |  |  |
-| S6 | 老设备 | 1GB 盒子 1080p 播放 30 分钟，掉帧 ≤10%、无 underrun 连锁 | D2；`dumpsys gfxinfo` + `onDroppedVideoFrames` + 内存 |  |  |  |
-
-> 播放器参数落地后，另需在 `docs/PLAYER_IMPL.md` 标注四项硬要求：音频主时钟、offload 关闭、倍速走 Sonic、切集/换源 `stop→setMediaItem→prepare`。
-
-## 5. 屏幕适配验收（`docs/UI_SPEC.md §0.5` 四档）
-
-| ID | 分辨率 | 期望 widthDp / 列数 | 模式 | 结果 | 证据（截图路径） | 未验证原因 |
-| --- | --- | --- | --- | --- | --- | --- |
-| U1 | 1280×720 | widthDp 按 density 实测；目标 **5 列** | A（低配可 C） |  |  |  |
-| U2 | 1920×1080 | widthDp 按 density 实测；目标 **6 列** | A |  |  |  |
-| U3 | 3840×2160 | widthDp 按 density 实测；目标 **6 列**；图片请求尺寸 ×density、`allowHardware` | A |  |  |  |
-| U4 | 960×540 | widthDp 按 density 实测；**必须进 C 保命模式**，小屏档 **4 列**（若实测 widthDp≥800 需记录实际档位与理由） | C |  |  |  |
-
-补充硬要求（逐项核对，不单独算四档截图）：
-
-| 编号 | 检查项 | 标准 | 结果 | 证据 | 未验证原因 |
-| --- | --- | --- | --- | --- | --- |
-| U5 | Hero 高度 | `screenHeightDp × 0.59`，clamp 240–640dp，不写死 640dp |  |  |  |
-| U6 | 字号下限 | 辅助 ≥13sp、正文 ≥15sp、列表主标题 ≥17sp；`baseScale` clamp 0.85–1.15、fontScale clamp 0.85–1.3 |  |  |  |
-| U7 | 安全区/过扫描 | 默认左右 48dp/上下 27dp；设置页 0% / 2.5% / 5% 三档可调 |  |  |  |
-| U8 | 非 16:9 | 行数由可用高度派生；直播页右侧播放器自适应不裁画面 |  |  |  |
-| U9 | 540p 以下/小屏 | `smallestScreenWidthDp < 600` 或 540p 及以下直接 C 模式 |  |  |  |
-
-> 截图命名约定建议：`docs/qa/shots/<resolution>-<mode>-home.png`、`...-detail.png`、`...-live.png`；每档至少首页 + 详情 + 直播三张。
-
-## 6. 性能与稳定性（`docs/PLAN_ARCHITECTURE.md §12` A1–A15）
-
-| ID | 验收项 | 通过标准 | 方法 | 结果 | 证据 | 未验证原因 |
-| --- | --- | --- | --- | --- | --- | --- |
-| A1 | 冷启动首帧 | D1 TotalTime 中位数 ≤2.5s（含首帧） | `am start -W` ×5 |  |  |  |
-| A2 | 缓存首屏 | force-stop 后二次启动 ≤2.0s 看到上次内容 | 录屏/帧时间 |  |  |  |
-| A3 | 滚动流畅 | 60s 连续滚动掉帧 ≤10%，无 >250ms 帧 | `dumpsys gfxinfo` |  |  |  |
-| A4 | 浏览内存 | PSS ≤260MB，Java heap ≤120MB | `dumpsys meminfo` |  |  |  |
-| A5 | 播放内存 | PSS ≤340MB，30 分钟无增长 >20MB | soak + `meminfo` |  |  |  |
-| A6 | APK | ≤14MB（硬上限 16MB） | `smoke_check.ps1` / `apkanalyzer` | **PASS（10.72MB）** | `tools/smoke_report.json` C13 |  |
-| A7 | 点播起播 | ≤2.5s 首帧（20Mbps） | 日志/录屏 |  |  |  |
-| A8 | 直播换台 | ≤2.5s 首帧，连按 10 次不卡死 | 手工/脚本 |  |  |  |
-| A9 | 弱网/坏源 | 单线路失败自动换源 ≤3s；全部失败有可操作面板，不崩溃 | 断网/改 hosts |  |  |  |
-| A10 | 图片失败 | 显示占位与片名，列表可继续滚动 | 断图床 |  |  |  |
-| A11 | D-pad | 连按 50 次方向键无焦点丢失/积压；播放返回后焦点还原 | 手工 |  |  |  |
-| A12 | 稳定性 | 30 分钟循环无 OOM/ANR/崩溃 | soak |  |  |  |
-| A13 | 主线程纪律 | debug StrictMode 无 disk/network violation | StrictMode 日志 |  |  |  |
-| A14 | 依赖白名单 | 无 Material3/Leanback/Glide/Room/kotlinx-serialization；Compose/Coil 版本锁定 | `gradle dependencies` |  |  |  |
-| A15 | 图片参数 | 列表 320×450、crossfade 关、硬件位图/RGB565 开、缓存上限符合 §5 | 代码检查 + 日志 |  |  |  |
-
-## 7. 未验证项与风险清单
-
-| 编号 | 项 | 原因 / 影响 | 计划 |
-| --- | --- | --- | --- |
-| R1 | 四条链路全部未验证 | 当前仅有可安装 APK，尚未在设备/模拟器上执行导入、搜索、选集、换源 | t4/t9/t10 完成后按 §3 执行 |
-| R2 | 无 1280×720 / 1920×1080 / 3840×2160 / 960×540 截图 | 需要模拟器/实机逐档改分辨率并截图 | 用 AVD 四档 + 真机补 1080p |
-| R3 | 无 60 分钟长播 / 弱网 / 倍速 / 切台数据 | 需要 D1/D2 设备与可播源 | 按 §4 逐项执行，记录日志时间戳 |
-| R4 | 直播源可用率是单次快照 | 受出口网络、源站限流影响；本次 91.7% 不代表长期 SLA | 验收前用同一脚本复测并保留 JSON；失败源按 priority 准备备源 |
-| R5 | 探测只到播放列表层 | 未验证首个分片是否可播（`#EXTINF` 后的 TS/fMP4） | 播放链路用实际起播验证；必要时给脚本加 `--deep` |
-| R6 | 性能 A1–A5、A7–A15 未测 | 依赖设备与完整 UI/播放器 | 按 `PLAN_ARCHITECTURE §12` 执行 |
-| R7 | 19:20 构建因 t10 编辑中途失败 | `SourceSpecParser.kt`/`UrlRules.kt` 缺 `com.tvbox.app.data.SourceKind` import；非工具链问题 | t10 完成后立即复跑 `build_apk.ps1` 并更新 §2.1 |
-
-## 8. 复现命令
+### 2.2 lint（FAIL）
 
 ```powershell
-# 1) 构建（参数校验 / 实际构建）
-pwsh -NoProfile -File tools/build_apk.ps1 -DryRun
-pwsh -NoProfile -File tools/build_apk.ps1 -LogFile tools/build_apk.log
-
-# 2) 静态冒烟（可指定 APK；缺项会列出 FAIL 并以退出码 1 结束）
-pwsh -NoProfile -File tools/smoke_check.ps1 -JsonOut tools/smoke_report.json
-pwsh -NoProfile -File tools/smoke_check.ps1 -ApkPath app/build/outputs/apk/debug/app-debug.apk -DryRun
-
-# 3) 直播源探测（全量 / 抽样 / 只看某分组）
-$env:PYTHONIOENCODING='utf-8'
-python tools/verify_sources_live.py --workers 24 --timeout 8
-python tools/verify_sources_live.py --limit 10 --dry-run
-python tools/verify_sources_live.py --channel cctv --workers 16
+$env:JAVA_HOME='D:\tvbuild\jdk-17.0.2'
+gradle.bat lintDebug --no-daemon
+# Lint found 11 errors, 34 warnings. First failure:
+# search/VoiceAsr.kt:56 MissingPermission
+# BUILD FAILED in 31s
+# EXIT=1
 ```
 
-## 9. 产物与证据索引
+| 严重度 | 数量 | 结论 |
+| --- | --- | --- |
+| Fatal | **0** | 满足「致命项 0」的字面要求 |
+| Error | **11** | `lintDebug` 失败；不满足干净构建门槛 |
+| Warning | 34 | 含 DefaultLocale / OldTargetApi / GradleDependency 等 |
+
+11 个 Error（逐条，见 `app/build/reports/lint-results-debug.txt`）：
+
+| 文件:行 | 问题 |
+| --- | --- |
+| `search/VoiceAsr.kt:56` | MissingPermission（录音权限未检查） |
+| `search/VoiceAsr.kt:42` | NewApi：`checkSelfPermission` API 23（min 21） |
+| `casual/CasualRadioService.kt:108` | NewApi：`Notification.Action.Builder()` API 23 |
+| `casual/CasualRadioService.kt:109` | NewApi：`Icon#createWithResource` API 23 |
+| `player/PlayerAudioPipeline.kt:98` | NewApi：`setPreferredDevice` API 23 |
+| `player/PlayerAudioPipeline.kt:107` | NewApi：`setOffloadMode` API 29 |
+| `player/PlayerAudioPipeline.kt:110` | NewApi：`setOffloadDelayPadding` API 29 |
+| `import/UsbImportScanner.kt:130` | NewApi：`StorageVolume` API 24 |
+| `player/PlayerTuning.kt:70/71/72` | UnsafeOptInUsageError：Media3 `AspectRatioFrameLayout.RESIZE_MODE_*` 未标注 `@UnstableApi` |
+
+风险：minSdk=21 而多处直接调用 API 23/24/29。API 21/22 设备存在运行时崩溃风险；当前验证机为 API 23，无法覆盖 21/22。
+
+## 3. 四条基本链路
+
+| ID | 链路 | 结果 | 证据 | 说明 / 未验证原因 |
+| --- | --- | --- | --- | --- |
+| L1 | 扫码 / 配对码导入 | **FAIL** | `.artifacts/t5_deeplink_sources.png`；`ui/source/SourceManageScreen.kt:207-214` | 源管理页底部「二维码/配对码/本地文件/U 盘/遥控器键盘」仍是占位按钮，点击只提示「等 t10 的导入服务注册后自动可用」。t10 的 `ImportService` 未接入 UI，用户无法完成扫码/配对码导入。t10 的 `ImportSelfCheck 55/55` 是后端自检，不等于端到端链路。 |
+| L2 | 首拼搜索（lldq / mcdjj） | **部分 PASS** | `.artifacts/t5_search_lldq_final.png`、`.artifacts/t5_search_mcdjj.png` | `lldq` 命中「流浪地球 / 流浪地球2」，`mcdjj` 命中「漫长的季节」；本地首拼索引工作正常。但「已加载 0」：MacCMS 聚合搜索未返回结果（服务端 `wd=` 实测 total=0），搜索链路只有本地候选，未验证在线结果/分页/超时不阻塞。首拼耗时未打点，无法证明 ≤50ms。 |
+| L3 | 选集切换 | **未验证（UI 部分）** | `.artifacts/t5_detail_episodes.png`、`.artifacts/t5_detail_89664b.png` | 详情页已展示「共 523 集」「1–30/31–60/…」「倒序」，分页/倒序 UI 可见；但未能进入播放态完成实际切集，未测得 ≤800ms、黑屏 <1s。 |
+| L4 | 跨源换源 | **未验证** | `.artifacts/t5_detail_89664b.png` 顶部「切换源（bfzy1）」 | 未取得同片多源样本；详情页只显示 bfzy1 一个源，未观察到「N 源可用」与换源面板。无法验证保持集号/进度/倍速、缺集置灰、失败回旧线路。 |
+
+## 4. 音画同步（AVSYNC_SPEC §5）
+
+| ID | 项 | 门槛 | 设备/方法 | 结果 | 证据 / 未验证原因 |
+| --- | --- | --- | --- | --- | --- |
+| S1 | 长播稳定性 | 60 分钟抽 5 次偏差 ≤80ms | D1，拍手/口型 + 时间戳 | **未验证** | 未执行 60 分钟长播；无音频延迟采集工具，人工比对需现场 |
+| S2 | 弱网 | 2Mbps 10 分钟无持续错位，underrun 自恢复 | D1，限速 | **未验证** | 未搭建 2Mbps 限速；本次未触发 underrun |
+| S3 | 切集/换源 | 连续 20 次无残留错位、黑屏 <1s | D1 | **未验证** | 播放态切集/换源未打通；UI 自动化在详情页多次退出到系统桌面 |
+| S4 | 倍速 | 0.75×–2× 各 3 分钟无累积漂移 | D1 | **未验证** | 未进入可控播放态完成 5 档倍速 |
+| S5 | 直播切台 | 20 次，每次起播 ≤2.5s，无音画错位 | D1，CH+ 轮切 | **部分 FAIL** | 两轮 CH+：第一轮记录 15 次，首帧 505/664/1958/450/656/1250/596/452/1938/1268/1231/689/797/158/1561ms，全部 ≤1958ms、rebuffer=0；第二轮仅记录 7 次，含 **3589ms** 一次超 2.5s。按键中有丢失/应用被带离直播页，未取得 20 次连续可信样本。证据 `.artifacts/t5_live_zap.log`、`.artifacts/t5_live_zap2.log` |
+| S6 | 老设备 | 1GB 盒子 1080p 30 分钟，掉帧 ≤10%、无 underrun 连锁 | D1/D2 | **未验证** | 未做 30 分钟 soak；本机 PSS/掉帧另见 §5，但不能替代该 soak |
+
+## 5. 性能
+
+| ID | 项 | 门槛 | 结果 | 证据 / 说明 |
+| --- | --- | --- | --- | --- |
+| P1 | 冷启动 TotalTime | ≤1.5s | **PASS（median）** | 20:50 安装包 4 个有效样本：872 / 992 / 1000 / 998ms，median 995ms。一个样本 `TotalTime=0`（Activity 已在栈顶，判定无效）。另在 20:18 包测得 862/972/3276/1225/1151ms，出现过 3276ms 离群值。 |
+| P2 | 缓存首屏 | ≤2.0s | **未验证** | 只测 `am start -W` 的 Activity TotalTime；无「看到上次内容」的帧级测量 |
+| P3 | 浏览 PSS | ≤260MB | **PASS** | 20:50 安装包首页加载后 69,920 kB ≈ **68.3MB**；另一次 71,077 kB ≈69.4MB。远低于 260MB |
+| P4 | 播放 PSS | ≤340MB，30 分钟无增长 | **未验证** | 未做 30 分钟播放 soak |
+| P5 | 滚动掉帧 | 60s 连续滚动 ≤10% | **FAIL（样本）** | 20:18 安装包（11.87MB）首页 80 次 DPAD_DOWN：101 帧 / 83 janky = **82.18%**，90th 57ms、95th 89ms、99th 105ms。20:50 包重复 20 次 DOWN 即退出到系统桌面，未能取得 60s 干净样本；因此这是「明确存在严重掉帧」的失败证据，而非完整 60s 结论 |
+| P6 | APK | ≤14MB | **PASS** | 12.04MB |
+| P7 | lint Fatal | 0 | **PASS（字面）** | 0 Fatal；但 11 Error 使 `lintDebug` 失败（见 §2.2） |
+| P8 | D-pad 焦点 | 连按 50 次无丢失/积压；返回还原 | **FAIL** | 分类页连续 20–80 次 DOWN 后前台从 `com.tvbox.app` 变为 `com.dsh.tvlauncher` / `com.stv.deskplatform`，应用退出；详情页 RIGHT/UP 亦多次退到系统桌面。焦点边界行为阻断自动化与可用性 |
+| P9 | 其它 A7–A15 | 见 PLAN_ARCHITECTURE §12 | **未验证** | 起播/弱网/图片失败/StrictMode/依赖白名单/图片参数未逐项执行 |
+
+## 6. 屏幕适配（UI_SPEC §0.5 四档）
+
+测试方法：`wm size` / `wm density` 覆盖物理面板，force-stop 后冷启动同名页面，截图 + 列数人工核对。物理面板仍为 1920×1080，`wm size` 只改变逻辑分辨率，`screencap` 输出仍是 1920×1080，因此 4K 档不是真实 4K 输出。
+
+| ID | 分辨率 / density | 期望 | 实测列数/模式 | 结果 | 截图 |
+| --- | --- | --- | --- | --- | --- |
+| U1 | 1920×1080 / 240 | widthDp=1280 → **6 列 A 模式** | 分类网格 **6 列**、A 模式 | **PASS** | `.artifacts/t5_category_1920.png`、`.artifacts/t5_final_1080_home.png` |
+| U2 | 1280×720 / 213 | widthDp≈961 → **5 列 A 模式** | **C 保命模式、2 列**；侧栏底项裁剪 | **FAIL** | `.artifacts/t5_final_720_category.png` |
+| U3 | 3840×2160 / 640 | widthDp=960 → 应与 1080p 同布局 **6 列 A** | **C 保命模式、2 列**；侧栏/内容裁剪；截图仍 1920×1080 | **FAIL / 4K 未真实验证** | `.artifacts/t5_final_4k_category.png` |
+| U4 | 960×540 / 160 | 540p 及以下 → **强制 C**；§0.5 小屏档 4 列 | **C 模式、2 列**；侧栏底项（播放源/搜索）裁剪 | **部分 PASS（C 强制）/ FAIL（列数与裁剪）** | `.artifacts/t5_final_540_category.png`、`.artifacts/t5_960x540_160_home.png` |
+
+根因定位：`app/src/main/java/com/tvbox/app/ui/UiUtils.kt:89`
+
+```kotlin
+return config.smallestScreenWidthDp < 600 || config.screenHeightDp < 600
+```
+
+- 720p 在 TV density 213 下 `heightDp=540`，被误判为 C；4K 在 density 640 下同样 `heightDp=540`，被误判为 C。
+- UI_SPEC §0.5 明确 4K 应与 1080p 相同布局（6 列），720p 为 5 列 A 模式；当前实现违反。
+- 960×540 强制 C 符合「540p 及以下」条款，但 §0.5 的列数表与 C 模式「双列」存在冲突，需要规格统一。
+- 720p/540p/4K C 模式侧栏 10 个导航项超出可视高度，底部「播放源/搜索/设置」被裁，未见滚动。
+
+## 7. 播放器性能（t13 真机实测）
+
+版本说明（重要）：
+- captain 指定的冻结候选为 `223a321a…` / 12,841,242 B，qa 于 21:22 安装成功；
+- **但 21:29 该候选被并发构建/安装覆盖**：工作区 APK 变为 12,951,505 B / `c90af3a3…`，设备安装包变为 12,951,505 B / `965ec9e2…`，223a 已不在工作区；
+- **7.1–7.3 的性能数字来自 21:18–21:20 安装的 12,620,999 B 旧包（SHA 37d7…）**，不是 223a；冻结候选的同 SHA 复测尚未完成，不能把本节数字归到 223a。
+- captain 21:30 已判定 **223a 与 12951505 两个包均作废**（源码后续有提交，重编不能保证同哈希）；待 `release/FROZEN.json` 下发后，只安装 `release/xingmu-tv-*.apk` 并重做本节全部测量。本节现有数字仅作参考，不作为终验。
+- 设备：LeTV X4-50 / API 23 / 1920×1080 / 单硬解；日志来源 `tools/player_live_events_t13.log`、`tools/player_vod_events_t13.log`、`tools/player_episode_events_t13.log`。
+
+### 7.1 汇总（PLAYER_PERF §1）
+
+| 场景 | n | P50 | P90 | Max | 预算 target / upper | 结论 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 点播首帧（prepare=first） | 1 | 2941ms | 2941ms | **2941ms** | 2000 / 3000 | **FAIL(target，未超 upper)** |
+| 直播首次起播 | 1 | 3825ms | 3825ms | **3825ms** | 1500 / 2500 | **FAIL(over upper)** |
+| 切台（CH+，同 CDN 样本） | 7 | 699ms | 2856ms | **2856ms** | 1000 / 1500 | **FAIL(over upper)** |
+| 切集（episode index=2） | 1 | 1335ms | 1335ms | **1335ms** | 800 / 1200 | **FAIL(over upper)** |
+| 换源 | 0 | — | — | — | 1500 / 2500 | **N/A：PLAYER_EVT 无 action=switchsrc** |
+| 二次缓冲（30 分钟直播） | 1 次（本次短窗） | — | — | — | ≤1 / 3 | **未验证**（窗口不足 30 分钟） |
+| 播放态 PSS（10 分钟） | 8 有效/11 | 62.3MB 均值 | — | **72.8MB** | ≤340 / 420 | **PASS** |
+| 播放态掉帧（10 分钟 gfxinfo） | 8 有效/11 | 17.27% 均值 | — | **36.0%** | ≤10% / 20% | **FAIL** |
+
+### 7.2 明细
+
+**点播首帧**：
+```
+PLAYER_EVT action=play label=20240621 url=...20240621/index.m3u8
+  t_prepare_ms=2941 t_first_frame_ms=2941 src=720p rebuffer=0
+```
+- 首帧 2.941s，超 2.0s 目标、逼近 3.0s 上限；prepare 与首帧同值，说明时间全部花在 `prepare`（建连/取 playlist/解码器初始化），不是 UI 渲染。
+- 同源另两次点播样本为 2.142s、0.583s（网络/缓存波动大），本次冻结包取 2.941s 作为保守值。
+
+**直播首次起播**：
+```
+PLAYER_EVT action=play label=CCTV-1 综合 线路4 · 720p
+  t_prepare_ms=3825 t_first_frame_ms=3825 src=1080p rebuffer=0
+PLAYER_EVT action=zap from=- to=CCTV-1 综合
+  t_first_frame_ms=3854 src=auto
+```
+- 3.825s，超 2.5s 上限；首次起播包含探测/线路选择/解码器首配，是当前最大瓶颈。
+
+**切台（CH+ 10 次，日志记录 7 次）**：
+`699 / 304 / 51 / 655 / 2522 / 1889 / 2856 ms`
+- P50 699ms、P90 2856ms、max 2856ms；7 次中 3 次超 1.5s 上限（2522/1889/2856）。
+- 3 次按键未产生事件（切换防抖/按键丢失），未取得完整 10 次连续样本；`rebuffer=0`，`degraded=0`。
+
+**切集**：
+```
+PLAYER_EVT action=episode index=2 from=bfzym3u8 source=bfzy1
+PLAYER_EVT action=play label=20240622 ... t_prepare_ms=1335 t_first_frame_ms=1335 src=720p
+```
+- 1.335s，超 1.2s 上限 135ms；属于「prepare 慢 + 缓冲重建」而非解码降级（无 degraded）。
+- 连续 5 集自动化只稳定拿到 1 集事件（MENU 面板在切集后退出播放页），样本不足。
+
+**换源**：
+- `PLAYER_EVT` 只有 `action=play`/`action=zap`/`action=episode`，**没有 `action=switchsrc`**；无法分离换源耗时。t9 的 `PLAYER_IMPL.md` 也说明换源由 `action=play` 输出，无法区分普通起播。结论：**埋点缺失，换源无法测**。
+
+**二次缓冲**：
+- 本次直播日志仅 1 条 `rebuffer=1`（新疆卫视），其余 0；10 分钟窗口未达到 30 分钟预算窗口，不能判定 ≤1 次/30 分钟。
+
+**PSS / 掉帧（10 分钟，`tools/measure_pss.ps1`）**：
+
+| t_sec | PSS MB | frames | janky | jank % | 前台 |
+| --- | --- | --- | --- | --- | --- |
+| 0 | 60.2 | 0 | 0 | 0 | yes |
+| 61 | 54.6 | 0 | 0 | 0 | yes |
+| 122 | 63.4 | 42 | 13 | 30.95% | yes |
+| 183 | 72.8 | 65 | 19 | 29.23% | yes |
+| 243 | 56.0 | 75 | 27 | 36.00% | yes |
+| 304 | — | 0 | 0 | — | no |
+| 367 | 69.8 | 631 | 98 | 15.53% | yes |
+| 427 | 50.9 | 1050 | 124 | 11.81% | yes |
+| 488 | — | 0 | 0 | — | no |
+| 548 | — | 0 | 0 | — | no |
+| 608 | 70.5 | 1250 | 183 | 14.64% | yes |
+
+- PSS 均值 62.3MB、最大 72.8MB，**PASS**（≤340MB，远低于预算）。
+- 掉帧均值 17.27%、最大 36.0%，**FAIL**；即使排除首分钟后 11.81–15.53%，仍高于 10% 目标、接近 20% 上限。
+- 3 个采样点 app 不在前台（304/488/548s），脚本记录 `app_exited=true`；10 分钟并非全程连续播放，趋势仅作参考。
+
+### 7.3 超预算环节与建议
+
+| 超预算项 | 环节 | 证据 | 可执行建议 |
+| --- | --- | --- | --- |
+| 直播首次起播 3.825s | **prepare 慢 / 首次建连+首片** | `t_prepare_ms=3825`，与首帧同值；CCTV-1 线路4 1080p | 首屏预热当前分组前 10 个 host（已有 DNS 预热则检查是否在首帧前完成）；首片超时从 4s 降至 2.5s 并行次优源；把 `bufferForPlayback` 在首次起播降到 0.5s |
+| 切台 P90 2.856s | **prepare 慢 + 跨线路探测** | 2522/1889/2856ms，`degraded=0` | 切台锁定预取线路的 playlist 缓存；对连续 3 次慢源标记冷却；CH+ 防抖 800ms 会吞按键，测量时用 2.5s 间隔 |
+| 点播首帧 2.941s | **prepare 慢** | prepare=first=2941ms | 详情页点击播放时并行预取首片；把 `DefaultLoadControl` 首次 `bufferForPlayback` 从 2.0s 降到 1.0s；确认硬解初始化为 36ms 不是瓶颈（日志） |
+| 切集 1.335s | **缓冲重建** | prepare=first=1335ms，无 degraded | 切集保留旧播放器、只 `stop→setMediaItem→prepare`，不要重建 Surface；预取下一集 playlist 头；目标 0.8s 先在 `onPrepare` 前下载首片 |
+| 掉帧 36% | **UI/焦点重绘或视频渲染** | 10 分钟 gfxinfo；A 模式 | 用 `dumpsys gfxinfo` per-frame 定位是 Compose HUD 还是 video；播放页禁用 HUD 动画与焦点描边重绘，只改 alpha；检查图片解码线程与 `allowRgb565` |
+| 换源无法测 | **埋点缺失** | 无 `action=switchsrc` | t9 在 `PlayerControllerImpl.switchSource` 输出 `action=switchsrc from/to/t_prepare_ms/t_first_frame_ms/pos_ms`；否则该预算项无法验收 |
+
+### 7.4 冻结包回归（captain 追加 R2–R6）
+
+| 项 | 结论 | 证据 |
+| --- | --- | --- |
+| R2 1280×720 A 模式 / 5 列 | **部分 FAIL**：A 模式已生效（不再误判 C），但搜索页实测 6 列卡片（应为 5）；分类页因源离线空态未能复核列数。截图来自 21:22 安装的候选（21:29 后设备被覆盖，未复验） | `.artifacts/t13_r2_720_final.png`、`.artifacts/t13_r2_search_q_720.png`、`.artifacts/t13_home_720_loaded.png` |
+| R2 1920×1080 6 列 | **PASS（旧构建实测）**：分类 6 列；冻结包未重取 1080 截图 | `.artifacts/t5_category_1920.png` |
+| R2 960×540 C + 侧栏不裁剪 | **未验证**：冻结包未取得干净 C 模式截图（路由恢复/导入页抢占） | — |
+| R3 各页 25–30 次 DOWN 不退出 | **未验证**：设备被 t17 导入 UI 与旧任务路由占用，连续 DOWN 多次跳转/退出；本轮未取得可信数据 | — |
+| R4 lintDebug 0 Error | **PASS（21:22 源码）**：`BUILD SUCCESSFUL`，0 Error / 37 Warning（0 Fatal）；之后源码/包又被并发修改，未在新源码上复跑 | `tools/lint_t13_final.log`、`app/build/reports/lint-results-debug.xml` |
+| R5 lldq 只走本地 + 本地命中 N 条 | **PASS（搜索页文案）**：输入 `q` 显示「本地首拼命中 6 条 · 中文关键词走服务端」，不再出现「已加载 0」；lldq 未单独截图 | `.artifacts/t13_r2_search_q_720.png` |
+| R6 选集 20×DOWN+2×RIGHT 到 index≈300 | **未完成**：本次仅测到 `action=episode index=2`；长按/20 次下移在面板被系统抢占，未到 300 | `.artifacts/t13_episode1.png`、`tools/player_episode_events_t13.log` |
+
+## 8. 风险与未验证清单
+
+| ID | 严重度 | 问题 | 影响 | 建议 |
+| --- | --- | --- | --- | --- |
+| R1 | **blocker** | 扫码/配对码导入 UI 未接线（仍占位） | 核心功能「自定义播放源导入」用户不可用 | t4 接入 `ImportService` 的 QR/配对码/文件/U 盘入口并做端到端链路 |
+| R2 | **blocker** | 720p/4K 被错误强制 C 模式 | §0.5 硬要求不满足；低端 720p 与大屏 4K 体验错误 | 修正 `shouldForceLiteMode`：按 `smallestScreenWidthDp<600` 或实际 540p 判定，不能只看 `screenHeightDp<600` |
+| R3 | **high** | 连续 DPAD_DOWN 退出应用 | 遥控器可用性/焦点边界失败，阻塞自动化 | 修 `FocusRequester`/`focusProperties` 边界，列表末项不越界到系统 |
+| R4 | **high** | lint 11 Error（API 21/22 风险） | 构建门槛不干净；API 21/22 可能崩溃 | 加 `@RequiresApi`/`SDK_INT` 守卫；Media3 `@OptIn(UnstableApi::class)`；录音权限检查 |
+| R5 | **high** | 掉帧样本 82.18%（101 帧） | 低端盒子滚动体验不达标 | 用最终包复测 60s gfxinfo；检查图片解码/组合/焦点重绘 |
+| R6 | medium | 4K 截图受物理 1080p 面板限制 | 不能声明 4K 实机截图 | 用 4K AVD/真机复测并输出 3840×2160 截图 |
+| R7 | medium | 搜索聚合返回 0 | 在线搜索链路未真正验证 | 修 MacCMS `wd` 参数/端点；复测首屏 ≤300ms、超时源不阻塞 |
+| R8 | medium | 60 分钟长播、2Mbps 弱网、倍速、20 次切集/换源、1GB 30 分钟 soak 未执行 | AVSYNC §5 不能签字 | 在 D1/D2 上按 §4 逐项执行 |
+| R9 | low | 并发构建导致 APK SHA 变化（20:49 026a… → 20:52 37d7…） | 验收对象可能漂移 | 冻结 commit/构建产物后再签字 |
+
+## 9. 复现命令
+
+```powershell
+# 构建
+pwsh -NoProfile -File tools/build_apk.ps1 -LogFile tools/build_apk_t5.log
+
+# 静态冒烟
+pwsh -NoProfile -File tools/smoke_check.ps1 -JsonOut tools/smoke_report_t5.json
+
+# lint
+$env:JAVA_HOME='D:\tvbuild\jdk-17.0.2'
+D:\tvbuild\gradle-8.7\bin\gradle.bat lintDebug --no-daemon
+
+# 安装与冷启动
+adb install -r app\build\outputs\apk\debug\app-debug.apk
+adb shell am force-stop com.tvbox.app
+adb shell am start -W -n com.tvbox.app/.MainActivity
+
+# 直达页面（QA 用）
+adb shell am start -S -W --activity-clear-task -n com.tvbox.app/.MainActivity --es screen search
+adb shell am start -S -W --activity-clear-task -n com.tvbox.app/.MainActivity --es screen sources
+adb shell am start -S -W --activity-clear-task -n com.tvbox.app/.MainActivity --es screen live
+adb shell am start -S -W --activity-clear-task -n com.tvbox.app/.MainActivity --es screen category --es typeId 20 --es title 电影
+
+# 屏幕适配
+adb shell wm size 1280x720; adb shell wm density 213
+adb shell wm size 960x540;  adb shell wm density 160
+adb shell wm size 3840x2160; adb shell wm density 640
+adb shell wm size reset;    adb shell wm density reset
+
+# 掉帧/内存
+adb shell dumpsys gfxinfo com.tvbox.app reset
+adb shell dumpsys gfxinfo com.tvbox.app
+adb shell dumpsys meminfo com.tvbox.app
+```
+
+## 10. 证据索引
 
 | 文件 | 内容 |
 | --- | --- |
-| `tools/build_apk.ps1` | 一键构建脚本（dry-run / 实际构建 / 日志 / 体积 / SHA256） |
-| `tools/smoke_check.ps1` | 静态冒烟脚本（TV 清单 / assets / dex / 体积 / JSON 报告） |
-| `tools/verify_sources_live.py` | 直播源并发探测脚本（内置示例兜底） |
-| `tools/smoke_report.json` | 本次冒烟结构化结果（C01–C14） |
-| `tools/build_apk.log` | 最近一次 gradle 构建日志（19:21 复测：t10 编辑中途编译失败；19:18 成功构建输出见 §2.1） |
-| `assets/live_probe_report.json` | 本次 266 频道 / 332 源探测明细与汇总 |
-| `docs/QA_REPORT.md` | 本报告（后续每轮验收在此追加结果与证据） |
+| `.artifacts/t5_final_1080_home.png` / `t5_category_1920.png` | 1080p 首页 / 分类 6 列 |
+| `.artifacts/t5_final_720_category.png` | 720p 被强制 C 模式（2 列） |
+| `.artifacts/t5_final_540_category.png` / `t5_960x540_160_home.png` | 960×540 C 模式与侧栏裁剪 |
+| `.artifacts/t5_final_4k_category.png` | 4K 逻辑分辨率下被强制 C 模式 |
+| `.artifacts/t5_deeplink_sources.png` | 源管理页导入按钮占位 |
+| `.artifacts/t5_search_lldq_final.png` / `t5_search_mcdjj.png` | 首拼搜索结果 |
+| `.artifacts/t5_detail_89664b.png` / `t5_detail_episodes.png` | 523 集详情与分页 |
+| `.artifacts/t5_live_zap.log` / `t5_live_zap2.log` | 直播切台 PLAYER_EVT |
+| `tools/smoke_report_t5.json` | 静态冒烟 C01–C14 |
+| `tools/lint_t5_final.log` / `app/build/reports/lint-results-debug.txt` | lint 11 Error 明细 |
+| `assets/live_probe_report.json` | 直播种子可用率快照（91.7% 频道 / 89.5% 源，t11） |
 
-## 10. 签署
+## 11. 签署
 
-| 角色 | 姓名/成员 | 日期 | 结论 |
+| 角色 | 成员 | 日期 | 结论 |
 | --- | --- | --- | --- |
-| QA | qa | 2026-10-21 | 工具链就绪；业务验收待执行 |
+| QA | qa | 2026-10-21 | **不通过**：导入 UI 未接线；720p/4K 模式错误；lint 11 Error；DPAD 退出；AVSYNC 未完成 |
 | Captain |  |  |  |
-| Engineer |  |  |  |

@@ -553,7 +553,10 @@ class PlayerControllerImpl(
     private fun buildMediaItem(media: MediaUrl): MediaItem {
         val noQuery = media.url.substringBefore('?').lowercase()
         val looksProgressive = noQuery.endsWith(".mp4") || noQuery.endsWith(".flv") ||
-            noQuery.endsWith(".ts") || noQuery.endsWith(".mpd") || noQuery.endsWith(".mkv")
+            noQuery.endsWith(".ts") || noQuery.endsWith(".mpd") || noQuery.endsWith(".mkv") ||
+            noQuery.endsWith(".mp3") || noQuery.endsWith(".aac") || noQuery.endsWith(".ogg") ||
+            noQuery.endsWith(".oga") || noQuery.endsWith(".m4a") || noQuery.endsWith(".flac") ||
+            noQuery.endsWith(".wav")
         val looksHls = noQuery.contains(".m3u8") || !looksProgressive
         // 直播频道绝大多数是 “/live.php?id=xxx” 这类无扩展名/伪扩展名地址，按 HLS 解析
         val forceHls = liveMode && looksHls

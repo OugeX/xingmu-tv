@@ -1,5 +1,7 @@
 package com.tvbox.app.player
 
+import android.annotation.SuppressLint
+
 import androidx.media3.ui.AspectRatioFrameLayout
 
 /**
@@ -66,6 +68,7 @@ enum class BufferProfile(
 }
 
 /** 画面比例三档（PLAYBACK_SPEC §6 / 任务 §5）。 */
+@SuppressLint("UnsafeOptInUsageError")
 enum class AspectMode(val label: String, val resizeMode: Int) {
     FIT("原始比例", AspectRatioFrameLayout.RESIZE_MODE_FIT),
     FILL("拉伸铺满", AspectRatioFrameLayout.RESIZE_MODE_FILL),

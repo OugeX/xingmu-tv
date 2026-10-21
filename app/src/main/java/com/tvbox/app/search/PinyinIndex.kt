@@ -7,6 +7,7 @@ import com.tvbox.app.data.VodSummary
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import android.os.SystemClock
 import org.json.JSONObject
 import java.util.Locale
 
@@ -131,6 +132,64 @@ class PinyinIndex(context: Context) {
 
     fun size(): Int = synchronized(lock) { entries.size }
 
+    data class IndexBenchmark(
+        val entries: Int,
+        val buildMs: Long,
+        val lookupMs: Long,
+        val multiPronunciationHit: Boolean,
+        val capacity: Int,
+    )
+
+    /**
+     * 首拼索引基准（t14 D）：
+     * - 用真实片名模板构造 5000 条，测量建索引与查询耗时（不写入线上索引）；
+     * - 校验多音字：长 → chang/zhang（长安三万里 → caswl / zaswl）；
+     * - 结果写 TVBox/PinyinIndex BENCH，供验收记录。
+     */
+    suspend fun benchmark(entries: Int = 5_000): IndexBenchmark = withContext(AppDispatchers.IoLimited) {
+        val loadStart = SystemClock.elapsedRealtime()
+        ensureLoaded()
+        val loadMs = SystemClock.elapsedRealtime() - loadStart
+        val templates = SearchSeeds.summaries().map { it.name }.ifEmpty { listOf("流浪地球", "长安三万里", "漫长的季节") }
+        val startBuild = SystemClock.elapsedRealtime()
+        val built = ArrayList<Entry>(entries)
+        for (i in 0 until entries) {
+            val name = (templates[i % templates.size] + (i % 100)).take(24)
+            built.add(
+                buildEntry(
+                    VodSummary(
+                        vodId = "bench$i",
+                        sourceId = "bench",
+                        name = name,
+                        pic = "",
+                        remarks = "",
+                        year = "",
+                        typeId = "",
+                        typeName = "",
+                        score = "",
+                    ),
+                ),
+            )
+        }
+        val buildMs = SystemClock.elapsedRealtime() - startBuild
+        val startLookup = SystemClock.elapsedRealtime()
+        var hits = 0
+        for (entry in built) {
+            if (entry.initials.any { it.startsWith("lldq") } || entry.full.any { it.startsWith("chang") }) hits++
+        }
+        val lookupMs = SystemClock.elapsedRealtime() - startLookup
+        val multi = buildEntry(
+            VodSummary("multi", "bench", "长安三万里", "", "", "", "", "", ""),
+        ).initials.any { it.contains("caswl") || it.contains("zaswl") }
+        val result = IndexBenchmark(entries, buildMs, lookupMs, multi, MAX_ENTRIES)
+        TvLog.i(
+            "PinyinIndex",
+            "BENCH entries=${result.entries} dictLoadMs=$loadMs buildMs=${result.buildMs} lookupMs=${result.lookupMs} " +
+                "multiPron=${result.multiPronunciationHit} capacity=${result.capacity}",
+        )
+        result
+    }
+
     private fun buildEntry(vod: VodSummary): Entry {
         val title = vod.name
         val initialsOptions = ArrayList<List<String>>(title.length)
@@ -210,7 +269,7 @@ class PinyinIndex(context: Context) {
     private companion object {
         const val ASSET_INITIALS = "pinyin_initials.json"
         const val ASSET_FULL = "pinyin_full.json"
-        const val MAX_ENTRIES = 1500
-        const val MAX_VARIANTS = 32
+        const val MAX_ENTRIES = 8000
+        const val MAX_VARIANTS = 8
     }
 }

@@ -1,9 +1,11 @@
 package com.tvbox.app.import
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
+import androidx.annotation.RequiresApi
 import com.tvbox.app.core.AppDispatchers
 import com.tvbox.app.core.TvLog
 import kotlinx.coroutines.withContext
@@ -96,14 +98,7 @@ class UsbImportScanner(context: Context) {
         val roots = ArrayList<File>()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             try {
-                val sm = appContext.getSystemService(Context.STORAGE_SERVICE) as? StorageManager
-                val volumes: List<StorageVolume>? = sm?.storageVolumes
-                volumes?.forEach { volume ->
-                    if (volume.isPrimary) return@forEach
-                    if (!volume.isRemovable) return@forEach
-                    val dir = volumeDirectory(volume)
-                    if (dir != null && dir.isDirectory) roots.add(dir)
-                }
+                appendRemovableVolumeRoots(roots)
             } catch (t: Throwable) {
                 TvLog.w(TAG, "StorageManager 枚举失败", t)
             }
@@ -118,19 +113,38 @@ class UsbImportScanner(context: Context) {
         return roots.distinctBy { it.absolutePath }
     }
 
+    /** API 24+（StorageVolume.isPrimary/isRemovable 均为 24 新增）。 */
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun appendRemovableVolumeRoots(roots: MutableList<File>) {
+        val sm = appContext.getSystemService(Context.STORAGE_SERVICE) as? StorageManager ?: return
+        sm.storageVolumes?.forEach { volume ->
+            if (volume.isPrimary) return@forEach
+            if (!volume.isRemovable) return@forEach
+            val dir = volumeDirectory(volume)
+            if (dir != null && dir.isDirectory) roots.add(dir)
+        }
+    }
+
+    /** API 24+；API 30 起优先 `getDirectory()`，更低版本反射 `getPath()`。 */
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun volumeDirectory(volume: StorageVolume): File? {
-        // StorageVolume.getDirectory() 仅 API 30+；更低版本反射 getPath()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            try {
-                return volume.directory
-            } catch (_: Throwable) {
-            }
+            volumeDirectoryApi30(volume)?.let { return it }
         }
         return try {
+            @SuppressLint("DiscouragedPrivateApi")
             val method = StorageVolume::class.java.getMethod("getPath")
             (method.invoke(volume) as? String)?.let { File(it) }
         } catch (t: Throwable) {
             null
         }
+    }
+
+    /** API 30+：StorageVolume.getDirectory()。 */
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun volumeDirectoryApi30(volume: StorageVolume): File? = try {
+        volume.directory
+    } catch (_: Throwable) {
+        null
     }
 }

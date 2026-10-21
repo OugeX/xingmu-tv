@@ -34,6 +34,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tvbox.app.core.AppDispatchers
+import com.tvbox.app.ui.DpadDownSink
 import com.tvbox.app.core.AppError
 import com.tvbox.app.core.Result
 import com.tvbox.app.data.CanonicalCategory
@@ -190,6 +191,8 @@ private fun CinemaHome(
                 posterWidth = posterWidth,
             )
         }
+
+        item(key = "focus-sink") { DpadDownSink() }
 
         item(key = "footer") {
             TvLabel(
@@ -350,5 +353,6 @@ private fun LiteHome(state: HomeUi.Ready, onOpenDetail: (VodSummary) -> Unit) {
         if (flat.isEmpty()) {
             TvEmptyState("暂无内容，检查网络后重试")
         }
+        DpadDownSink()
     }
 }

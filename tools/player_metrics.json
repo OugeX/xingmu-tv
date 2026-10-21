@@ -1,0 +1,79 @@
+{
+  "generated_at": "2026-10-21T21:17:54+08:00",
+  "device": "192.168.1.9:5555",
+  "package": "com.tvbox.app",
+  "instrumentation_present": true,
+  "event_count": 1,
+  "live_event_count": 1,
+  "play_event_count": 0,
+  "rebuffer_max": 0.0,
+  "source_switch": "N/A: PLAYER_EVT 无 action=switchsrc（t9 埋点缺失），无法分离换源耗时",
+  "budget_source": "docs/PLAYER_PERF.md §1",
+  "metrics": [
+    {
+      "metric": "VOD first frame",
+      "n": 0,
+      "p50": null,
+      "p90": null,
+      "max": null,
+      "target_ms": 2000,
+      "upper_ms": 3000,
+      "result": "N/A"
+    },
+    {
+      "metric": "VOD prepare",
+      "n": 0,
+      "p50": null,
+      "p90": null,
+      "max": null,
+      "target_ms": 2000,
+      "upper_ms": 3000,
+      "result": "N/A"
+    },
+    {
+      "metric": "Live first start",
+      "n": 1,
+      "p50": 1799,
+      "p90": 1799,
+      "max": 1799,
+      "target_ms": 1500,
+      "upper_ms": 2500,
+      "result": "FAIL(target, within upper)"
+    },
+    {
+      "metric": "Zap (same CDN)",
+      "n": 0,
+      "p50": null,
+      "p90": null,
+      "max": null,
+      "target_ms": 1000,
+      "upper_ms": 1500,
+      "result": "N/A"
+    },
+    {
+      "metric": "Episode switch",
+      "n": 0,
+      "p50": null,
+      "p90": null,
+      "max": null,
+      "target_ms": 800,
+      "upper_ms": 1200,
+      "result": "N/A"
+    }
+  ],
+  "events": [
+    {
+      "phase": "live",
+      "action": "play",
+      "prepare": 1799,
+      "first": 1799,
+      "rebuffer": 0,
+      "src": "576p",
+      "label": "第001集",
+      "from": "",
+      "to": "",
+      "degraded": 0,
+      "raw": "I/TVBox/PLAYER_EVT(18413): action=play label=第001集 url=https://c1.rrcdnbf4.com/video/mingzhentankenan/第001集/index.m3u8 t_prepare_ms=1799 t_first_frame_ms=1799 src=576p rebuffer=0"
+    }
+  ]
+}

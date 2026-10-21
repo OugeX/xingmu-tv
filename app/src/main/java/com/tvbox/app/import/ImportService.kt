@@ -92,6 +92,8 @@ class ImportService private constructor(context: Context) {
                 qrBitmap = QrCodes.bitmap(session.importUrl, 420),
             )
             _lanState.value = state
+            // debug 包记录一次性导入地址（含 token），便于真机联调；release 不输出（TvLog.d）
+            TvLog.d(TAG, "startLanImport url=${state.importUrl} pairing=${state.pairingCode}")
             return state
         } finally {
             starting.set(false)
@@ -109,6 +111,32 @@ class ImportService private constructor(context: Context) {
     fun restartLanImport(): LanImportState? {
         stopLanImport()
         return startLanImport()
+    }
+
+    /** 手机是否已用配对码完成配对（TV 端配对码页显示状态用）。 */
+    fun isLanPaired(): Boolean = server?.isPaired() == true
+
+    fun isLanRunning(): Boolean = server?.isRunning == true
+
+    /**
+     * TV 端校验用户输入的 6 位配对码（配对码页“核对”用）。
+     * 与服务端 [LanImportServer] 的 /api/pair 规则一致：错误返回 E_PAIR / E_PAIR_EXPIRED。
+     */
+    fun verifyPairingCode(input: String): com.tvbox.app.core.Result<Boolean> {
+        val state = _lanState.value
+            ?: return com.tvbox.app.core.Result.failure(ImportCodes.PAIR_EXPIRED, "导入服务未启动或已过期，请重新生成配对码")
+        val code = input.filter { it.isDigit() }
+        if (code.length != 6) {
+            return com.tvbox.app.core.Result.failure(ImportCodes.PAIR, "请输入电视上显示的 6 位数字配对码")
+        }
+        if (System.currentTimeMillis() > state.expiresAt) {
+            return com.tvbox.app.core.Result.failure(ImportCodes.PAIR_EXPIRED, "配对码已过期（5 分钟），请重新生成")
+        }
+        return if (code == state.pairingCode) {
+            com.tvbox.app.core.Result.Ok(true)
+        } else {
+            com.tvbox.app.core.Result.failure(ImportCodes.PAIR, "配对码不正确，请核对电视上显示的 6 位数字")
+        }
     }
 
     // ---------------------------------------------------------------- 统一导入入口
@@ -162,6 +190,27 @@ class ImportService private constructor(context: Context) {
     }
 
     fun scanUsb(): List<UsbSourceFile> = usbScanner.scan()
+
+    /** 本机可读目录（App 外部目录 / Download），系统无文件选择器时的兜底入口。 */
+    fun scanLocalFiles(): List<UsbSourceFile> = LocalFileScanner.scan(appContext)
+
+    fun localFileDirHint(): String = LocalFileScanner.importDirHint(appContext)
+
+    /** 本机目录文件导入（与 U 盘/SAF 同一条管线）。 */
+    suspend fun importLocalFile(file: UsbSourceFile): ImportReport = withContext(AppDispatchers.Io) {
+        val bytes = usbScanner.read(file)
+        if (bytes == null) {
+            return@withContext record(
+                ImportReport.failure(ImportOrigin.FILE, "E_IO", "无法读取文件：${file.name}"),
+            )
+        }
+        record(
+            pipeline.importBytes(
+                bytes,
+                ImportOptions(origin = ImportOrigin.FILE, filename = file.name),
+            ),
+        )
+    }
 
     // ---------------------------------------------------------------- 内部
 

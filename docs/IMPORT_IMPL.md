@@ -77,3 +77,17 @@ svc.stopLanImport()    // 必须调用：关闭 8088
 // 遥控器：ImportInputSpec.KEY_ROWS/completions()/normalize() + svc.importUrl(url)
 ```
 多源聚合详情换源：`SourceRepositoryImpl.findAlternateSources`；源管理页用 `listAllSources()`/`listSourceStates()`（含停用与 probe 状态）。
+
+## 6. 导入 UI（t17 接线完成）
+
+- `ui/source/SourceManageScreen.kt`：底部「添加播放源」五个入口 = 二维码 / 配对码 / 本地文件 / U 盘 / 遥控器键盘；点击进入全屏子页 `ImportPanelScreen`（不是弹窗，D-pad 焦点更稳）。
+- `ui/source/ImportPanel.kt`：
+  - **二维码**：`ImportService.startLanImport()` → 二维码 Bitmap + `http://<lan-ip>:<port>` + 6 位配对码 + `mm:ss` 倒计时；`lastReport` 成功后 `onImported()` 刷新列表并显示「已导入 N 个源（M 个频道）」。
+  - **配对码**：大字显示 + 6 位输入核对（`verifyPairingCode`，错误码 `E_PAIR`/`E_PAIR_EXPIRED`）+ 手机配对状态（`isLanPaired`）。
+  - **本地文件**：优先 `ACTION_OPEN_DOCUMENT`（API 19+，多候选 Intent 逐个尝试）；实测 LeTV X4-50 只有不带 `CATEGORY_OPENABLE` 的 `com.stv.filemanager`，带 OPENABLE 会抛 `ActivityNotFoundException`，所以 `SafImport.resolveLaunchableIntents()` 依次尝试 OPEN_DOCUMENT(±OPENABLE)/GET_CONTENT，失败再回退到 `LocalFileScanner`（App 外部目录 `Android/data/com.tvbox.app/files/import/` 与下载目录，无需存储权限）。
+  - **U 盘**：`scanUsb()` → 「发现 N 个源文件，导入？」→ 单个/全部导入。
+  - **键盘**：`ImportInputSpec` 分组键盘（数字/字母/符号）+ 候选 + 历史一键填入；聚焦输入框时外接键盘/ADB 可直接打字（`utf16CodePoint`），ENTER 提交。
+- 生命周期：进入面板启服务；离开 `DisposableEffect` 关服务；App 退到后台 `ON_STOP` 也立即关（`LanServiceLifecycleEffect`），回前台重新生成 token。
+- 调试/截图入口（QA 用）：`am start -n com.tvbox.app/.MainActivity --es screen sources --es importPanel qr|pair|file|usb|keyboard`。
+- 真机验收截图：`design/mockups/import_qr.png`（二维码）、`import_qr_result.png`（手机导入成功）、`import_qr_list.png`/`import_list_final.png`（列表刷新）、`import_pair.png`（配对码）、`import_keyboard.png`（键盘导入成功）、`import_file.png`/`import_file_list.png`（本地文件）、`import_usb.png`（无 U 盘实物时的空态）、`import_sources_clean.png`（清理后 7 内置源）。
+

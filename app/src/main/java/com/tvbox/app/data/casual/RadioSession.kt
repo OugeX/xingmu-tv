@@ -3,6 +3,7 @@ package com.tvbox.app.data.casual
 import android.content.Context
 import androidx.compose.runtime.Immutable
 import com.tvbox.app.core.Result
+import com.tvbox.app.casual.CasualRadioService
 import com.tvbox.app.core.TvLog
 import com.tvbox.app.data.AppImages
 import com.tvbox.app.data.MediaUrl
@@ -153,6 +154,7 @@ class RadioSession(
     /** 视频/直播开始前调用：主动让出播放器，避免音频与视频抢 codec。 */
     fun stopForExternal() {
         active = false
+        CasualRadioService.stop(appContext)
         bufferingWatch?.cancel()
         failoverJob?.cancel()
         runCatching { controller.pause() }
@@ -214,6 +216,7 @@ class RadioSession(
                 failover("起播超时，正在换台")
             }
         }
+        CasualRadioService.start(appContext)
         controller.play(
             MediaUrl(
                 label = station.name,

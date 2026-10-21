@@ -1,5 +1,7 @@
 package com.tvbox.app.player
 
+import android.annotation.SuppressLint
+
 import android.content.Context
 import android.media.AudioDeviceInfo
 import androidx.media3.common.AudioAttributes
@@ -27,6 +29,7 @@ import java.nio.ByteBuffer
  * UI 进度条按该值显示不会跳；退出播放器或重置为 0 即恢复。
  */
 @UnstableApi
+@SuppressLint("NewApi")
 class CalibrationAudioSink(
     private val delegate: AudioSink,
 ) : AudioSink {

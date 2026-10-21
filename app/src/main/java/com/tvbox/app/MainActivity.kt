@@ -44,6 +44,7 @@ class MainActivity : ComponentActivity() {
             "sources" -> Dest.Sources
             "live" -> Dest.Live
             "casual" -> Dest.Casual
+            "settings" -> Dest.Settings
             "casualVideo" -> {
                 val bvid = intent.getStringExtra("bvid").orEmpty()
                 if (bvid.isBlank()) null else Dest.CasualVideo(

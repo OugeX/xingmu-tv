@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tvbox.app.core.AppError
+import com.tvbox.app.ui.DpadDownSink
 import com.tvbox.app.core.Result
 import com.tvbox.app.data.Episode
 import com.tvbox.app.data.VodDetail
@@ -345,6 +346,8 @@ private fun DetailBody(
                     TvEmptyState("该作品暂无播放地址，换一个源试试")
                 }
             }
+
+            item(key = "focus-sink") { DpadDownSink() }
 
             item(key = "source-hint") {
                 TvLabel(

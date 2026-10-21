@@ -1,12 +1,17 @@
 package com.tvbox.app.ui.search
 
+import android.Manifest
 import android.app.Activity
+import android.content.pm.PackageManager
+import android.os.Build
 import android.content.Context
 import android.content.Intent
 import android.speech.RecognizerIntent
 import android.view.KeyEvent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.focusable
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
@@ -56,12 +62,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.tvbox.app.ui.ContentGate
+import com.tvbox.app.ui.DpadDownSink
 import com.tvbox.app.core.AppError
 import com.tvbox.app.core.Result
 import com.tvbox.app.data.VodSummary
 import com.tvbox.app.search.PinyinIndex
 import com.tvbox.app.search.SearchHistory
 import com.tvbox.app.search.SearchSeeds
+import com.tvbox.app.search.VoiceAsr
+import com.tvbox.app.ui.settings.SettingsStore
 import com.tvbox.app.source.SourceRepository
 import com.tvbox.app.ui.LocalTvColors
 import com.tvbox.app.ui.LocalTvDimens
@@ -125,6 +135,20 @@ fun SearchScreen(
     val dimens = LocalTvDimens.current
     val scope = rememberCoroutineScope()
     val historyStore = remember(context) { SearchHistory(context) }
+    val appSettings = remember(context) { SettingsStore(context).read() }
+    val voiceAsr = remember(context) { VoiceAsr(context) }
+    var voiceOverlay by remember { mutableStateOf(false) }
+    var voiceHint by remember { mutableStateOf<String?>(null) }
+    val recordPermission = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        if (granted) {
+            voiceHint = null
+            voiceOverlay = true
+        } else {
+            voiceHint = "未授予录音权限，可在系统设置里开启，或使用首拼搜索"
+        }
+    }
 
     var query by remember { mutableStateOf("") }
     var searchToken by remember { mutableIntStateOf(0) }
@@ -155,6 +179,15 @@ fun SearchScreen(
             return@LaunchedEffect
         }
         localHits = pinyin.search(q, 60)
+        // R5：纯字母只走本地首拼（MacCMS 的 wd= 不支持拼音，服务端必然 0 条）
+        val localOnly = q.all { it in 'a'..'z' || it in 'A'..'Z' }
+        if (localOnly) {
+            searching = false
+            hasMore = false
+            apiItems = emptyList()
+            apiError = null
+            return@LaunchedEffect
+        }
         delay(300)
         searching = true
         when (val result = repo.search(q, 1)) {
@@ -172,7 +205,7 @@ fun SearchScreen(
 
     fun loadMore() {
         val q = query.trim()
-        if (q.isEmpty() || searching || loadingMore || !hasMore) return
+        if (q.isEmpty() || searching || loadingMore || !hasMore || ContentGate.zapping) return
         loadingMore = true
         scope.launch {
             when (val result = repo.search(q, page + 1)) {
@@ -189,6 +222,7 @@ fun SearchScreen(
         }
     }
 
+    val localOnly = query.trim().let { q -> q.isNotEmpty() && q.all { it in 'a'..'z' || it in 'A'..'Z' } }
     val merged = remember(localHits, apiItems) { mergeResults(localHits.map { it.vod }, apiItems) }
     val matchMap = remember(localHits) {
         localHits.associate { "${it.vod.sourceId}|${it.vod.vodId}" to it.matched }
@@ -317,6 +351,16 @@ fun SearchScreen(
             if (voiceAvailable) {
                 Spacer(Modifier.width(8.dp))
                 TvButton("语音", onClick = { voiceLauncher.launch(voiceIntent) })
+            } else if (appSettings.asrConfigured) {
+                Spacer(Modifier.width(8.dp))
+                TvButton("语音", onClick = {
+                    val granted = if (Build.VERSION.SDK_INT < 23) true else context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+                    if (granted) {
+                        voiceOverlay = true
+                    } else {
+                        recordPermission.launch(Manifest.permission.RECORD_AUDIO)
+                    }
+                })
             }
             Spacer(Modifier.width(8.dp))
             TvButton("搜索", onClick = { submit() }, primary = true, enabled = query.isNotBlank())
@@ -401,7 +445,9 @@ fun SearchScreen(
                     error = apiError ?: AppError("E_UNKNOWN", "搜索失败"),
                     onRetry = { searchToken++ },
                 )
-                merged.isEmpty() -> TvEmptyState("没有找到「${query.trim()}」，换个词试试")
+                merged.isEmpty() -> TvEmptyState(
+                    if (localOnly) "没有找到「${query.trim()}」，试试中文关键词" else "没有找到「${query.trim()}」，换个词试试",
+                )
                 else -> {
                     val columns = tvGridColumns()
                     val contentWidth = tvWidthDp() - (if (mode == TvMode.LITE) 300 else 150) - 96 - 18
@@ -450,7 +496,11 @@ fun SearchScreen(
         if (query.isNotBlank()) {
         Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             TvLabel(
-                text = "共 ${shown.size} 个结果 · 已加载 ${apiItems.size} · 本地命中 ${localHits.size}",
+                text = if (localOnly) {
+                    "本地首拼命中 ${localHits.size} 条 · 中文关键词走服务端"
+                } else {
+                    "共 ${shown.size} 个结果 · 已加载 ${apiItems.size} · 本地命中 ${localHits.size}"
+                },
                 fontSize = dimens.caption,
                 color = colors.textMuted,
                 maxLines = 1,
@@ -471,7 +521,106 @@ fun SearchScreen(
             onClear = { query = "" },
             onSearch = { submit() },
         )
+        DpadDownSink()
     }
+    }
+
+    if (voiceOverlay) {
+        VoiceRecordOverlay(
+            asr = voiceAsr,
+            settings = appSettings,
+            onText = { text ->
+                query = text
+                submit()
+                voiceOverlay = false
+            },
+            onClose = {
+                voiceAsr.cancel()
+                voiceOverlay = false
+            },
+        )
+    }
+}
+
+@Composable
+private fun VoiceRecordOverlay(
+    asr: VoiceAsr,
+    settings: com.tvbox.app.ui.settings.AppSettingsValues,
+    onText: (String) -> Unit,
+    onClose: () -> Unit,
+) {
+    val colors = LocalTvColors.current
+    val dimens = LocalTvDimens.current
+    val scope = rememberCoroutineScope()
+    val focus = remember { FocusRequester() }
+    var status by remember { mutableStateOf("按住 OK 说话，松开后识别") }
+    var busy by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        runCatching { focus.requestFocus() }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.9f))
+            .focusRequester(focus)
+            .focusable()
+            .onPreviewKeyEvent { event ->
+                val code = event.key.nativeKeyCode
+                when {
+                    code == KeyEvent.KEYCODE_BACK -> {
+                        asr.cancel()
+                        onClose()
+                        true
+                    }
+                    code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER -> {
+                        if (event.type == KeyEventType.KeyDown) {
+                            if (!busy && !asr.isRecording()) {
+                                status = if (asr.start()) "正在录音…松开结束" else "无法开始录音（检查麦克风/权限）"
+                            }
+                        } else {
+                            if (asr.isRecording()) {
+                                val wav = asr.stop()
+                                if (wav == null) {
+                                    status = "录音太短，请按住说话再松开"
+                                } else {
+                                    busy = true
+                                    status = "正在识别…（${wav.size / 1024}KB）"
+                                    scope.launch {
+                                        when (val result = asr.transcribe(wav, settings)) {
+                                            is com.tvbox.app.core.Result.Ok -> onText(result.value)
+                                            is com.tvbox.app.core.Result.Err -> {
+                                                status = result.error.msg
+                                                busy = false
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        true
+                    }
+                    else -> false
+                }
+            },
+    ) {
+        Column(
+            Modifier.fillMaxSize().padding(48.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            TvLabel("语音搜索（P1 自建 ASR）", dimens.rowTitle, colors.text, weight = FontWeight.Bold)
+            Spacer(Modifier.height(12.dp))
+            TvLabel(status, dimens.body, if (busy) colors.accent else colors.textSecondary)
+            Spacer(Modifier.height(8.dp))
+            TvLabel("16k/16bit 单声道 · 只在按住时录音 · 松手上传", dimens.caption, colors.textMuted)
+            Spacer(Modifier.height(20.dp))
+            TvButton("取消", onClick = {
+                asr.cancel()
+                onClose()
+            })
+        }
     }
 }
 

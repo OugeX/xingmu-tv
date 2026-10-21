@@ -1,8 +1,10 @@
 package com.tvbox.app.import
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.OpenableColumns
 import com.tvbox.app.core.TvLog
 import java.io.ByteArrayOutputStream
@@ -81,4 +83,51 @@ object SafImport {
     } catch (t: Throwable) {
         null
     }
+
+    /**
+     * 本机是否存在可用的文件选择器。
+     * 实测部分电视盒子（LeTV X4-50 / Android 6）只注册了不带 CATEGORY_OPENABLE 的
+     * `OPEN_DOCUMENT`（com.stv.filemanager），带 OPENABLE 的 Intent 会抛
+     * ActivityNotFoundException。因此这里返回**按优先级排列、已确认可解析**的 Intent 列表，
+     * UI 逐个尝试并把第一个能启动的交给系统。
+     */
+    @SuppressLint("QueryPermissionsNeeded")
+    fun resolveLaunchableIntents(context: Context): List<Intent> {
+        // API 30+ 未声明 <queries> 时 queryIntentActivities 可能返回空（包可见性），
+        // 此时不做预过滤：UI 会逐个 launch 并 catch ActivityNotFoundException。
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) return pickerIntents()
+        return pickerIntents().filter { intent ->
+            try {
+                intent.resolveActivity(context.packageManager) != null
+            } catch (t: Throwable) {
+                false
+            }
+        }
+    }
+
+    /** 候选 Intent：OPEN_DOCUMENT(带/不带 OPENABLE) → GET_CONTENT(带/不带 OPENABLE)。 */
+    fun pickerIntents(): List<Intent> {
+        val mimes = arrayOf(
+            "application/json",
+            "text/plain",
+            "application/octet-stream",
+            "audio/x-mpegurl",
+            "application/vnd.apple.mpegurl",
+        )
+        fun build(action: String, openable: Boolean, withMime: Boolean): Intent =
+            Intent(action).apply {
+                type = "*/*"
+                if (openable) addCategory(Intent.CATEGORY_OPENABLE)
+                if (withMime) putExtra(Intent.EXTRA_MIME_TYPES, mimes)
+            }
+        return listOf(
+            build(Intent.ACTION_OPEN_DOCUMENT, openable = true, withMime = true),
+            build(Intent.ACTION_OPEN_DOCUMENT, openable = false, withMime = true),
+            build(Intent.ACTION_OPEN_DOCUMENT, openable = false, withMime = false),
+            build(Intent.ACTION_GET_CONTENT, openable = true, withMime = false),
+            build(Intent.ACTION_GET_CONTENT, openable = false, withMime = false),
+        )
+    }
+
+    fun hasDocumentPicker(context: Context): Boolean = resolveLaunchableIntents(context).isNotEmpty()
 }
