@@ -52,7 +52,11 @@ class MacCmsClient(
         }
     }
 
-    suspend fun detail(source: SourceConfig, vodId: String): Result<VodDetail> {
+    suspend fun detail(
+        source: SourceConfig,
+        vodId: String,
+        onRaw: ((String) -> Unit)? = null,
+    ): Result<VodDetail> {
         val memoKey = "${source.id}|$vodId"
         synchronized(detailMemo) { detailMemo[memoKey] }?.let {
             TvLog.i("DetailPerf", "memory hit source=${source.id} vod=$vodId")
@@ -72,6 +76,8 @@ class MacCmsClient(
                 is Result.Ok -> {
                     synchronized(detailMemo) { detailMemo[memoKey] = parsed.value }
                     TvLog.i("DetailPerf", "loaded source=${source.id} vod=$vodId in=${System.currentTimeMillis() - started}ms")
+                    // t27：给预置详情表一个回写原始 JSON 的机会（7 天过期后的静默刷新）
+                    runCatching { onRaw?.invoke(raw.value) }
                     parsed
                 }
                 is Result.Err -> parsed

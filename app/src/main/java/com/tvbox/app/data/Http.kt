@@ -5,6 +5,7 @@ import com.tvbox.app.core.AppError
 import com.tvbox.app.core.ErrorCodes
 import com.tvbox.app.core.Result
 import com.tvbox.app.core.TvLog
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -120,9 +121,49 @@ object Http {
             }
         }
 
+    /**
+     * 下载到文件（t27 预置详情包）：边读边写，回调进度；协程取消时 cancel Call。
+     * 返回写入字节数。-1 表示服务端没给 Content-Length。
+     */
+    suspend fun downloadTo(
+        url: String,
+        dest: java.io.File,
+        onProgress: (read: Long, total: Long) -> Unit = { _, _ -> },
+    ): Long = withContext(AppDispatchers.Io) {
+        val call = client.newCall(buildRequest(url, emptyMap()))
+        val response = try {
+            call.execute()
+        } catch (t: Throwable) {
+            call.cancel()
+            throw t
+        }
+        response.use { r ->
+            if (!r.isSuccessful) throw IOException("HTTP ${r.code} ${r.message}")
+            val body = r.body ?: throw IOException("空响应体")
+            val total = body.contentLength()
+            dest.parentFile?.mkdirs()
+            dest.outputStream().buffered().use { out ->
+                body.byteStream().use { input ->
+                    val buffer = ByteArray(64 * 1024)
+                    var read = 0L
+                    while (true) {
+                        if (!kotlinx.coroutines.currentCoroutineContext().isActive) {                            call.cancel()
+                            throw java.io.InterruptedIOException("下载已取消")
+                        }
+                        val n = input.read(buffer)
+                        if (n < 0) break
+                        out.write(buffer, 0, n)
+                        read += n
+                        onProgress(read, total)
+                    }
+                }
+            }
+            total
+        }
+    }
+
     /** 内部工具：把异常折成带错误码的 Result。 */
-    suspend fun <T> ioCall(block: suspend () -> T): Result<T> = withContext(AppDispatchers.Io) {
-        try {
+    suspend fun <T> ioCall(block: suspend () -> T): Result<T> = withContext(AppDispatchers.Io) {        try {
             Result.Ok(block())
         } catch (t: Throwable) {
             val code = if (t is java.net.SocketTimeoutException || t is java.util.concurrent.TimeoutException) {

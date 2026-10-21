@@ -29,6 +29,12 @@ class LocalSourceRepository(context: Context) : SourceRepository, SourceAdminDat
     private val overseas = OverseasMap(appContext)
     private val liveSeed = LiveSeed(appContext)
 
+    /** t27：预置详情包（首启下载 + SQLite + 详情本地优先）。 */
+    private val seedPrefs = DetailSeedPrefs(appContext)
+    private val seedStore = DetailSeedStore(AndroidSeedDatabase(appContext))
+    private val seedDetails = DetailSeedDetails(seedStore, seedPrefs::enabled)
+    private val seedSync = DetailSeedSync.get(appContext)
+
     init {
         // t23：应用启动即后台竞速前几个源，用户点进详情前 winner 已就绪（不阻塞首帧）
         kotlinx.coroutines.CoroutineScope(
@@ -40,6 +46,8 @@ class LocalSourceRepository(context: Context) : SourceRepository, SourceAdminDat
                 }
             }
         }
+        // t27：Wi-Fi 下后台拉预置详情包（378KB），不阻塞首帧；失败静默重试一次
+        runCatching { seedSync.startIfNeeded() }
     }
 
     override suspend fun listSources(): Result<List<SourceConfig>> = Result.Ok(allSources())
@@ -92,11 +100,44 @@ class LocalSourceRepository(context: Context) : SourceRepository, SourceAdminDat
         }
         val source = allSources().firstOrNull { it.id == sourceId }
             ?: return Result.failure(ErrorCodes.SOURCE_OFFLINE, "源不存在或已被删除：$sourceId")
-        val result = client.detail(source, vodId)
+        // t27：预置详情包命中 → 直接返回（"DetailPerf source=seed in=<n>ms"），7 天过期则后台静默刷新
+        // SQLite 读必须离开主线程：UI 侧可能直接在 Main 调 getDetail
+        val seedHit = withContext(AppDispatchers.Io) {
+            runCatching { seedDetails.lookup(vodId, sourceId) }.getOrNull()
+        }
+        if (seedHit != null) {
+            if (seedHit.stale) refreshSeedDetail(source, vodId)
+            runCatching { com.tvbox.app.player.VodPrefetch.prefetchDetail(appContext, seedHit.detail) }
+            return Result.Ok(seedHit.detail)
+        }
+        val result = client.detail(source, vodId) { raw ->
+            // 网络成功且包里已有该作品时覆盖本地行，避免预置数据越用越旧
+            seedDetails.refreshFromNetwork(vodId, sourceId, source.name, "", raw)
+        }
         if (result is Result.Ok) {
             runCatching { com.tvbox.app.player.VodPrefetch.prefetchDetail(appContext, result.value) }
         }
         return result
+    }
+
+    /** 7 天过期后的静默刷新：不阻塞当前 300ms 首屏，失败静默。 */
+    private fun refreshSeedDetail(source: SourceConfig, vodId: String) {
+        kotlinx.coroutines.CoroutineScope(
+            kotlinx.coroutines.SupervisorJob() + AppDispatchers.Io,
+        ).launch {
+            runCatching {
+                val started = System.currentTimeMillis()
+                val refreshed = client.detail(source, vodId) { raw ->
+                    seedDetails.refreshFromNetwork(vodId, source.id, source.name, "", raw)
+                }
+                if (refreshed is Result.Ok) {
+                    TvLog.i(
+                        "DetailPerf",
+                        "source=seed refresh ok in=${System.currentTimeMillis() - started}ms vod=$vodId",
+                    )
+                }
+            }
+        }
     }
 
     override suspend fun findAlternateSources(

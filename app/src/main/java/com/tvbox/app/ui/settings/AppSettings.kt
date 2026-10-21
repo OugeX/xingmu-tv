@@ -29,6 +29,8 @@ data class AppSettingsValues(
     val asrEndpoint: String = "",
     val asrKey: String = "",
     val asrModel: String = "whisper-1",
+    /** t27：使用预置详情包（378KB 下载，详情冷开秒开），默认开 */
+    val seedDetails: Boolean = true,
 ) {
     val asrConfigured: Boolean get() = asrEndpoint.startsWith("http") && asrKey.isNotBlank()
 
@@ -58,6 +60,7 @@ class SettingsStore(context: Context) {
         asrEndpoint = prefs.getString(KEY_ASR_ENDPOINT, "").orEmpty(),
         asrKey = prefs.getString(KEY_ASR_KEY, "").orEmpty(),
         asrModel = prefs.getString(KEY_ASR_MODEL, "whisper-1").orEmpty().ifBlank { "whisper-1" },
+        seedDetails = prefs.getBoolean(KEY_SEED_DETAILS, true),
     )
 
     fun write(values: AppSettingsValues) {
@@ -74,6 +77,7 @@ class SettingsStore(context: Context) {
             .putString(KEY_ASR_ENDPOINT, values.asrEndpoint.trim())
             .putString(KEY_ASR_KEY, values.asrKey.trim())
             .putString(KEY_ASR_MODEL, values.asrModel.trim())
+            .putBoolean(KEY_SEED_DETAILS, values.seedDetails)
             .apply()
         // 兼容 t4/t12 已写入的显示档位
         displayPrefs.writeTier(values.fontTier)
@@ -92,6 +96,7 @@ class SettingsStore(context: Context) {
         const val KEY_ASR_ENDPOINT = "asr_endpoint"
         const val KEY_ASR_KEY = "asr_key"
         const val KEY_ASR_MODEL = "asr_model"
+        const val KEY_SEED_DETAILS = "seed_details"
     }
 }
 

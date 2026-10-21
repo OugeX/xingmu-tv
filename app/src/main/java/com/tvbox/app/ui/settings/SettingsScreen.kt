@@ -17,6 +17,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -33,16 +34,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tvbox.app.core.Result
-import com.tvbox.app.ui.DpadDownSink
+import com.tvbox.app.data.AndroidSeedDatabase
+import com.tvbox.app.data.DetailSeedPrefs
+import com.tvbox.app.data.DetailSeedStore
+import com.tvbox.app.data.DetailSeedSync
+import com.tvbox.app.data.SeedSyncState
 import com.tvbox.app.data.SourceAdminDataSource
 import com.tvbox.app.data.casual.CasualRepository
 import com.tvbox.app.source.SourceRepository
 import com.tvbox.app.ui.FontTier
+import com.tvbox.app.ui.DpadDownSink
 import com.tvbox.app.ui.LocalTvColors
 import com.tvbox.app.ui.LocalTvDimens
 import com.tvbox.app.ui.components.TvButton
 import com.tvbox.app.ui.components.TvChip
 import com.tvbox.app.ui.components.TvLabel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * 设置页（t14 B）：显示 / 播放 / 语音 / 关于。
@@ -109,6 +117,50 @@ fun SettingsScreen(
                 TvChip("关", selected = !values.forceLite, onClick = { onChange(values.copy(forceLite = false)) })
                 Spacer(Modifier.width(6.dp))
                 TvChip("开", selected = values.forceLite, onClick = { onChange(values.copy(forceLite = true)) })
+            }
+        }
+
+        Section("预置数据") {
+            // t27：预置热门详情包（378KB），下载后详情冷开从 2.9–7.8s 降到本地秒开
+            val seedSync = remember { DetailSeedSync.get(context) }
+            val seedState by seedSync.state.collectAsState()
+            var seedSummary by remember { mutableStateOf("读取中…") }
+            LaunchedEffect(seedState) {
+                seedSummary = withContext(Dispatchers.IO) {
+                    runCatching {
+                        val stats = DetailSeedStore(AndroidSeedDatabase(context)).stats()
+                        if (stats.count == 0) {
+                            "尚未导入（首次连 Wi-Fi 自动下载 378KB）"
+                        } else {
+                            "${stats.count} 部作品 · 版本 ${stats.version ?: "-"} · 详情本地秒开"
+                        }
+                    }.getOrDefault("状态读取失败")
+                }
+            }
+            RowSetting("使用预置详情包") {
+                TvChip(
+                    "关",
+                    selected = !values.seedDetails,
+                    onClick = {
+                        onChange(values.copy(seedDetails = false))
+                        DetailSeedPrefs(context).setEnabled(false)
+                    },
+                )
+                Spacer(Modifier.width(6.dp))
+                TvChip(
+                    "开",
+                    selected = values.seedDetails,
+                    onClick = {
+                        onChange(values.copy(seedDetails = true))
+                        DetailSeedPrefs(context).setEnabled(true)
+                        seedSync.startIfNeeded()
+                    },
+                )
+                Spacer(Modifier.width(12.dp))
+                TvLabel(seedStateText(seedState), dimens.caption, colors.textMuted)
+            }
+            RowSetting("预置包状态") {
+                TvLabel(seedSummary, dimens.caption, colors.textMuted)
             }
         }
 
@@ -331,4 +383,15 @@ private fun SettingsTextDialog(
         kotlinx.coroutines.delay(120)
         runCatching { focus.requestFocus() }
     }
+}
+
+/** t27：预置包同步状态 → 设置页文案。 */
+private fun seedStateText(state: SeedSyncState): String = when (state) {
+    is SeedSyncState.Idle -> "待下载"
+    is SeedSyncState.Downloading ->
+        if (state.total > 0) "下载中 ${state.read * 100 / state.total}%" else "下载中 ${state.read / 1024}KB"
+    is SeedSyncState.Verifying -> "校验中"
+    is SeedSyncState.Importing -> "导入中 ${state.count} 条"
+    is SeedSyncState.Ready -> "已就绪 ${state.count} 条（导入 ${state.importMs}ms）"
+    is SeedSyncState.Failed -> "下载失败，将静默重试"
 }

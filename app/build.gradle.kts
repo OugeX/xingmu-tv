@@ -84,6 +84,11 @@ android {
             "META-INF/NOTICE*",
         )
     }
+
+    // t27：JVM 单测里 android.util.Log / org.json 走默认实现，SQLite 用 sqlite-jdbc
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -114,4 +119,11 @@ dependencies {
 
     // t24：profile 生成器（com.android.test 模块，仅在 benchmark/生成任务里用到）
     baselineProfile(project(":baselineprofile"))
+
+    // ---- 单元测试（t27 预置详情包：解析 / SQLite 导入 / 本地优先查询） ----
+    // sqlite-jdbc 让单测能在 JVM 上跑同一套 SQL（设备关机时也能验证导入预算）
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
+    testImplementation("org.xerial:sqlite-jdbc:3.46.1.3")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 }
