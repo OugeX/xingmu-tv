@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.tvbox.app.core.TvLog
+import com.tvbox.app.data.casual.ShortClip
 import com.tvbox.app.ui.Dest
 import com.tvbox.app.ui.TvBoxApp
 import com.tvbox.app.ui.TvMode
@@ -17,7 +18,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         TvLog.i("MainActivity", "onCreate")
         setContent {
-            TvBoxApp(initialMode = pickMode(), initialDest = destFromIntent())
+            TvBoxApp(
+                initialMode = pickMode(),
+                initialDest = destFromIntent(),
+                casualSegment = intent?.getIntExtra("casualSegment", 0) ?: 0,
+            )
         }
     }
 
@@ -28,6 +33,14 @@ class MainActivity : ComponentActivity() {
             "search" -> Dest.Search
             "sources" -> Dest.Sources
             "live" -> Dest.Live
+            "casual" -> Dest.Casual
+            "casualVideo" -> {
+                val bvid = intent.getStringExtra("bvid").orEmpty()
+                if (bvid.isBlank()) null else Dest.CasualVideo(
+                    clips = listOf(ShortClip(bvid = bvid, title = bvid, pic = "", durationSec = 0, owner = "", views = 0)),
+                    startIndex = 0,
+                )
+            }
             "category" -> Dest.Category(
                 intent.getIntExtra("typeId", 20),
                 intent.getStringExtra("title") ?: "分类",

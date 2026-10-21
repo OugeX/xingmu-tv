@@ -37,8 +37,13 @@ import com.tvbox.app.data.CanonicalCategory
 import com.tvbox.app.data.FallbackSourceRepository
 import com.tvbox.app.data.LocalSourceRepository
 import com.tvbox.app.data.WatchProgressStore
+import com.tvbox.app.data.casual.CasualGraph
+import com.tvbox.app.data.casual.CasualRepository
+import com.tvbox.app.data.casual.ShortClip
 import com.tvbox.app.search.PinyinIndex
 import com.tvbox.app.source.SourceGraph
+import com.tvbox.app.ui.casual.CasualScreen
+import com.tvbox.app.ui.casual.CasualVideoScreen
 import com.tvbox.app.ui.category.CategoryScreen
 import com.tvbox.app.ui.components.TvButton
 import com.tvbox.app.ui.components.TvFocusable
@@ -60,6 +65,8 @@ sealed interface Dest {
     data class Play(val request: PlaybackRequest) : Dest
     data object Sources : Dest
     data object Live : Dest
+    data object Casual : Dest
+    data class CasualVideo(val clips: List<ShortClip>, val startIndex: Int) : Dest
 }
 
 private data class NavItem(
@@ -70,7 +77,7 @@ private data class NavItem(
 )
 
 @Composable
-fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null) {
+fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, casualSegment: Int = 0) {
     val context = LocalContext.current
     val repo = remember(context) {
         // 接线：t10 的完整源仓库（SQLite + 导入）为主；网络超时时按调用回退到内置实现，
@@ -80,6 +87,7 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null) {
         if (primary != null) FallbackSourceRepository(primary, fallback) else fallback
     }
     val pinyin = remember(context) { PinyinIndex(context) }
+    val casualRepo: CasualRepository = remember(context) { CasualGraph.repository(context) }
     val progressStore = remember(context) { WatchProgressStore(context) }
     val displayPrefs = remember(context) { DisplayPrefs(context) }
 
@@ -116,6 +124,17 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null) {
                             request = current.request,
                             repo = repo,
                             progressStore = progressStore,
+                            onBack = { pop() },
+                        )
+                    }
+                }
+
+                is Dest.CasualVideo -> {
+                    Box(Modifier.fillMaxSize()) {
+                        CasualVideoScreen(
+                            clips = current.clips,
+                            startIndex = current.startIndex,
+                            repo = casualRepo,
                             onBack = { pop() },
                         )
                     }
@@ -198,7 +217,13 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null) {
 
                             is Dest.Sources -> SourceManageScreen(repo = repo, onBack = { pop() })
 
-                            is Dest.Play, is Dest.Live -> Unit
+                            is Dest.Casual -> CasualScreen(
+                                repo = casualRepo,
+                                onPlayVideo = { clips, index -> push(Dest.CasualVideo(clips, index)) },
+                                initialSegment = casualSegment,
+                            )
+
+                            is Dest.Play, is Dest.Live, is Dest.CasualVideo -> Unit
                         }
                     }
                 }
@@ -247,6 +272,7 @@ private fun NavRail(
                 it is Dest.Category && it.typeId == CanonicalCategory.OVERSEAS_ROOT
             },
             NavItem("直播", "直", Dest.Live) { it is Dest.Live },
+            NavItem("随便", "随", Dest.Casual) { it is Dest.Casual || it is Dest.CasualVideo },
             NavItem("播放源", "源", Dest.Sources) { it is Dest.Sources },
             NavItem("搜索", "搜", Dest.Search) { it is Dest.Search },
         )

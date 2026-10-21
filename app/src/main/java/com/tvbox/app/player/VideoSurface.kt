@@ -28,6 +28,9 @@ object PlayerSurfaceCache {
         val existing = cached
         if (existing != null && existing.parent == null) return existing
         val view = PlayerView(context.applicationContext).apply {
+            // MStar 6A938 / Android 6：SurfaceView 的 GL 合成在 1080p 上会持续 GL 0x500 → 黑屏。
+            // 老系统统一走 TextureView（多一次 GPU 拷贝，但能出画面），新设备保留 SurfaceView。
+            setUseTextureView(android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.M)
             setUseController(false)
             setShowBuffering(PlayerView.SHOW_BUFFERING_NEVER)
             setResizeMode(AspectMode.FIT.resizeMode)

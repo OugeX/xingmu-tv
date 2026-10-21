@@ -60,7 +60,7 @@
 | --- | --- | --- |
 | 30s 内 `onAudioUnderrun` ≥3 | 提缓冲一档；再触发降 720p 并提示 | `PlayerControllerImpl.kt:696` |
 | 30s 掉帧 >20% | 自动 720p + `AutoDowngrade` | `:730` |
-| 错误 / 8s 无数据 | `NeedsFallback` 请求换源 | `:508`、`:760` |
+| 错误 / 8s 无数据 | `NeedsFallback` 请求换源；看门狗绑定当前源，首帧即 cancel 重启；首帧后只用“位置 6s 无进度”，不再用 bufferingSince 判定（避免真机误降级） | `:508`、`:760` |
 | 视频格式突变 | seek 重同步一次（5s 冷却） | `:668` |
 | 音画校准 ±500ms | `setAudioDelayMs` `:217` → `CalibrationAudioSink.getCurrentPositionUs()` 时钟偏移（不动流） | `PlayerAudioPipeline.kt:43` |
 | 30s rebuffer ≥2 | 降 720p + 提示「网络不稳」 | `PlayerControllerImpl.kt` BUFFERING 分支 |
