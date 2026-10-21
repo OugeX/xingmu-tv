@@ -64,6 +64,7 @@ class RadioSession(
     private var active = true
     private var failoverJob: Job? = null
     private var bufferingWatch: Job? = null
+    private var startupWatch: Job? = null
 
     init {
         scope.launch {
@@ -78,15 +79,20 @@ class RadioSession(
                 if (!active) return@collect
                 when (playerState) {
                     is PlayerController.State.Playing -> {
+                        if (!hasPlayed) TvLog.i("RadioSession", "state -> Playing (station=${_state.value.station?.name})")
                         hasPlayed = true
                         bufferingWatch?.cancel()
+                        startupWatch?.cancel()
                         failoverJob?.cancel()
-                        _state.update { it.copy(error = null) }
+                        _state.update { it.copy(error = null, message = null) }
                     }
                     is PlayerController.State.Buffering -> {
                         if (hasPlayed) startBufferingWatch()
                     }
-                    is PlayerController.State.Error -> failover("播放失败，正在换台")
+                    is PlayerController.State.Error -> {
+                        TvLog.w("RadioSession", "state -> Error: ${(playerState as? PlayerController.State.Error)?.message}")
+                        failover("播放失败，正在换台")
+                    }
                     is PlayerController.State.Ended -> failover("流结束，正在换台")
                     else -> Unit
                 }
@@ -199,7 +205,15 @@ class RadioSession(
                 error = null,
             )
         }
-        controller.setLiveMode(true)
+        // 电台多为 MP3/AAC 直链：不强制 liveMode，否则 PlayerController 会强制按 HLS 解析导致 manifest malformed。
+        controller.setLiveMode(false)
+        startupWatch?.cancel()
+        startupWatch = scope.launch {
+            delay(STARTUP_TIMEOUT_MS)
+            if (controller.state.value !is PlayerController.State.Playing) {
+                failover("起播超时，正在换台")
+            }
+        }
         controller.play(
             MediaUrl(
                 label = station.name,
@@ -250,6 +264,7 @@ class RadioSession(
     private companion object {
         const val KEY_LAST_STATION = "last_station_id"
         const val STALL_MS = 600L
+        const val STARTUP_TIMEOUT_MS = 6_000L
         const val BROWSER_UA =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
     }

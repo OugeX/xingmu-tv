@@ -92,7 +92,7 @@ class CasualRepositoryImpl(context: Context) : CasualRepository {
 
     override suspend fun resolveClip(bvid: String): Result<MediaUrl> {
         if (bvid.isBlank()) return Result.failure(ErrorCodes.SOURCE_INVALID, "缺少 bvid")
-        val key = "playurl|$bvid"
+        val key = "playurl|v2|$bvid"
         val cached = cache.read(key)
         if (cached != null && cache.isFresh(cached, PLAYURL_TTL_MS)) {
             val json = runCatching { JSONObject(cached.data) }.getOrNull()
@@ -117,8 +117,9 @@ class CasualRepositoryImpl(context: Context) : CasualRepository {
         }
 
         var lastError: AppError? = null
-        // 未登录画质有限：先 qn=64，403/失败降 qn=32 重试一次
-        for (qn in listOf(64, 32)) {
+        // X4-50(MStar) 真机 >720p 纹理路径黑屏：默认 qn=32，失败/黑屏再降 qn=16
+        // （qn=64 会返回 1024p，首帧后无 texture 更新，见 t9 PLAYER_EVT/BLACK_SCREEN 日志）
+        for (qn in listOf(32, 16)) {
             val attempt = Http.ioCall {
                 val url = playurlUrl(bvid, cid, qn)
                 val text = Http.getText(url, biliHeaders())

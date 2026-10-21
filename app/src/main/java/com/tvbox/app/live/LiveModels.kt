@@ -243,6 +243,8 @@ data class LiveState(
     val epg: EpgNowNext = EpgNowNext.EMPTY,
     /** 「4K 优先」设置（默认关，仅设备支持时生效） */
     val prefer4K: Boolean = false,
+    /** 「强制 1080p」（默认关；API≤23 默认 720p 安全模式） */
+    val force1080: Boolean = false,
     val deviceSupports4K: Boolean = false,
 ) {
     val lineCount: Int get() = current?.lines?.size ?: 0

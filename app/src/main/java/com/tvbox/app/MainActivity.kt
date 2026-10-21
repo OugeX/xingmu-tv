@@ -1,5 +1,6 @@
 package com.tvbox.app
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,7 +27,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** 支持 adb/一键直达（也方便 QA 自动截图）：--es screen search|sources|live|category|detail。 */
+    /** singleTask 下再次收到带 screen 的调试 Intent 时重建页面，避免停留在旧页面。 */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.hasExtra("screen") || intent.hasExtra("casualSegment")) {
+            recreate()
+        }
+    }
+
+    /** 支持 adb/一键直达（也方便 QA 自动截图）：--es screen search|sources|live|common|category|detail|casual|casualVideo。 */
     private fun destFromIntent(): Dest? {
         val intent = intent ?: return null
         return when (intent.getStringExtra("screen")) {

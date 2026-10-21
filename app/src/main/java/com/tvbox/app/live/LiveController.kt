@@ -82,6 +82,15 @@ class LiveController(
 
     /** 「4K 优先」设置：默认关；仅设备通过 MediaCodec 4K 探测时生效 */
     private var prefer4K = false
+
+    /**
+     * API≤23 / MStar 6A938 的 1080p 黑屏兜底：默认把轨道上限压到 720p。
+     * 设置页可开「强制 1080p」（本机可能黑屏）；默认关。
+     */
+    private var force1080 = false
+    private val legacyMstarDevice: Boolean
+        get() = android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.M
+
     private val deviceSupports4K: Boolean get() = DeviceCapabilities.caps.supports4K
     private val attemptedUrls = LinkedHashSet<String>()
     private val failedChannelIds = HashSet<String>()
@@ -132,6 +141,7 @@ class LiveController(
             val snapshot = seedRepository.load()
             val (groups, grouped) = buildGroups(snapshot.groups, snapshot.channels)
             prefer4K = prefs.getBoolean(KEY_PREFER_4K, false) && deviceSupports4K
+            force1080 = prefs.getBoolean(KEY_FORCE_1080, false)
             _state.update {
                 it.copy(
                     loading = false,
@@ -141,6 +151,7 @@ class LiveController(
                     channels = snapshot.channels,
                     groupedChannels = grouped,
                     prefer4K = prefer4K,
+                    force1080 = force1080,
                     deviceSupports4K = deviceSupports4K,
                     message = snapshot.note,
                     error = if (snapshot.channels.isEmpty()) {
@@ -365,6 +376,11 @@ class LiveController(
             }
             return
         }
+        if (line.displayHeight > safetyCap()) {
+            _state.update {
+                it.copy(message = "该频道无 ≤720p 源，尝试 ${line.displayHeight}p（本机可能黑屏）")
+            }
+        }
         playLine(channel, line, "first")
     }
 
@@ -444,15 +460,25 @@ class LiveController(
      */
     private fun candidates(channel: LiveChannel): List<LiveLine> {
         val caps = DeviceCapabilities.caps
+        val cap = safetyCap()
         val playable = channel.rankedLines.filter { line ->
             if (!line.autoPlayable) return@filter false
             if (line.displayHeight < 2000) return@filter true
             prefer4K && caps.supportsLine(line.measuredCodec, line.displayHeight)
         }
+        val withinCap = playable.filter { it.displayHeight <= cap || it.displayHeight <= 0 }
+        val capped = if (withinCap.isNotEmpty()) withinCap else playable
         val current = now()
-        val ready = playable.filter { (lineCooldownUntil[it.url] ?: 0L) <= current }
+        val ready = capped.filter { (lineCooldownUntil[it.url] ?: 0L) <= current }
         // 全部在冷却时仍允许尝试，避免整台不可用（冷却只用于排序降权）
-        return if (ready.isNotEmpty()) ready else playable
+        return if (ready.isNotEmpty()) ready else capped
+    }
+
+    /** 当前设备安全档位：MStar 老平台默认 720p（1080p 黑屏），可强制 1080p。 */
+    private fun safetyCap(): Int = when {
+        prefer4K && deviceSupports4K -> 2160
+        legacyMstarDevice && !force1080 -> 720
+        else -> 1080
     }
 
     private fun markLineFailed(url: String) {
@@ -483,8 +509,26 @@ class LiveController(
         candidates(channel).firstOrNull { it.url !in attemptedUrls }
 
     private fun applyQualityCap() {
-        val cap = if (prefer4K && deviceSupports4K) 2160 else 1080
+        val cap = safetyCap()
         player.setQuality(cap)
+        TvLog.i(TAG, "quality cap=${cap}p (legacyMstar=$legacyMstarDevice force1080=$force1080 prefer4K=$prefer4K)")
+    }
+
+    /** 设置项「强制 1080p（本机可能黑屏）」：默认关，仅影响 API≤23 的 720p 兜底。 */
+    fun setForce1080(enabled: Boolean) {
+        force1080 = enabled
+        prefs.edit().putBoolean(KEY_FORCE_1080, enabled).apply()
+        // 全局播放器硬上限（点播/短视频也复用同一个 PlayerControllerImpl）
+        (player as? com.tvbox.app.player.PlayerControllerImpl)?.setAllowHighQuality(enabled)
+        applyQualityCap()
+        _state.update {
+            it.copy(
+                force1080 = enabled,
+                message = if (enabled) "已强制 1080p/4K（本机可能黑屏，仅调试用）" else "已回到 720p 安全模式",
+            )
+        }
+        _state.value.current?.let { playChannel(it, resetHops = true) }
+        TvLog.i(TAG, "force1080=$enabled")
     }
 
     /** 设置项「4K 优先」：默认关；打开后仅对支持设备生效，并立刻按新顺序重选当前频道。 */
@@ -960,5 +1004,6 @@ class LiveController(
         const val EPG_REFRESH_MINUTES = 30
         const val KEY_LAST_CHANNEL = "last_channel_id"
         const val KEY_PREFER_4K = "prefer_4k"
+        const val KEY_FORCE_1080 = "force_1080"
     }
 }

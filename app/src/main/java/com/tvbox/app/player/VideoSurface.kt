@@ -55,7 +55,7 @@ private fun TextureVideoSurface(
         if (controller.isReleased) null else controller.exoPlayer
     }
     val textureView = remember {
-        TextureView(context.applicationContext).apply {
+        TvTextureView(context.applicationContext).apply {
             layoutParams = FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -92,10 +92,10 @@ private fun TextureVideoSurface(
             }
         },
         update = { view ->
-            if (view === textureView) {
+            if (view is TvTextureView) {
                 currentPlayer?.setVideoTextureView(view)
                 controller.bindTextureView(view)
-                applyAspectTransform(view, info.width, info.height, info.aspect)
+                view.setVideoGeometry(info.width, info.height, info.aspect)
             }
         },
         modifier = modifier,
@@ -147,26 +147,43 @@ private fun SurfaceVideoSurface(
 }
 
 /** TextureView 的 FIT/FILL/ZOOM 变换（视频多余区域留黑边，不拉伸）。 */
-private fun applyAspectTransform(
-    view: TextureView,
-    videoWidth: Int,
-    videoHeight: Int,
-    aspect: AspectMode,
-) {
-    if (videoWidth <= 0 || videoHeight <= 0) return
-    val viewWidth = view.width.toFloat().takeIf { it > 0f } ?: return
-    val viewHeight = view.height.toFloat().takeIf { it > 0f } ?: return
-    val sx = viewWidth / videoWidth
-    val sy = viewHeight / videoHeight
-    val scale = when (aspect) {
-        AspectMode.FIT -> minOf(sx, sy)
-        AspectMode.FILL, AspectMode.ZOOM -> maxOf(sx, sy)
+private class TvTextureView(context: android.content.Context) : TextureView(context) {
+
+    private var videoWidth = 0
+    private var videoHeight = 0
+    private var aspectMode = AspectMode.FIT
+
+    fun setVideoGeometry(width: Int, height: Int, mode: AspectMode) {
+        videoWidth = width
+        videoHeight = height
+        aspectMode = mode
+        applyAspectTransform()
     }
-    val matrix = Matrix().apply {
-        setScale(scale, scale)
-        postTranslate((viewWidth - videoWidth * scale) / 2f, (viewHeight - videoHeight * scale) / 2f)
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        applyAspectTransform()
     }
-    view.setTransform(matrix)
+
+    private fun applyAspectTransform() {
+        if (videoWidth <= 0 || videoHeight <= 0) return
+        val viewWidth = width.toFloat().takeIf { it > 0f } ?: return
+        val viewHeight = height.toFloat().takeIf { it > 0f } ?: return
+        val sx = viewWidth / videoWidth
+        val sy = viewHeight / videoHeight
+        val scale = when (aspectMode) {
+            AspectMode.FIT -> minOf(sx, sy)
+            AspectMode.FILL, AspectMode.ZOOM -> maxOf(sx, sy)
+        }
+        val matrix = Matrix().apply {
+            setScale(scale, scale)
+            postTranslate(
+                (viewWidth - videoWidth * scale) / 2f,
+                (viewHeight - videoHeight * scale) / 2f,
+            )
+        }
+        setTransform(matrix)
+    }
 }
 
 /** 仅 API≥24 使用：SurfaceView 版 PlayerView 单例缓存。 */

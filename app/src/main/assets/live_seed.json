@@ -95,116 +95,6 @@
  },
  "channels": [
   {
-   "id": "cctvplus1",
-   "name": "CCTV+ 1（国际台）",
-   "group": "国际频道",
-   "region": "",
-   "sources": [
-    {
-     "url": "https://cd-live-stream.news.cctvplus.com/live/smil:CHANNEL1.smil/playlist.m3u8",
-     "protocol": "hls",
-     "quality": "360p",
-     "quality_source": "playlist-resolution",
-     "resolution": "640x360",
-     "http_status": 200,
-     "content_type": "application/vnd.apple.mpegurl",
-     "ttfb_ms": 101,
-     "playlist_type": "master",
-     "segment_verified": true,
-     "segment_bytes": 262144,
-     "segment_content_type": "video/MP2T",
-     "bitrate_bps": 700000,
-     "stability": "intermittent",
-     "health": {
-      "probes": 2,
-      "passes": 1,
-      "last_checked": "2026-10-21T19:03:09+0800"
-     },
-     "note": null,
-     "source_list": "iptv-org/api",
-     "checked_at": "2026-10-21T18:56:01+0800",
-     "priority": 1,
-     "fallback_only": false,
-     "measured_height": 240,
-     "measured_width": 426,
-     "measured_codec": "h264",
-     "measured_fps": 25.0,
-     "tier": "≤360p"
-    }
-   ],
-   "quality": "360p",
-   "quality_source": "playlist-resolution",
-   "source_count": 1,
-   "status": "flaky",
-   "order": 1,
-   "group_id": "cctv",
-   "tvg_id": "cctvplus1",
-   "logo": null,
-   "urls": [
-    "https://cd-live-stream.news.cctvplus.com/live/smil:CHANNEL1.smil/playlist.m3u8"
-   ],
-   "verified_at": "2026-10-21T18:56:01+0800",
-   "latency_ms": 101,
-   "desc": "中央广播电视总台 CCTV+ 1",
-   "best_tier": "≤360p",
-   "best_height": 240
-  },
-  {
-   "id": "cctvplus2",
-   "name": "CCTV+ 2",
-   "group": "央视频道",
-   "region": "",
-   "sources": [
-    {
-     "url": "https://cd-live-stream.news.cctvplus.com/live/smil:CHANNEL2.smil/playlist.m3u8",
-     "protocol": "hls",
-     "quality": "576p",
-     "quality_source": "playlist-resolution",
-     "resolution": "1280x600",
-     "http_status": 200,
-     "content_type": "application/vnd.apple.mpegurl",
-     "ttfb_ms": 199,
-     "playlist_type": "master",
-     "segment_verified": true,
-     "segment_bytes": 262144,
-     "segment_content_type": "video/MP2T",
-     "bitrate_bps": 1000000,
-     "stability": "stable",
-     "health": {
-      "probes": 2,
-      "passes": 2,
-      "last_checked": "2026-10-21T19:03:09+0800"
-     },
-     "note": null,
-     "source_list": "iptv-org/api",
-     "checked_at": "2026-10-21T18:56:01+0800",
-     "priority": 1,
-     "fallback_only": false,
-     "measured_height": 0,
-     "measured_width": 0,
-     "measured_codec": "h264",
-     "measured_fps": null,
-     "tier": "unknown"
-    }
-   ],
-   "quality": "576p",
-   "quality_source": "playlist-resolution",
-   "source_count": 1,
-   "status": "healthy",
-   "order": 2,
-   "group_id": "cctv",
-   "tvg_id": "cctvplus2",
-   "logo": null,
-   "urls": [
-    "https://cd-live-stream.news.cctvplus.com/live/smil:CHANNEL2.smil/playlist.m3u8"
-   ],
-   "verified_at": "2026-10-21T18:56:01+0800",
-   "latency_ms": 199,
-   "desc": "中央广播电视总台 CCTV+ 2",
-   "best_tier": "unknown",
-   "best_height": 0
-  },
-  {
    "id": "cctv1",
    "name": "CCTV-1 综合",
    "group": "央视频道",
@@ -317,6 +207,116 @@
    "desc": "中央广播电视总台 CCTV-1 综合",
    "best_tier": "1080p",
    "best_height": 1080
+  },
+  {
+   "id": "cctvplus1",
+   "name": "CCTV+ 1（国际台）",
+   "group": "国际频道",
+   "region": "",
+   "sources": [
+    {
+     "url": "https://cd-live-stream.news.cctvplus.com/live/smil:CHANNEL1.smil/playlist.m3u8",
+     "protocol": "hls",
+     "quality": "360p",
+     "quality_source": "playlist-resolution",
+     "resolution": "640x360",
+     "http_status": 200,
+     "content_type": "application/vnd.apple.mpegurl",
+     "ttfb_ms": 101,
+     "playlist_type": "master",
+     "segment_verified": true,
+     "segment_bytes": 262144,
+     "segment_content_type": "video/MP2T",
+     "bitrate_bps": 700000,
+     "stability": "intermittent",
+     "health": {
+      "probes": 2,
+      "passes": 1,
+      "last_checked": "2026-10-21T19:03:09+0800"
+     },
+     "note": null,
+     "source_list": "iptv-org/api",
+     "checked_at": "2026-10-21T18:56:01+0800",
+     "priority": 1,
+     "fallback_only": false,
+     "measured_height": 240,
+     "measured_width": 426,
+     "measured_codec": "h264",
+     "measured_fps": 25.0,
+     "tier": "≤360p"
+    }
+   ],
+   "quality": "360p",
+   "quality_source": "playlist-resolution",
+   "source_count": 1,
+   "status": "flaky",
+   "order": 1,
+   "group_id": "cctv",
+   "tvg_id": "cctvplus1",
+   "logo": null,
+   "urls": [
+    "https://cd-live-stream.news.cctvplus.com/live/smil:CHANNEL1.smil/playlist.m3u8"
+   ],
+   "verified_at": "2026-10-21T18:56:01+0800",
+   "latency_ms": 101,
+   "desc": "中央广播电视总台 CCTV+ 1",
+   "best_tier": "≤360p",
+   "best_height": 240
+  },
+  {
+   "id": "cctvplus2",
+   "name": "CCTV+ 2",
+   "group": "央视频道",
+   "region": "",
+   "sources": [
+    {
+     "url": "https://cd-live-stream.news.cctvplus.com/live/smil:CHANNEL2.smil/playlist.m3u8",
+     "protocol": "hls",
+     "quality": "576p",
+     "quality_source": "playlist-resolution",
+     "resolution": "1280x600",
+     "http_status": 200,
+     "content_type": "application/vnd.apple.mpegurl",
+     "ttfb_ms": 199,
+     "playlist_type": "master",
+     "segment_verified": true,
+     "segment_bytes": 262144,
+     "segment_content_type": "video/MP2T",
+     "bitrate_bps": 1000000,
+     "stability": "stable",
+     "health": {
+      "probes": 2,
+      "passes": 2,
+      "last_checked": "2026-10-21T19:03:09+0800"
+     },
+     "note": null,
+     "source_list": "iptv-org/api",
+     "checked_at": "2026-10-21T18:56:01+0800",
+     "priority": 1,
+     "fallback_only": false,
+     "measured_height": 0,
+     "measured_width": 0,
+     "measured_codec": "h264",
+     "measured_fps": null,
+     "tier": "unknown"
+    }
+   ],
+   "quality": "576p",
+   "quality_source": "playlist-resolution",
+   "source_count": 1,
+   "status": "healthy",
+   "order": 2,
+   "group_id": "cctv",
+   "tvg_id": "cctvplus2",
+   "logo": null,
+   "urls": [
+    "https://cd-live-stream.news.cctvplus.com/live/smil:CHANNEL2.smil/playlist.m3u8"
+   ],
+   "verified_at": "2026-10-21T18:56:01+0800",
+   "latency_ms": 199,
+   "desc": "中央广播电视总台 CCTV+ 2",
+   "best_tier": "unknown",
+   "best_height": 0
   },
   {
    "id": "cctv10",

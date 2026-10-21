@@ -47,7 +47,6 @@ import com.tvbox.app.data.casual.RadioStation
 import com.tvbox.app.ui.LocalTvColors
 import com.tvbox.app.ui.LocalTvDimens
 import com.tvbox.app.ui.LocalTvMode
-import com.tvbox.app.ui.LocalTvTier
 import com.tvbox.app.ui.TvMode
 import com.tvbox.app.ui.components.TvButton
 import com.tvbox.app.ui.components.TvFocusable
@@ -185,12 +184,17 @@ fun CasualRadioScreen(session: RadioSession, modifier: Modifier = Modifier, onOp
 
             Spacer(Modifier.weight(1f))
 
+            val titleSize = if (mode == TvMode.LITE) {
+                40.sp
+            } else {
+                (dimens.rowTitle.value * 1.5f).coerceAtMost(64f).sp
+            }
             TvLabel(
                 text = state.station?.name ?: if (state.loading) "正在准备电台…" else "暂无电台",
-                fontSize = if (LocalTvTier.current.isLarge) dimens.heroTitle * 1.05f else dimens.heroTitle * 0.75f,
+                fontSize = titleSize,
                 color = colors.text,
                 weight = FontWeight.Black,
-                maxLines = 3,
+                maxLines = 2,
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(Modifier.height(14.dp))

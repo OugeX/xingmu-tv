@@ -98,6 +98,21 @@ class PlayerControllerImpl(
     @Volatile
     private var videoOffsetMs: Int = 0
 
+    /** 调试开关：强制放开 >720p（X4-50 上可能黑屏）。 */
+    @Volatile
+    private var allowHighQuality = false
+
+    /** 全局 720p 硬上限：API≤23 或存在 OMX.MS.* 解码器（真机验证 >720p 纹理路径整机不可用）。 */
+    private val legacyHighResBroken: Boolean
+        get() = android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.M ||
+            DeviceCapabilities.caps.hasMstarDecoder
+
+    /** 所有 setQuality/轨道参数都走这里：默认把 >720p 请求压到 720p。 */
+    private fun effectiveHeight(requested: Int): Int {
+        val base = if (requested <= 0) 1080 else requested
+        return if (!allowHighQuality && legacyHighResBroken) minOf(base, 720) else base
+    }
+
     private var lastMedia: MediaUrl? = null
     private var surfaceView: android.view.SurfaceView? = null
     private var textureView: android.view.TextureView? = null
@@ -225,13 +240,33 @@ class PlayerControllerImpl(
                 480, 720, 1080, 2160 -> maxHeight
                 else -> 0
             }
-            if (qualityHeight == normalized) return@onMain
-            qualityHeight = normalized
-            trackSelector?.setParameters(buildTrackParameters(normalized))
-            _info.update { it.copy(qualityHeight = normalized) }
-            TvLog.i(TAG, "quality -> ${QualityOptions.label(normalized)} (trackSelector only)")
+            val effective = effectiveHeight(normalized)
+            if (qualityHeight == effective) return@onMain
+            qualityHeight = effective
+            trackSelector?.setParameters(buildTrackParameters(effective))
+            _info.update { it.copy(qualityHeight = effective) }
+            TvLog.i(
+                TAG,
+                "quality -> ${QualityOptions.label(effective)} (request=${QualityOptions.label(normalized)} " +
+                    "legacy720=${!allowHighQuality && legacyHighResBroken}, trackSelector only)",
+            )
         }
     }
+
+    /**
+     * 调试开关「强制 1080/4K」：默认关。X4-50 上 >720p 解码/纹理路径整机不可用，
+     * 打开后可能出现黑屏，仅用于调试/换机验证。
+     */
+    fun setAllowHighQuality(enabled: Boolean) {
+        onMain {
+            allowHighQuality = enabled
+            trackSelector?.setParameters(buildTrackParameters(qualityHeight))
+            _info.update { it.copy(qualityHeight = effectiveHeight(qualityHeight)) }
+            emit(PlayerEvent.Message(if (enabled) "已放开高清上限（本机可能黑屏）" else "已恢复 720p 全局上限"))
+        }
+    }
+
+    fun isHighQualityAllowed(): Boolean = allowHighQuality
 
     override fun setAudioDelayMs(delayMs: Int) {
         videoOffsetMs = clampVideoOffset(delayMs)
@@ -335,7 +370,10 @@ class PlayerControllerImpl(
      */
     private fun scheduleBlackScreenCheck() {
         if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.M) return
-        if (textureView == null) return
+        // 只在直播 1080p 上启用：B 站 mp4 等路径 TextureView 不回调 onSurfaceTextureUpdated，
+        // 且 getBitmap 在部分平台恒黑，容易把正常画面误判（真机已复现）。
+        if (!liveMode || _info.value.height < 1080) return
+        val view = textureView ?: return
         val checkAt = now()
         mainHandler.postDelayed(
             {
@@ -343,9 +381,34 @@ class PlayerControllerImpl(
                 val last = lastTextureUpdateAt
                 // checkAt 之后有过更新；或最近 2.5s 内更新过 → 正常
                 if (last >= checkAt || now() - last < 2_500L) return@postDelayed
+                // TextureView 在部分平台不回调 onSurfaceTextureUpdated（B 站 mp4 实测），
+                // 用一次 32×32 采样确认是否真的全黑，避免误杀正常画面。
+                val bitmap = runCatching { view.getBitmap(32, 32) }.getOrNull()
+                val hasVisiblePixel = bitmap != null && run {
+                    var visible = false
+                    for (y in 0 until bitmap.height step 2) {
+                        for (x in 0 until bitmap.width step 2) {
+                            val color = bitmap.getPixel(x, y)
+                            if (android.graphics.Color.alpha(color) > 8 &&
+                                (android.graphics.Color.red(color) + android.graphics.Color.green(color) +
+                                    android.graphics.Color.blue(color)) > 24
+                            ) {
+                                visible = true
+                                break
+                            }
+                        }
+                        if (visible) break
+                    }
+                    visible
+                }
+                if (hasVisiblePixel) {
+                    lastTextureUpdateAt = now()
+                    return@postDelayed
+                }
                 TvLog.e(
                     TAG,
-                    "BLACK_SCREEN detected: no texture update for ${now() - last}ms url=${lastMedia?.url}",
+                    "BLACK_SCREEN detected: no texture update for ${now() - last}ms and sampled bitmap is black " +
+                        "url=${lastMedia?.url}",
                 )
                 emit(PlayerEvent.Message("画面未渲染，正在切换备用线路"))
                 emit(PlayerEvent.NeedsFallback("E_BLACK_SCREEN", "1080p 黑屏（GL）", lastMedia?.url))
@@ -468,19 +531,21 @@ class PlayerControllerImpl(
      * 1080p30 / 6Mbps / H.264 优先；禁混合 mime 与非无缝自适应；超上限的轨道不选。
      */
     private fun buildTrackParameters(maxHeight: Int): DefaultTrackSelector.Parameters {
-        val (width, height) = QualityOptions.maxSize(maxHeight)
+        val effective = effectiveHeight(maxHeight)
+        val (width, height) = QualityOptions.maxSize(effective)
         return DefaultTrackSelector.Parameters.Builder(appContext)
             .setMaxVideoSize(width, height)
             .setMaxVideoFrameRate(PlayerTuning.MAX_VIDEO_FRAME_RATE)
-            .setMaxVideoBitrate(QualityOptions.maxBitrate(maxHeight))
+            .setMaxVideoBitrate(QualityOptions.maxBitrate(effective))
             .setPreferredVideoMimeType(MimeTypes.VIDEO_H264)
             .setAllowVideoMixedMimeTypeAdaptiveness(false)
             .setAllowVideoNonSeamlessAdaptiveness(false)
             .setAllowVideoMixedDecoderSupportAdaptiveness(false)
             .setAllowAudioMixedMimeTypeAdaptiveness(false)
             .setAllowAudioMixedDecoderSupportAdaptiveness(false)
-            // 超出上限的轨道不选：只有 4K 的源会直接判失败 → 触发换源，而不是硬解 4K
-            .setExceedVideoConstraintsIfNecessary(false)
+            // 单码率私有源（如 B 站 mp4 只有 1024p）无 ≤720 轨道时仍允许播放，避免“无轨道”直接失败；
+            // 若画面黑，由 BLACK_SCREEN 检测触发换源/降 qn。
+            .setExceedVideoConstraintsIfNecessary(true)
             .setTunnelingEnabled(false)
             .build()
     }

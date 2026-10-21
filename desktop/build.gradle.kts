@@ -59,6 +59,7 @@ tasks.processResources {
 compose.desktop {
     application {
         mainClass = "com.tvbox.desktop.MainKt"
+        jvmArgs += listOf("-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-Dstderr.encoding=UTF-8")
 
         nativeDistributions {
             targetFormats(TargetFormat.Msi, TargetFormat.Exe, TargetFormat.Dmg)
@@ -82,6 +83,9 @@ compose.desktop {
             macOS {
                 bundleID = "com.tvbox.xingmu.desktop"
                 dockName = "星幕 TV"
+                // jpackage 的 macOS 版本号要求 MAJOR > 0；应用内展示的版本仍是 0.1.0
+                packageVersion = "1.0.0"
+                dmgPackageVersion = "1.0.0"
             }
         }
     }

@@ -24,6 +24,8 @@ object DeviceCapabilities {
         val maxHeight: Int,
         val avc4k25: Boolean = false,
         val hevc4k25: Boolean = false,
+        /** 存在 OMX.MS.*（MStar）解码器：>720p 纹理路径可能整机黑屏 */
+        val hasMstarDecoder: Boolean = false,
     ) {
         /** 低端默认上限：HEVC 不稳时守住 H.264；连 1080p H.264 都不支持则压 720p。 */
         val defaultMaxHeight: Int
@@ -65,12 +67,14 @@ object DeviceCapabilities {
         var hevc = false
         var avc4k = false
         var hevc4k = false
+        var hasMstar = false
         var maxW = 0
         var maxH = 0
         try {
             val list = MediaCodecList(MediaCodecList.REGULAR_CODECS)
             for (info in list.codecInfos) {
                 if (info.isEncoder) continue
+                if (info.name.startsWith("OMX.MS.", ignoreCase = true)) hasMstar = true
                 val types = info.supportedTypes
                 val avcCaps = videoCaps(info, MimeTypes.VIDEO_H264, types)
                 val hevcCaps = videoCaps(info, MimeTypes.VIDEO_H265, types)
@@ -90,10 +94,10 @@ object DeviceCapabilities {
         } catch (t: Throwable) {
             TvLog.w("Capabilities", "probe failed: ${t.message}")
         }
-        val result = Caps(h264, hevc, maxW, maxH, avc4k, hevc4k)
+        val result = Caps(h264, hevc, maxW, maxH, avc4k, hevc4k, hasMstar)
         TvLog.i(
             "Capabilities",
-            "h264_1080p=$h264 hevc_1080p=$hevc avc4k=$avc4k hevc4k=$hevc4k " +
+            "h264_1080p=$h264 hevc_1080p=$hevc avc4k=$avc4k hevc4k=$hevc4k mstar=$hasMstar " +
                 "max=${maxW}x$maxH defaultCap=${result.defaultMaxHeight}p",
         )
         return result

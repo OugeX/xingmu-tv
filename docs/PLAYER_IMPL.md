@@ -11,7 +11,7 @@
 | 渲染与 seek | 同上 `:353` `SeekParameters.CLOSEST_SYNC`；`:365` `setSkipSilenceEnabled(false)`；`:367` 关帧率匹配 |
 | 音画硬开关 | `PlayerAudioPipeline.kt:152 buildAudioSink()`：`setMinPcmBufferDurationUs(400_000)` `:158`、`setEnableFloatOutput(false)` `:165`、`setEnableAudioTrackPlaybackParams(false)` `:167`、无 offload provider（=关） |
 | 缓冲参数 | `PlayerTuning.kt:56` VOD 15/30/12MB（起播 2.0s/重缓 4.0s）、`:62` LIVE 3/15/8MB（1.0s/2.5s，PLAYER_PERF §3）；`SwitchingLoadControl.kt:57` 运行期切档不重建 |
-| 输出/全屏 | `VideoSurface.kt:32`：`PlayerView` 进程内只创建一次（`PlayerSurfaceCache`），`setUseController(false)`、SurfaceView；`FullscreenEffect()` 只改 Window（API23 flags / API30 InsetsController）。`PlayerBootstrap` 页面离开只 pause，Activity onDestroy 才 `release()`（单实例硬约束） |
+| 输出/全屏 | `VideoSurface.kt`：API≤23 走 **TextureView**（MStar SurfaceView GL 0x500 黑屏兜底），API≥24 走 `PlayerView`（进程内单例）；首帧 ≠ 可视，`scheduleBlackScreenCheck()` 在 3s 无 texture 更新时发 `E_BLACK_SCREEN` 换源。`FullscreenEffect()` 只改 Window；`PlayerBootstrap` 页面离开只 pause，onDestroy 才 release |
 | 轨道上限 | `PlayerControllerImpl.kt:388 buildTrackParameters()`：`:391` 1080p、`:392` 30fps、`:393` 6Mbps、`:394` H.264、`:395-396` 禁混合 mime/非无缝自适应 |
 
 ## 2. 切集 / 换源（点播）
@@ -37,7 +37,7 @@
 ## 3.5 清晰度 / 4K 选源（LIVE_QUALITY）
 
 - 排序：`LiveSeedParser.parseLines()` 按 `tier`（4K>1080p>720p>576p>480p>≤360p）→ `priority` → `fallback_only` 最后；`tier=error/无视频轨` 永不自动选。
-- 4K：`DeviceCapabilities` 启动探测 H.264/HEVC 3840×2160@25；`LiveController.candidates()` 默认跳过 4K，`setPrefer4K(true)` 且设备支持才放开，轨道上限随之 2160（`PlayerControllerImpl.setQuality`）。
+- 4K：`DeviceCapabilities` 启动探测 H.264/HEVC 3840×2160@25；`LiveController.candidates()` 默认跳过 4K，`setPrefer4K(true)` 且设备支持才放开，轨道上限随之 2160；API≤23 默认 720p 安全档（`setForce1080(true)` 可强制 1080p，可能黑屏）。
 - 高清专区：`live_hd.json` 114 频道标记 `hdZone`，`buildGroups()` 在最前插入「高清专区」分组。
 - 起播兜底：高清源 5s 无首帧 → `startSlowStartFallback()` 预热下一档并切 720p；同源连续失败 3 次冷却 10 分钟；HUD 显示 `measuredText`（1080p · 5.9Mbps · 硬解 H.264）。
 
