@@ -4,7 +4,7 @@
 
 ![version](https://img.shields.io/badge/version-v0.2.4-E8B872?style=flat-square)
 ![android](https://img.shields.io/badge/Android-5.0%2B-3DDC84?style=flat-square&logo=android&logoColor=white)
-![size](https://img.shields.io/badge/APK-12.4MB-blue?style=flat-square)
+![size](https://img.shields.io/badge/APK-2.9MB-blue?style=flat-square)
 ![license](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![build](https://img.shields.io/badge/build-GitHub%20Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
 
@@ -12,7 +12,7 @@
 > 开源安卓电视 / 电视盒子影视客户端：直播、电影、剧集、动漫、综艺、海外剧，外加「随便听听看看」。
 > 非商业、公益性质；不托管、不分发任何视频内容。
 
-`Android 5.0+` · `APK 12.4MB` · `无 GMS 依赖` · `Kotlin + Compose + Media3` · `MIT`
+`Android 5.0+` · `APK 2.9MB（R8）` · `无 GMS 依赖` · `Kotlin + Compose + Media3` · `MIT`
 
 ![界面预览](docs/screenshots/preview.gif)
 
@@ -33,7 +33,7 @@
 | 老芯片解不动 1080p | **自动识别 + 降到 720p 安全档**，不黑屏、不闪退 |
 | 详情页 | 缓存命中 **18ms**，常态 0.4–1.8s |
 | 切台 | 快 CDN 频道首帧 **584ms**（CCTV-5 实测） |
-| 包体 | **12.4MB**，不依赖 Google 服务框架 |
+| 包体 | **2.9MB**（R8 + 资源裁剪，debug 包 12.2MB） |
 
 一句话：**只要你的电视能装 APK，它基本就能跑星幕。**
 
