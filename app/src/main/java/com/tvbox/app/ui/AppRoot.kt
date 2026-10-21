@@ -143,7 +143,16 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
         if (stack.size > 1) stack.removeAt(stack.lastIndex)
     }
 
-    BackHandler(enabled = stack.size > 1) { pop() }
+    // BACK 语义：有子页就返回上一页；在非首页的一级页面（直播/随便/源管理/设置/搜索）返回首页；
+    // 只有在首页时才交回系统（退出应用）。避免「在随便里按 BACK 直接退出 App」。
+    BackHandler(enabled = stack.size > 1 || stack.last() != Dest.Home) {
+        if (stack.size > 1) {
+            pop()
+        } else {
+            stack.clear()
+            stack.add(Dest.Home)
+        }
+    }
 
     TvTheme(mode = effectiveMode) {
         CompositionLocalProvider(LocalTvTier provides settings.fontTier) {

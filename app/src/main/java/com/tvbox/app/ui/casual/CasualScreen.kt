@@ -132,7 +132,7 @@ fun CasualAboutOverlay(onClose: () -> Unit) {
             )
             Spacer(Modifier.height(6.dp))
             TvLabel(
-                "快捷键：听页 CH+/CH- 或 ↑↓ 切台、OK 暂停、←→ 系统音量、MENU 电台列表；看页 OK 播放、播完自动下一条。",
+                "快捷键：听页 CH+/CH- 或 ↑↓ 切台、OK 暂停、MENU 电台列表、← 回侧栏、BACK 回首页；看页 OK 播放、播完自动下一条。",
                 dimens.caption,
                 colors.textMuted,
                 maxLines = 3,

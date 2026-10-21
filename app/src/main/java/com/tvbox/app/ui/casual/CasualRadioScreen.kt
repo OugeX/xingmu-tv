@@ -55,7 +55,7 @@ import kotlinx.coroutines.delay
 
 /**
  * 听页（docs/CASUAL_SPEC.md §2.1）：全屏暗场、大号台名、码率、简易电平条。
- * 进入即播上次电台；CH+/CH- 或 ↑↓ 切台；OK 暂停；←→ 调系统音量；MENU 电台列表。
+ * 进入即播上次电台；CH+/CH- 或 ↑↓ 切台；OK 暂停；MENU 电台列表；← 回左侧导航；BACK 回首页（不再直接退出）。音量用遥控器音量键。
  * C 保命模式关闭电平动效。
  */
 @Composable
@@ -150,22 +150,6 @@ fun CasualRadioScreen(session: RadioSession, modifier: Modifier = Modifier, onOp
                             session.togglePause(); true
                         }
                     }
-                    KeyEvent.KEYCODE_DPAD_LEFT -> {
-                        audioManager.adjustStreamVolume(
-                            AudioManager.STREAM_MUSIC,
-                            AudioManager.ADJUST_LOWER,
-                            AudioManager.FLAG_SHOW_UI,
-                        )
-                        true
-                    }
-                    KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                        audioManager.adjustStreamVolume(
-                            AudioManager.STREAM_MUSIC,
-                            AudioManager.ADJUST_RAISE,
-                            AudioManager.FLAG_SHOW_UI,
-                        )
-                        true
-                    }
                     else -> false
                 }
             },
@@ -249,7 +233,7 @@ fun CasualRadioScreen(session: RadioSession, modifier: Modifier = Modifier, onOp
 
             Spacer(Modifier.weight(1f))
             TvLabel(
-                "CH+/CH- 或 ↑↓ 切台 · OK 暂停 · ←→ 系统音量 · MENU 电台列表",
+                "CH+/CH- 或 ↑↓ 切台 · OK 暂停 · MENU 电台列表 · ← 回侧栏 · BACK 回首页",
                 fontSize = dimens.caption,
                 color = colors.textMuted,
                 maxLines = 1,
