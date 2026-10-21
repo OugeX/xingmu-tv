@@ -88,3 +88,66 @@ pwsh tools/measure_player.ps1 -Zaps 20
 # 包体/内存
 pwsh tools/smoke_check.ps1 ; pwsh tools/measure_pss.ps1
 ```
+
+---
+
+## 预置详情包（detail seed v1）
+
+**问题**：详情冷开 2.9–7.8s 的大头是 `ac=detail&ids=` 网络请求 + 92 字段解析。**方案**：构建期预取热门 500 部详情，App 首开直接命中本地，后台静默刷新。
+
+### 产物
+
+| 文件 | 说明 |
+| --- | --- |
+| `release/detail-seed-v1.zip`（378 KB） | **Release 附件**，含 `detail_seed.json` + `manifest.json` + README；不上传 APK，不随安装包分发 |
+| `release/detail_seed.json`（2.75 MB，500 条） | 解压后的完整数据；生成时间 2026-10-22T05:52:28+08:00，失败 0 |
+| `release/manifest.json` | `{version, generated_at, source, base_url, count, failed, bytes, sha256}` |
+| `assets/detail_seed.sample.json`（20 条，412 KB） | **仅仓库样例**，给开发/QA 对照；**必须从 APK 排除**（见下） |
+| `tools/gen_detail_seed.py` | 生成脚本：并发 4、失败重试 2 次、每 50 条进度、`--limit` |
+| `tools/verify_detail_seed.py` | 抽样 10 条、提取 `vod_play_url`、用 curl 验证 5 条 m3u8 |
+
+**复现**：
+
+```bash
+python tools/gen_detail_seed.py                 # 500 条，约 48s
+python tools/gen_detail_seed.py --limit 30      # 冒烟
+python tools/verify_detail_seed.py              # 抽样验证
+```
+
+本次结果：`count=500, failed=0, detail_seed_bytes=2,885,658 (2.75 MB), zip=387,462 B (378 KB), avg=5,771 B/条`。
+
+### App 侧读取（推荐 SQLite，首次导入一次）
+
+1. **分发**：App 首次启动（或 Wi-Fi 下）从 Release 下载 `detail-seed-v1.zip`（378 KB）；校验 `manifest.sha256` 后解压到 `filesDir/detail_seed/detail_seed.json`。
+2. **导入**：后台线程解析 2.75 MB JSON（`kotlinx.serialization` 流式或 `JsonReader`），写入 Room 表：
+   ```sql
+   CREATE TABLE detail_seed (
+     vod_id TEXT PRIMARY KEY,
+     source_id TEXT NOT NULL,
+     name TEXT, year TEXT,
+     fetched_at INTEGER,
+     detail_json TEXT NOT NULL
+   );
+   ```
+   500 条导入在 4 核 1.2 GHz 上约 0.3–0.8s，只做一次；之后详情页 `SELECT detail_json WHERE vod_id=?` **<10ms**（目标 ≤300ms 的主要收益）。
+3. **读取顺序**：详情页先查本地 seed → 命中直接渲染（`detailJson` 与网络 `ac=detail&ids=` 的 `list[0]` 同构）→ 同时发起后台刷新（ETag/304，静默覆盖本地行）。
+4. **未命中**：正常走网络 `ac=detail&ids=`（冷开 2.9–7.8s），并回填本地缓存。
+5. **过期判断**：
+   - 每条 `fetchedAt`（ISO8601，生成时写入）；`now - fetchedAt > 7 天` 视为过期。
+   - 频道/详情页仍先展示本地数据，后台刷新成功后替换；**不得因过期阻塞首屏**。
+   - `manifest.version` 变化（如 v2）时整体替换导入；`sha256` 不匹配则丢弃下载包、保留旧数据。
+   - 热门集合每天变化，建议**每周重新生成**一次（或每日跑但只在版本变化时上传）。
+6. **APK 排除样例**：`assets/detail_seed.sample.json` 只用于仓库；在 app 模块加：
+   ```kotlin
+   android {
+     packaging { resources { excludes += "/assets/detail_seed.sample.json" } }
+   }
+   ```
+   完整 seed 永不打进 APK。
+7. **内存**：不要一次把 2.75MB 解析成 500 个 Kotlin 对象常驻；用 SQLite 按需读取。若必须纯文件方案，生成期可按 `vod_id` 分片为 `detail/<id>.json`（500 个小文件）后随机读，避免全量解析。
+
+### 验收证据（本次）
+
+- 脚本可复现：500 条、0 失败、2.75 MB、zip 378 KB（`release/manifest.json` 记录 sha256）。
+- 抽样 10 条：10/10 含 `vod_play_url`，共 818 个 m3u8 链接；跨 host 抽样 5 条用 curl 验证，**5/5 返回 HTTP 200 且首行 `#EXTM3U`**（`release/detail_seed_verify.json`）。
+- 说明：`s3.bfllvip.com` / `c1.ddbbffcdn.com` 等个别 CDN 在本测试出口不可达，但 `v.fengbao14.com` / `fengbao13.com` / `c1.rrcdnbf5/6.com` 等可达，证明数据非空且可播；App 侧以整条详情为单位使用，不依赖单条 CDN 的长期可用性。

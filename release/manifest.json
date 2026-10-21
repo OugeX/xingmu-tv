@@ -1,0 +1,13 @@
+{
+ "version": "v1",
+ "generated_at": "2026-10-22T05:52:28+08:00",
+ "source": "bfzy1",
+ "base_url": "https://macapi1.com/maccms/json/baofeng/",
+ "count": 500,
+ "requested": 500,
+ "failed": 0,
+ "detail_seed_bytes": 2885658,
+ "detail_seed_sha256": "e9fc0ab8422611f389ed29f1c7533d886ebe2e64e1f4deb63f8c7acafdc7f104",
+ "sample_count": 20,
+ "duration_seconds": 48.1
+}
