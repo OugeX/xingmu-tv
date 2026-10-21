@@ -143,6 +143,13 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
         if (stack.size > 1) stack.removeAt(stack.lastIndex)
     }
 
+    // 离开播放类页面时强制解除「图片暂停」状态，避免 enter/exit 不配对导致封面永久不加载
+    androidx.compose.runtime.LaunchedEffect(stack.last()) {
+        val cur = stack.last()
+        val playback = cur is Dest.Play || cur is Dest.Live || cur is Dest.CasualVideo
+        if (!playback) com.tvbox.app.player.PlaybackMemoryGuard.ensureIdle("nav:${'$'}{cur::class.simpleName}")
+    }
+
     // BACK 语义：有子页就返回上一页；在非首页的一级页面（直播/随便/源管理/设置/搜索）返回首页；
     // 只有在首页时才交回系统（退出应用）。避免「在随便里按 BACK 直接退出 App」。
     BackHandler(enabled = stack.size > 1 || stack.last() != Dest.Home) {

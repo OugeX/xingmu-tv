@@ -53,6 +53,27 @@ object PlaybackMemoryGuard {
         TvLog.i(TAG, "playback exit: coil cache cap restored (24MB), image requests resumed")
     }
 
+
+    /**
+     * 导航兜底：离开播放/直播/短视频页面时强制回到空闲态。
+     *
+     * 修复真机问题：enter()/exit() 依赖页面 DisposableEffect，若页面重建导致 enter 多于 exit，
+     * depth 会永久 >0 → pauseImages 永远为 true → 详情页/列表封面全部不加载（用户实测症状）。
+     */
+    fun ensureIdle(reason: String) {
+        val wasActive: Boolean
+        synchronized(this) {
+            wasActive = active || depth != 0
+            depth = 0
+            active = false
+            pauseImages = false
+        }
+        if (wasActive) {
+            AppImages.setMemoryBudget(Int.MAX_VALUE)
+            TvLog.w(TAG, "playback guard force-idle ($reason), image requests resumed")
+        }
+    }
+
     /** 兜底：页面异常重建时把计数清零。 */
     fun reset() {
         synchronized(this) {

@@ -139,6 +139,35 @@ class CalibrationAudioSink(
  * | 解码回落 | `setEnableDecoderFallback(true)` |
  * | 不引入 FFmpeg | `EXTENSION_RENDERER_MODE_OFF` |
  */
+
+/**
+ * 已知会让固件解码器直接 abort 的 codec 黑名单。
+ *
+ * 实测：MStar 平台 `OMX.MS.MP3.Decoder` 在播「带 MP3 音轨的直播源」时会触发
+ * `ACodec.cpp:3533` 断言并直接 abort 进程（App 闪退，不是 Exception 能 catch 的）。
+ * 这类 codec 必须从选择列表里剔除，让 ExoPlayer 回落到平台软件解码器
+ * （c2.android.mp3.decoder 等），宁可多一次 CPU 解码也不能崩。
+ */
+@UnstableApi
+object SafeCodecSelector : androidx.media3.exoplayer.mediacodec.MediaCodecSelector {
+
+    private val delegate = androidx.media3.exoplayer.mediacodec.MediaCodecSelector.DEFAULT
+
+    /** 只在 MStar/MS 系固件上生效，其它平台保持默认（避免误伤硬件解码）。 */
+    private val blockedPrefixes = listOf("OMX.MS.MP3", "OMX.MS.AMR")
+
+    override fun getDecoderInfos(
+        mimeType: String,
+        requiresSecureDecoder: Boolean,
+        requiresTunnelingDecoder: Boolean,
+    ): List<androidx.media3.exoplayer.mediacodec.MediaCodecInfo> {
+        val all = delegate.getDecoderInfos(mimeType, requiresSecureDecoder, requiresTunnelingDecoder)
+        val filtered = all.filterNot { info -> blockedPrefixes.any { info.name.startsWith(it) } }
+        if (filtered.isEmpty()) return all   // 唯一解码器被剔除时宁可试一次，也不让整条源直接失败
+        return filtered
+    }
+}
+
 @UnstableApi
 class TvRenderersFactory(
     context: Context,
@@ -151,6 +180,8 @@ class TvRenderersFactory(
         setEnableDecoderFallback(!PlayerTuning.codecReuseEnabled)
         setEnableAudioFloatOutput(false)
         setEnableAudioTrackPlaybackParams(false)
+        // 固件解码器黑名单：避免 OMX.MS.MP3 触发 ACodec abort（见 SafeCodecSelector 注释）
+        setMediaCodecSelector(SafeCodecSelector)
     }
 
     override fun buildAudioSink(

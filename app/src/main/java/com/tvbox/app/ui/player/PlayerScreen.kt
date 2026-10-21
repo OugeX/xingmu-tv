@@ -254,6 +254,37 @@ fun PlayerScreen(
                 ) {
                     showSources = true
                     true
+                } else if (event.type == KeyEventType.KeyDown &&
+                    event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_DPAD_LEFT
+                ) {
+                    // 遥控器 ←：快退 10s（长按由系统连续派发 KeyDown，天然连续 seek）
+                    controller.seekTo((position - 10_000L).coerceAtLeast(0L))
+                    true
+                } else if (event.type == KeyEventType.KeyDown &&
+                    event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_DPAD_RIGHT
+                ) {
+                    val max = duration.coerceAtLeast(0L)
+                    val target = position + 10_000L
+                    controller.seekTo(if (max > 0) target.coerceAtMost(max) else target)
+                    true
+                } else if (event.type == KeyEventType.KeyDown &&
+                    (event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_DPAD_UP ||
+                        event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_DPAD_DOWN)
+                ) {
+                    // ↑↓：唤出 HUD（交给 HUD 内按钮导航）
+                    hudVisible = true
+                    false
+                } else if (event.type == KeyEventType.KeyDown &&
+                    (event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER ||
+                        event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_ENTER)
+                ) {
+                    // HUD 隐藏时 OK = 播放/暂停；HUD 显示时交给按钮焦点处理
+                    if (!hudVisible) {
+                        if (state is PlayerController.State.Playing) controller.pause() else controller.resume()
+                        true
+                    } else {
+                        false
+                    }
                 } else {
                     false
                 }
@@ -332,7 +363,6 @@ fun PlayerScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        TvButton("‹ 返回", onClick = onBack)
                         TvButton("⏪ 10s", onClick = {
                             val target = (position - 10_000L).coerceAtLeast(0L)
                             controller.seekTo(target)
@@ -365,6 +395,7 @@ fun PlayerScreen(
                         }, enabled = true)
                         TvButton("选集", onClick = { showEpisodes = true })
                         TvButton("换源", onClick = { showSources = true })
+                        TvButton("‹ 返回", onClick = onBack)
                     }
                 }
             }
