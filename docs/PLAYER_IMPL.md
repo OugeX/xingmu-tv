@@ -77,4 +77,11 @@
 - 新增公开入口：`PlayerBootstrap`、`VideoSurface`、`PlaybackHud`、`PlaybackFullscreen`、`SeekKeyRepeater`、`LiveController`、`LiveChannelOverlay/ChannelInfoCard`、`EpgRepository`。
 - t4 接入：`PlayerBootstrap.createAndRegister` → `VideoSurface`（自动全屏）+ HUD/浮层 → `PlayerBootstrap.release`；直播 `LiveController(context, controller).start()`。
 - 未接 VOD `SimpleCache`（任务必做项未要求）；`AudioTrack` 运行时提缓冲=loadControl 档位，彻底改 AudioSink 需重建（仅解码器错误重建）。
+- t22 点播首帧（实测，LeTV X4-50/API23）：
+  - 预热：`VodPrefetch.prefetchDetail()` 在 `getDetail` 成功后 delay 300ms → `PlayerHttp.prewarm(..., fromStart=true)`：SimpleCache 里写 playlist（≤256KB）+ **首片前 4MB**（Range `bytes=0-4194303`）。早期版本误用 `lastSegmentUrl`（live edge），点播从 0s 起播命中不到，实测首帧 5473ms；改首片后 2708ms。
+  - 详情内存缓存：`SourceRepositoryImpl.detailCache`（8 条 / 5 分钟）——播放页要拿“同集全部线路”做 4s 快切，回源 macapi1 常 17s+ 会让看门狗触发时线路还没注册。
+  - 缓冲：VOD `min=8s / max=25s / bufferForPlayback=1.2s / afterRebuffer=3s`（`PlayerTuning.VOD`）。
+  - 快切：`setFallbackSources()` + 4s 首片看门狗 → 切 `vod_play_from` 下一条线路，HUD「首片 4s 未到，已切换线路」。
+  - `PLAYER_EVT action=play … cached=1/0 host=…`：`cached` 取自 `PlayerHttp.warmedUrls`（预热过的 playlist/首片）。
+  - 实测：热缓存 749/776/777/768/927ms；pm clear 冷启动 + 立即起播 2708ms（macapi1 详情接口在盒子上 17s+，测量窗口内凑不齐 3 部剧）。
 - 真机证据（LeTV X4-50/API23）：`screenshots/t9_live10.png`、`.artifacts/shot_live2.png`（直播全屏实画面，首帧 1.45–2.4s，720p 硬解 OMX.MS.AVC）、`screenshots/t9_now.png`（播放页全屏 HUD）。`screencap` 对硬件视频层常返回黑屏，以首帧日志 + 实拍截图为准。

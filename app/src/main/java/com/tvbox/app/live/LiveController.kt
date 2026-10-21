@@ -104,6 +104,12 @@ class LiveController(
     private var hopCount = 0
     private var lastSwitchAt = 0L
 
+    // 主机级熔断（同 host 10 分钟 2 次失败 → 冷却 30 分钟，不逐条重试）
+    private val hostFailures = HashMap<String, Int>()
+    private val hostCooldownUntil = HashMap<String, Long>()
+    private val prefetchedUrls = HashSet<String>()
+    private val prefetchedPlaylists = HashSet<String>()
+
     // PLAYER_PERF 埋点
     private var lastPrepareMs = 0L
     private var zapAt = 0L
@@ -215,7 +221,15 @@ class LiveController(
                 ?: visible.filter { it.hdZone && it.hasSafeSource }.maxByOrNull { it.safeHeight }
                 ?: visible.filter { it.hasSafeSource }.maxByOrNull { it.safeHeight }
                 ?: visible.firstOrNull()
-            if (target != null) playChannel(target, resetHops = true)
+            if (target != null) {
+                // 首频道先预热 playlist + 最新分片（不计入 PLAYER_EVT 起播耗时，首帧更快）
+                val targetUrl = if (safeMode) target.safeLine?.url ?: target.bestLine?.url
+                else target.bestLine?.url
+                if (targetUrl != null) {
+                    runCatching { com.tvbox.app.player.PlayerHttp.prewarm(appContext, targetUrl) }
+                }
+                playChannel(target, resetHops = true)
+            }
         }
     }
 
@@ -255,11 +269,13 @@ class LiveController(
         retryJob?.cancel()
         // 焦点落定 → 立刻进入“切台态”，UI 可暂停 Coil/分页
         BandwidthGate.zapping = true
-        // 焦点停留 ≥300ms：只 GET playlist 头预热（不 prepare、不解码）
+        // 焦点停留 ≥250ms：预热候选 URL（安全模式先预热 safeLine，避免与安全排序打架）
         warmJob?.cancel()
         warmJob = scope.launch {
             delay(FOCUS_WARM_MS)
-            channel.bestLine?.url?.let { warmUp(it) }
+            val target = if (safeMode) channel.safeLine?.url ?: channel.bestLine?.url
+            else channel.bestLine?.url
+            target?.let { warmUp(it) }
         }
         _state.update {
             it.copy(
@@ -391,6 +407,21 @@ class LiveController(
             )
         }
         playFirstLine(channel)
+        prefetchNextPlaylist(channel)
+    }
+
+    /** 切台瞬间就把下一个频道的 playlist 写入缓存（体积 ~1KB，不抢首片带宽）。 */
+    private fun prefetchNextPlaylist(current: LiveChannel) {
+        val list = _state.value.channels
+        if (list.isEmpty()) return
+        val index = list.indexOfFirst { it.id == current.id }
+        if (index < 0) return
+        val next = list.getOrNull(index + 1) ?: return
+        val url = if (safeMode) next.safeLine?.url ?: next.bestLine?.url else next.bestLine?.url
+        if (url == null || !prefetchedPlaylists.add(url)) return
+        scope.launch(Dispatchers.IO) {
+            com.tvbox.app.player.PlayerHttp.prewarm(appContext, url, fetchSegment = false)
+        }
     }
 
     private fun playFirstLine(channel: LiveChannel) {
@@ -442,42 +473,31 @@ class LiveController(
     }
 
     /**
-     * 高清源起播慢的兜底（CCTV-1 1080p 约 9s，720p 约 4.5s）：
-     * 5s 未出首帧就并行预热下一档 URL，并切到低一档；单 codec 设备不能同时解码两路，
-     * 所以“并行”= 预热连接 + 立即切档，用户不需要干等 8s 看门狗。
+     * 先 prepare 首选源，2.5s 未出首帧就切次优源（单实例约束下不能真并行双 prepare）：
+     * 切档前先预热次优 URL，减少二次等待；首帧回调会 cancel 本任务。
      */
     private fun startSlowStartFallback(channel: LiveChannel, line: LiveLine) {
         slowStartJob?.cancel()
-        // 只对高清源（≥720p）做兜底；低档源没有可降的档
-        if (line.displayHeight < 720) return
         val lower = channel.rankedLines.firstOrNull {
-            it.autoPlayable && it.displayHeight in 1 until line.displayHeight && it.url !in attemptedUrls
+            it.autoPlayable && it.url !in attemptedUrls &&
+                (line.displayHeight <= 0 || it.displayHeight in 1 until line.displayHeight)
         } ?: return
         slowStartJob = scope.launch {
             delay(SLOW_START_MS)
             val state = _state.value
             if (state.current?.id != channel.id || !state.switching) return@launch
             if (attemptedUrls.lastOrNull() != line.url) return@launch
-            _state.update { it.copy(message = "起播较慢，已切换到 ${lower.displayHeight}p") }
+            _state.update { it.copy(message = "首选源 2.5s 未就绪，已切次优源 ${lower.displayHeight}p") }
             degradedFrom = line.displayHeight
             warmUp(lower.url)
-            playLine(channel, lower, "slow_start")
+            playLine(channel, lower, "race")
         }
     }
 
     private fun warmUp(url: String) {
         scope.launch(Dispatchers.IO) {
-            runCatching {
-                val request = okhttp3.Request.Builder()
-                    .url(url)
-                    .header("User-Agent", com.tvbox.app.player.PlayerHttp.USER_AGENT)
-                    .build()
-                com.tvbox.app.player.PlayerHttp.warmClient(appContext)
-                    .newCall(request)
-                    .execute()
-                    .close()
-                TvLog.d(TAG, "warm-up playlist ok: $url")
-            }
+            // 拉 playlist（≤256KB）写入 SimpleCache，再预取首个分片前 64KB（Range）
+            com.tvbox.app.player.PlayerHttp.prewarm(appContext, url)
         }
     }
 
@@ -488,18 +508,41 @@ class LiveController(
     private fun candidates(channel: LiveChannel): List<LiveLine> {
         val caps = DeviceCapabilities.caps
         val cap = safetyCap()
+        val current = now()
         // 安全模式优先用 live_safe.json 里那条（720>576>480），不再拿 1080p 硬试
-        val safeLine = if (safeMode) channel.safeLine else null
+        val safeLine = if (safeMode) channel.safeLine?.takeIf {
+            (hostCooldownUntil[hostOf(it.url)] ?: 0L) <= current
+        } else null
         val rest = channel.rankedLines.filter { line ->
             if (!line.autoPlayable) return@filter false
             if (safeLine != null && line.url == safeLine.url) return@filter false
+            if ((hostCooldownUntil[hostOf(line.url)] ?: 0L) > current) return@filter false
             if (line.displayHeight < 2000) return@filter true
             prefer4K && caps.supportsLine(line.measuredCodec, line.displayHeight)
         }
         val withinCap = rest.filter { it.displayHeight <= cap || it.displayHeight <= 0 }
         val capped = if (withinCap.isNotEmpty()) withinCap else rest
-        val ordered = if (safeLine != null) listOf(safeLine) + capped else capped
-        val current = now()
+        // 74.91 是已知慢 CDN：同档/更高档且 ttfb 更低的备选优先（仍限制在 ≤720 安全档）
+        val fasterAlt = if (safeLine != null && hostOf(safeLine.url) == "74.91.26.218") {
+            val safeLatency = safeLine.latencyMs
+            capped.firstOrNull { alt ->
+                hostOf(alt.url) != "74.91.26.218" &&
+                    alt.displayHeight >= safeLine.displayHeight &&
+                    alt.latencyMs != null && safeLatency != null &&
+                    alt.latencyMs!! < safeLatency
+            }
+        } else {
+            null
+        }
+        var ordered = if (safeLine != null) {
+            listOfNotNull(fasterAlt, safeLine) + capped.filter { it.url != fasterAlt?.url }
+        } else {
+            capped
+        }
+        if (ordered.isEmpty()) {
+            // 全被 host 熔断时不至于整台不可用：回退 safeLine + 原始候选
+            ordered = listOfNotNull(channel.safeLine) + channel.rankedLines.filter { it.autoPlayable }
+        }
         val ready = ordered.filter { (lineCooldownUntil[it.url] ?: 0L) <= current }
         // 全部在冷却时仍允许尝试，避免整台不可用（冷却只用于排序降权）
         return if (ready.isNotEmpty()) ready else ordered
@@ -520,6 +563,37 @@ class LiveController(
             lineCooldownUntil[url] = now() + SOURCE_COOLDOWN_MS
             TvLog.w(TAG, "source degraded for 10min (3 consecutive failures): $url")
         }
+        val host = hostOf(url) ?: return
+        val hostFails = (hostFailures[host] ?: 0) + 1
+        hostFailures[host] = hostFails
+        if (hostFails >= 2) {
+            hostFailures[host] = 0
+            hostCooldownUntil[host] = now() + HOST_COOLDOWN_MS
+            TvLog.w(TAG, "host circuit-open 30min: $host")
+        }
+    }
+
+    private fun hostOf(url: String): String? =
+        runCatching { java.net.URI(url).host }.getOrNull()
+
+    /** 首帧后预取下一个安全频道（CH+/CH- 连切场景命中 playlist + 首片缓存）。 */
+    private fun prefetchNeighbors(current: LiveChannel) {
+        val list = _state.value.channels
+        if (list.isEmpty()) return
+        val index = list.indexOfFirst { it.id == current.id }
+        if (index < 0) return
+        val next = list.getOrNull(index + 1) ?: return
+        val url = if (safeMode) {
+            next.safeLine?.url ?: next.bestLine?.url
+        } else {
+            next.bestLine?.url
+        } ?: return
+        if (!prefetchedUrls.add(url)) return
+        scope.launch(Dispatchers.IO) {
+            // 等当前流稳定 0.5s 再预取（zap 间隔 1.8s，留足时间；避免和首片抢带宽）
+            kotlinx.coroutines.delay(500)
+            com.tvbox.app.player.PlayerHttp.prewarm(appContext, url, fetchSegment = true)
+        }
     }
 
     /** 进直播页预热当前分组前 10 个频道 host（DNS），复用 OkHttp 连接池。 */
@@ -538,6 +612,26 @@ class LiveController(
 
     private fun nextCandidate(channel: LiveChannel): LiveLine? =
         candidates(channel).firstOrNull { it.url !in attemptedUrls }
+
+    /** 10 分钟 rebuffer >3：降到更低一档安全源，并在 HUD 提示。 */
+    private fun downgradeForRebuffer(count: Int) {
+        val channel = _state.value.current ?: return
+        val currentHeight = _state.value.currentLine?.displayHeight ?: _state.value.info.height
+        val currentUrl = _state.value.currentLine?.url
+        val options = candidates(channel).filter { it.url != currentUrl }
+        val lower = options.firstOrNull {
+            it.displayHeight in 1 until maxOf(currentHeight, 1)
+        } ?: options.firstOrNull()
+        if (lower == null) {
+            _state.update { it.copy(message = "网络不稳（10 分钟 $count 次缓冲），暂无更低线路") }
+            return
+        }
+        degradedFrom = currentHeight
+        _state.update {
+            it.copy(message = "网络不稳（10 分钟 $count 次缓冲），已降到 ${lower.displayHeight}p")
+        }
+        playLine(channel, lower, "rebuffer")
+    }
 
     private fun applyQualityCap() {
         val cap = safetyCap()
@@ -710,6 +804,8 @@ class LiveController(
                 }
                 _state.update { it.copy(message = event.text) }
             }
+            is PlayerEvent.RebufferBurst -> downgradeForRebuffer(event.count)
+            is PlayerEvent.VodSlowStart -> Unit
             is PlayerEvent.Resynced -> Unit
         }
     }
@@ -725,6 +821,7 @@ class LiveController(
         hopCount = 0
         failedChannelIds.clear()
         prefs.edit().putString(KEY_LAST_CHANNEL, channel.id).apply()
+        prefetchNeighbors(channel)
         _state.update {
             it.copy(
                 switching = false,
@@ -736,11 +833,14 @@ class LiveController(
         updateEpgNow()
         val src = st.currentLine?.displayHeight?.takeIf { it > 0 }?.let { "${it}p" } ?: "auto"
         val rebuffer = statsSource?.stats?.value?.rebufferCount ?: 0
-        // qa 验收埋点（PLAYER_PERF §6）
+        val lineUrl = attemptedUrls.lastOrNull() ?: st.currentLine?.url
+        val host = com.tvbox.app.player.PlayerHttp.hostOf(lineUrl)
+        val cached = if (com.tvbox.app.player.PlayerHttp.wasWarmed(lineUrl)) 1 else 0
+        // qa 验收埋点（PLAYER_PERF §6）：host/cached 用于区分慢源 vs 预热失效
         TvLog.i(
             "PLAYER_EVT",
             "action=zap from=$zapFrom to=${channel.name} t_prepare_ms=$lastPrepareMs " +
-                "t_first_frame_ms=$latency src=$src rebuffer=$rebuffer " +
+                "t_first_frame_ms=$latency src=$src rebuffer=$rebuffer host=$host cached=$cached " +
                 "degraded=${if (degradedFrom > 0) 1 else 0} src_prev=${if (degradedFrom > 0) "${degradedFrom}p" else "-"}",
         )
         TvLog.i(TAG, "first frame ${channel.name} in ${latency}ms line=${st.lineIndex + 1}")
@@ -1102,10 +1202,11 @@ class LiveController(
         const val HOP_DELAY_MS = 800L
         const val MAX_LINE_ATTEMPTS = 3       // 每频道最多 3 条备源
         const val MAX_HOPS = 3                // 全失败最多自动跳 3 个频道
-        const val SLOW_START_MS = 5_000L      // 高清源 5s 未出首帧 → 预热并切低一档
-        const val FOCUS_WARM_MS = 300L        // 焦点停留 ≥300ms 预热 playlist
+        const val SLOW_START_MS = 2_500L      // 首选源 2.5s 未 READY → 切次优源（竞速兜底）
+        const val FOCUS_WARM_MS = 250L        // 焦点停留 ≥250ms 预热 playlist + 首片 64KB
         const val MAX_SOURCE_FAILS = 3        // 同源连续失败 3 次 → degraded 冷却
         const val SOURCE_COOLDOWN_MS = 10 * 60 * 1000L
+        const val HOST_COOLDOWN_MS = 30 * 60 * 1000L
         const val MAX_EPG_URLS = 3
         const val EPG_REFRESH_MS = 30L * 60 * 1000
         const val EPG_REFRESH_MINUTES = 30

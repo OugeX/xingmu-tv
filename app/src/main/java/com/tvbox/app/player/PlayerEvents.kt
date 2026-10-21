@@ -35,8 +35,14 @@ sealed interface PlayerEvent {
         val qualityDowngraded: Boolean = false,
     ) : PlayerEvent
 
+    /** 10 分钟窗口 rebuffer 次数超阈值，LiveController 据此降 safe_tier。 */
+    data class RebufferBurst(val count: Int, val windowMs: Long) : PlayerEvent
+
     /** 视频格式突变后做了一次 seek 重同步。 */
     data class Resynced(val positionMs: Long) : PlayerEvent
+
+    /** VOD 首片 4s 未到：调用方应切下一线路（或 PlayerController 自动切已注册 fallback）。 */
+    data class VodSlowStart(val url: String?) : PlayerEvent
 
     /** 首帧已渲染（起播计时、切台延迟统计用）。 */
     data object FirstFrame : PlayerEvent

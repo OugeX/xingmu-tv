@@ -18,7 +18,11 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,22 +52,37 @@ fun PosterImage(
     contentScale: ContentScale = ContentScale.Crop,
     requestWidth: Int = 320,
     requestHeight: Int = 450,
+    fallbackText: String = "",
 ) {
     val context = LocalContext.current
     val colors = LocalTvColors.current
+    val dimens = LocalTvDimens.current
     val lite = LocalTvMode.current == TvMode.LITE
     val imageLoader = remember(context) { AppImages.loader(context) }
-    val request = remember(url, lite, requestWidth, requestHeight) {
+
+    // 失败自动重试：先原地址，再 http/https 互换一次，仍失败则显示占位图（不再留黑块）
+    var attempt by remember(url) { mutableIntStateOf(0) }
+    var failed by remember(url) { mutableStateOf(url.isBlank()) }
+    val effectiveUrl = remember(url, attempt) {
+        when (attempt) {
+            0 -> url
+            1 -> if (url.startsWith("https://")) url.replaceFirst("https://", "http://")
+            else url.replaceFirst("http://", "https://")
+            else -> url
+        }
+    }
+    val request = remember(effectiveUrl, lite, requestWidth, requestHeight) {
         ImageRequest.Builder(context)
-            .data(url)
+            .data(effectiveUrl)
             .size(requestWidth, requestHeight)
             .allowRgb565(true)
             .allowHardware(!lite)
             .crossfade(false)
             .build()
     }
+
     Box(modifier.background(colors.surface)) {
-        if (url.isNotBlank() && !ContentGate.zapping) {
+        if (!failed && effectiveUrl.isNotBlank() && !ContentGate.zapping) {
             AsyncImage(
                 model = request,
                 imageLoader = imageLoader,
@@ -71,9 +90,28 @@ fun PosterImage(
                 contentScale = contentScale,
                 modifier = Modifier.fillMaxSize(),
                 onError = { state ->
-                    TvLog.w("Coil", "图片加载失败 url=$url err=${state.result.throwable.message}")
+                    TvLog.w("Coil", "图片加载失败 attempt=$attempt url=$effectiveUrl err=${state.result.throwable.message}")
+                    if (attempt < 2) attempt += 1 else failed = true
                 },
             )
+        }
+        if (failed) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(colors.surfaceHigh),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    TvLabel(
+                        text = fallbackText.take(1).ifBlank { "影" },
+                        fontSize = dimens.rowTitle,
+                        color = colors.textMuted,
+                        weight = FontWeight.Bold,
+                        maxLines = 1,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    TvLabel("暂无封面", dimens.caption, colors.textMuted, maxLines = 1)
+                }
+            }
         }
     }
 }
@@ -118,7 +156,7 @@ fun PosterCard(
                     .aspectRatio(2f / 3f)
                     .clip(shape),
             ) {
-                PosterImage(url = vod.pic, modifier = Modifier.fillMaxSize())
+                PosterImage(url = vod.pic, modifier = Modifier.fillMaxSize(), fallbackText = vod.name)
                 if (!lite) {
                     Box(
                         modifier = Modifier

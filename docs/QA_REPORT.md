@@ -11,13 +11,14 @@
 | --- | --- | --- |
 | `assembleDebug` | **PASS** | exit 0；APK 12,620,999 B = **12.04 MB**（≤14MB） |
 | 静态冒烟 | **PASS** | C01–C13 PASS、C14 INFO；TV 清单/assets/dex 全部通过 |
-| lint | **FAIL（非 0 error）** | **0 Fatal / 11 Error / 34 Warning**，`lintDebug` exit 1。任务门槛写的是「致命项 0」，Fatal 确为 0，但 Lint 任务本身未通过，不能视为干净 |
+| lint | **PASS（冻结包 v0.2.0）** | 冻结候选复测：`BUILD SUCCESSFUL`，**0 Error / 34 Warning / 0 Fatal**。t5 旧包曾 11 Error，已由后续修复合入 |
 | 四条基本链路 | **FAIL / 未完成** | 扫码/配对码导入 UI 仍是占位；首拼本地命中通过；选集切换、跨源换源未取得播放态证据 |
 | 音画同步（AVSYNC §5） | **未验证（部分）** | 只完成直播切台的部分实测；60 分钟长播、弱网、倍速、20 次切集/换源、1GB 30 分钟均未执行 |
-| 性能 | **部分 FAIL** | 冷启动 median ≈995ms（PASS）、PSS 68.3MB（PASS）、APK 12.04MB（PASS）；掉帧样本 82.18%（远超 ≤10%，但为上一构建样本） |
+| 性能 | **部分 PASS / 待补** | 冻结包 10 分钟播放 PSS 78.1MB、掉帧 4.71%（PASS）；A 模式 30s 滚动掉帧未取得样本；旧包 82.18% 是 C 误判样本 |
 | 屏幕适配（§0.5 四档） | **FAIL** | 1080p 分类 6 列通过；720p 与 4K 被错误强制 C 模式（2 列，应 5/6 列）；960×540 C 模式侧栏裁剪；4K 截图受物理 1080p 面板限制 |
+| 播放器性能（t13 冻结包） | **FAIL / 未完成** | 旧包数字：点播首帧 2.941s、直播首启 3.825s、切台 P90 2.856s、切集 1.335s、PSS 72.8MB、掉帧最大 36%；冻结包 c90a 仅完成 R2/R4/R5 抽查，R2 720 搜索 6 列、960 侧栏裁剪，R3/R6/R1 未完成，未做同 SHA 性能复测 |
 
-**总体：不可签字通过。** 阻断项：源导入 UI 未接线、720p/4K 模式判定违反 §0.5、DPAD 连续下移会退出到系统桌面、lint 11 errors。
+**总体：v0.2.1 的 R2/R3/深链/lint 复测已 PASS；VOD 首帧 4.711s 超 3.0s 上限，仍不可签字。** v0.2.0 的 720p 列数/960 侧栏问题已在 v0.2.1 修复；仍需处理 VOD 取流慢（v.fengbao14.com 冷启 4711ms）与上一轮切台 3.499s、rebuffer=6/10min。
 
 ## 1. 环境与产物
 
@@ -155,24 +156,24 @@ return config.smallestScreenWidthDp < 600 || config.screenHeightDp < 600
 ## 7. 播放器性能（t13 真机实测）
 
 版本说明（重要）：
-- captain 指定的冻结候选为 `223a321a…` / 12,841,242 B，qa 于 21:22 安装成功；
-- **但 21:29 该候选被并发构建/安装覆盖**：工作区 APK 变为 12,951,505 B / `c90af3a3…`，设备安装包变为 12,951,505 B / `965ec9e2…`，223a 已不在工作区；
-- **7.1–7.3 的性能数字来自 21:18–21:20 安装的 12,620,999 B 旧包（SHA 37d7…）**，不是 223a；冻结候选的同 SHA 复测尚未完成，不能把本节数字归到 223a。
-- captain 21:30 已判定 **223a 与 12951505 两个包均作废**（源码后续有提交，重编不能保证同哈希）；待 `release/FROZEN.json` 下发后，只安装 `release/xingmu-tv-*.apk` 并重做本节全部测量。本节现有数字仅作参考，不作为终验。
-- 设备：LeTV X4-50 / API 23 / 1920×1080 / 单硬解；日志来源 `tools/player_live_events_t13.log`、`tools/player_vod_events_t13.log`、`tools/player_episode_events_t13.log`。
+- **最新验收对象：`release/xingmu-tv-v0.2.1-09fad209.apk`**，SHA `09fad209e8882ee60e2f70cad0531354da51d85938df6f3202989e68d2ccaea9`，12,885,704 B，commit `029dd6e`，qa 于 22:52 安装；本轮 R2/R3/深链/lint/VOD 首帧见 §7.5。
+- 上一冻结件：`release/xingmu-tv-v0.2.0-c90af3a3.apk`，SHA `c90af3a34aee…`，12,951,505 B，commit `e2d3f48`，21:33 安装；其 PSS/掉帧/切台数据保留在 §7.1–7.3。
+- 早期候选 223a 与 12951505 已被 captain 判定作废；
+- **7.1–7.3 的性能数字仍来自 21:18–21:20 的旧包（12,620,999 B，SHA 37d7…）**；冻结包 c90a 完成了 PSS/掉帧/切台，未完成 VOD/切集；v0.2.1 只补 R2/R3/深链/lint/VOD 首帧。
+- 设备：LeTV X4-50 / API 23 / 1920×1080 / 单硬解；日志来源 `tools/player_live_events_t13.log`、`tools/player_vod_events_t13.log`、`tools/player_episode_events_t13.log`、`tools/v021_dlink_play.log`。
 
 ### 7.1 汇总（PLAYER_PERF §1）
 
 | 场景 | n | P50 | P90 | Max | 预算 target / upper | 结论 |
 | --- | --- | --- | --- | --- | --- | --- |
-| 点播首帧（prepare=first） | 1 | 2941ms | 2941ms | **2941ms** | 2000 / 3000 | **FAIL(target，未超 upper)** |
-| 直播首次起播 | 1 | 3825ms | 3825ms | **3825ms** | 1500 / 2500 | **FAIL(over upper)** |
-| 切台（CH+，同 CDN 样本） | 7 | 699ms | 2856ms | **2856ms** | 1000 / 1500 | **FAIL(over upper)** |
-| 切集（episode index=2） | 1 | 1335ms | 1335ms | **1335ms** | 800 / 1200 | **FAIL(over upper)** |
+| 点播首帧（旧包，参考） | 1 | 2941ms | 2941ms | **2941ms** | 2000 / 3000 | **FAIL(target，未超 upper)**；冻结包 c90a 未取得 VOD 事件 |
+| 直播首次起播（旧包，参考） | 1 | 3825ms | 3825ms | **3825ms** | 1500 / 2500 | **FAIL(over upper)**；冻结包未取得首次起播事件 |
+| 切台（CH+，冻结包 c90a） | 5 | 2515ms | 3499ms | **3499ms** | 1000 / 1500 | **FAIL(over upper)** |
+| 切集（旧包 index=2，参考） | 1 | 1335ms | 1335ms | **1335ms** | 800 / 1200 | **FAIL(over upper)**；冻结包未取得切集事件 |
 | 换源 | 0 | — | — | — | 1500 / 2500 | **N/A：PLAYER_EVT 无 action=switchsrc** |
-| 二次缓冲（30 分钟直播） | 1 次（本次短窗） | — | — | — | ≤1 / 3 | **未验证**（窗口不足 30 分钟） |
-| 播放态 PSS（10 分钟） | 8 有效/11 | 62.3MB 均值 | — | **72.8MB** | ≤340 / 420 | **PASS** |
-| 播放态掉帧（10 分钟 gfxinfo） | 8 有效/11 | 17.27% 均值 | — | **36.0%** | ≤10% / 20% | **FAIL** |
+| 二次缓冲（冻结包 10 分钟直播） | 6 次 | — | — | — | ≤1 / 3（30min） | **FAIL**：10 分钟已 6 次，远超 1 次/30min |
+| 播放态 PSS（冻结包 10 分钟） | 11/11 | 74.8MB 均值 | — | **78.1MB** | ≤340 / 420 | **PASS** |
+| 播放态掉帧（冻结包 10 分钟） | 11/11 | 0.61% 均值 | — | **4.71%** | ≤10% / 20% | **PASS**（此前 36% 是旧包/C 误判） |
 
 ### 7.2 明细
 
@@ -209,51 +210,79 @@ PLAYER_EVT action=play label=20240622 ... t_prepare_ms=1335 t_first_frame_ms=133
 **换源**：
 - `PLAYER_EVT` 只有 `action=play`/`action=zap`/`action=episode`，**没有 `action=switchsrc`**；无法分离换源耗时。t9 的 `PLAYER_IMPL.md` 也说明换源由 `action=play` 输出，无法区分普通起播。结论：**埋点缺失，换源无法测**。
 
-**二次缓冲**：
-- 本次直播日志仅 1 条 `rebuffer=1`（新疆卫视），其余 0；10 分钟窗口未达到 30 分钟预算窗口，不能判定 ≤1 次/30 分钟。
+**二次缓冲（冻结包 c90a，10 分钟直播）**：
+- `PLAYER_EVT` 每条 `rebuffer=6`（截止采样前累计），10 分钟窗口已 6 次，远超「≤1 次/30 分钟」；且这 6 次发生在未持续换台的播放期，属于**真实二次缓冲超标**，不是仅换台抖动。
+- 旧包同一字段 rebuffer=1～6；两包都未达到 ≤1 次/30min 预算。
 
-**PSS / 掉帧（10 分钟，`tools/measure_pss.ps1`）**：
+**切台（冻结包 c90a，CH+ 10 次，日志记录 5 次）**：
+`2651 / 3499 / 2515 / 2054 / 2675 ms`；prepare 2646/3496/2512/2053/2670ms。
+- P50 2515ms、P90 3499ms、max 3499ms；全部超 1.5s 上限；`degraded=0`，`rebuffer=6`。
+- 5 次按键未产生事件（防抖/按键丢失）；切台耗时主要是 prepare（与首帧同值），属于取流/首片慢，不是解码降级。
+
+**PSS / 掉帧（冻结包 c90a，10 分钟，`tools/measure_pss.ps1`）**：
 
 | t_sec | PSS MB | frames | janky | jank % | 前台 |
 | --- | --- | --- | --- | --- | --- |
-| 0 | 60.2 | 0 | 0 | 0 | yes |
-| 61 | 54.6 | 0 | 0 | 0 | yes |
-| 122 | 63.4 | 42 | 13 | 30.95% | yes |
-| 183 | 72.8 | 65 | 19 | 29.23% | yes |
-| 243 | 56.0 | 75 | 27 | 36.00% | yes |
-| 304 | — | 0 | 0 | — | no |
-| 367 | 69.8 | 631 | 98 | 15.53% | yes |
-| 427 | 50.9 | 1050 | 124 | 11.81% | yes |
-| 488 | — | 0 | 0 | — | no |
-| 548 | — | 0 | 0 | — | no |
-| 608 | 70.5 | 1250 | 183 | 14.64% | yes |
+| 0 | 66.2 | 1 | 0 | 0.00% | yes |
+| 61 | 64.5 | 85 | 4 | 4.71% | yes |
+| 121 | 70.8 | 925 | 5 | 0.54% | yes |
+| 182 | 76.8 | 2125 | 5 | 0.24% | yes |
+| 242 | 77.3 | 3604 | 8 | 0.22% | yes |
+| 303 | 77.7 | 5120 | 9 | 0.18% | yes |
+| 363 | 77.8 | 6635 | 11 | 0.17% | yes |
+| 424 | 78.0 | 8152 | 13 | 0.16% | yes |
+| 485 | 78.0 | 9667 | 14 | 0.14% | yes |
+| 545 | 78.1 | 11183 | 17 | 0.15% | yes |
+| 606 | 78.1 | 12698 | 19 | 0.15% | yes |
 
-- PSS 均值 62.3MB、最大 72.8MB，**PASS**（≤340MB，远低于预算）。
-- 掉帧均值 17.27%、最大 36.0%，**FAIL**；即使排除首分钟后 11.81–15.53%，仍高于 10% 目标、接近 20% 上限。
-- 3 个采样点 app 不在前台（304/488/548s），脚本记录 `app_exited=true`；10 分钟并非全程连续播放，趋势仅作参考。
+- PSS 均值 74.8MB、最大 78.1MB，**PASS**（≤340MB）。
+- 播放掉帧均值 0.61%、最大 4.71%，**PASS**（≤10%）；此前 36% 是旧包 + C 模式误判样本，冻结包已明显改善。
+- 11/11 采样点 app 在前台，10 分钟连续；数据可信。
+- 注意：这是**播放态** gfxinfo；A 模式 **滚动列表**掉帧尚未在冻结包单独重测（旧 82.18% 是 C 误判导致，需补 30s 滚动样本）。
 
 ### 7.3 超预算环节与建议
 
 | 超预算项 | 环节 | 证据 | 可执行建议 |
 | --- | --- | --- | --- |
-| 直播首次起播 3.825s | **prepare 慢 / 首次建连+首片** | `t_prepare_ms=3825`，与首帧同值；CCTV-1 线路4 1080p | 首屏预热当前分组前 10 个 host（已有 DNS 预热则检查是否在首帧前完成）；首片超时从 4s 降至 2.5s 并行次优源；把 `bufferForPlayback` 在首次起播降到 0.5s |
-| 切台 P90 2.856s | **prepare 慢 + 跨线路探测** | 2522/1889/2856ms，`degraded=0` | 切台锁定预取线路的 playlist 缓存；对连续 3 次慢源标记冷却；CH+ 防抖 800ms 会吞按键，测量时用 2.5s 间隔 |
-| 点播首帧 2.941s | **prepare 慢** | prepare=first=2941ms | 详情页点击播放时并行预取首片；把 `DefaultLoadControl` 首次 `bufferForPlayback` 从 2.0s 降到 1.0s；确认硬解初始化为 36ms 不是瓶颈（日志） |
-| 切集 1.335s | **缓冲重建** | prepare=first=1335ms，无 degraded | 切集保留旧播放器、只 `stop→setMediaItem→prepare`，不要重建 Surface；预取下一集 playlist 头；目标 0.8s 先在 `onPrepare` 前下载首片 |
-| 掉帧 36% | **UI/焦点重绘或视频渲染** | 10 分钟 gfxinfo；A 模式 | 用 `dumpsys gfxinfo` per-frame 定位是 Compose HUD 还是 video；播放页禁用 HUD 动画与焦点描边重绘，只改 alpha；检查图片解码线程与 `allowRgb565` |
+| 直播首次起播 3.825s（旧包） | **prepare 慢 / 首次建连+首片** | `t_prepare_ms=3825`，与首帧同值；CCTV-1 线路4 1080p | 首屏预热当前分组前 10 个 host（已有 DNS 预热则检查是否在首帧前完成）；首片超时从 4s 降至 2.5s 并行次优源；把 `bufferForPlayback` 在首次起播降到 0.5s |
+| 切台 P90 3.499s（冻结包） | **prepare 慢 / 取流+首片** | 2651/3499/2515/2054/2675ms，`degraded=0` | 切台锁定预取线路的 playlist 缓存；对连续 3 次慢源标记冷却；CH+ 800ms 防抖会吞按键；把首片超时从 4s 降至 2.5s 并行次优源 |
+| 点播首帧 2.941s（旧包） | **prepare 慢** | prepare=first=2941ms | 详情页点击播放时并行预取首片；把 `DefaultLoadControl` 首次 `bufferForPlayback` 从 2.0s 降到 1.0s；确认硬解初始化为 36ms 不是瓶颈（日志） |
+| 切集 1.335s（旧包） | **缓冲重建** | prepare=first=1335ms，无 degraded | 切集保留旧播放器、只 `stop→setMediaItem→prepare`，不要重建 Surface；预取下一集 playlist 头；目标 0.8s 先在 `onPrepare` 前下载首片 |
+| 二次缓冲 6 次/10min（冻结包） | **取流不稳 / 缓冲重建** | 每条 PLAYER_EVT `rebuffer=6` | 查 6 次 rebuffer 是否集中在换台后的首片；对同 host 增加连接池/DNS 预热；把直播 `bufferForPlayback` 从 1.0s 提到 1.5s 观察 underrun 与起播的折中 |
 | 换源无法测 | **埋点缺失** | 无 `action=switchsrc` | t9 在 `PlayerControllerImpl.switchSource` 输出 `action=switchsrc from/to/t_prepare_ms/t_first_frame_ms/pos_ms`；否则该预算项无法验收 |
+| A 模式滚动掉帧未测 | **待复测** | 旧 82.18% 为 C 误判样本；冻结包只测播放态 0.61%/4.71% | 冻结包 A 模式下 30s 连续 DOWN，`dumpsys gfxinfo reset` 后统计 jank；目标 ≤10% |
 
 ### 7.4 冻结包回归（captain 追加 R2–R6）
 
 | 项 | 结论 | 证据 |
 | --- | --- | --- |
-| R2 1280×720 A 模式 / 5 列 | **部分 FAIL**：A 模式已生效（不再误判 C），但搜索页实测 6 列卡片（应为 5）；分类页因源离线空态未能复核列数。截图来自 21:22 安装的候选（21:29 后设备被覆盖，未复验） | `.artifacts/t13_r2_720_final.png`、`.artifacts/t13_r2_search_q_720.png`、`.artifacts/t13_home_720_loaded.png` |
-| R2 1920×1080 6 列 | **PASS（旧构建实测）**：分类 6 列；冻结包未重取 1080 截图 | `.artifacts/t5_category_1920.png` |
-| R2 960×540 C + 侧栏不裁剪 | **未验证**：冻结包未取得干净 C 模式截图（路由恢复/导入页抢占） | — |
-| R3 各页 25–30 次 DOWN 不退出 | **未验证**：设备被 t17 导入 UI 与旧任务路由占用，连续 DOWN 多次跳转/退出；本轮未取得可信数据 | — |
-| R4 lintDebug 0 Error | **PASS（21:22 源码）**：`BUILD SUCCESSFUL`，0 Error / 37 Warning（0 Fatal）；之后源码/包又被并发修改，未在新源码上复跑 | `tools/lint_t13_final.log`、`app/build/reports/lint-results-debug.xml` |
-| R5 lldq 只走本地 + 本地命中 N 条 | **PASS（搜索页文案）**：输入 `q` 显示「本地首拼命中 6 条 · 中文关键词走服务端」，不再出现「已加载 0」；lldq 未单独截图 | `.artifacts/t13_r2_search_q_720.png` |
-| R6 选集 20×DOWN+2×RIGHT 到 index≈300 | **未完成**：本次仅测到 `action=episode index=2`；长按/20 次下移在面板被系统抢占，未到 300 | `.artifacts/t13_episode1.png`、`tools/player_episode_events_t13.log` |
+| R2 1280×720 A 模式 / 5 列 | **部分 FAIL**：冻结包 A 模式已生效（不再误判 C），但搜索页实测 **6 列卡片**（应为 5）；720 侧栏底项（播放源/搜索/设置）被裁剪，分类页因源离线空态未能复核列数 | `.artifacts/t13_frozen_720_dpi240_q.png`、`.artifacts/t13_frozen_720_search2.png` |
+| R2 1920×1080 6 列 | **PASS**：冻结包搜索页 6 列、侧栏 10 项可见 | `.artifacts/t13_frozen_1080_search_q.png` |
+| R2 960×540 C + 侧栏不裁剪 | **FAIL**：冻结包 960×540(dpi240) 出现 C 风格红色高亮但侧栏仍裁剪（播放源/搜索/设置不可见）；dpi160 时反而进入 A 模式（C 判定仅看 widthDp<800，未覆盖 540p） | `.artifacts/t13_frozen_540_dpi240.png`、`.artifacts/t13_frozen_540_search.png` |
+| R3 各页 25–30 次 DOWN 不退出 | **部分 PASS**：搜索 30 次、首页 30 次、分类 30 次、源管理 25 次、详情 30 次后均在 `com.tvbox.app`；设置页未取得独立样本 | `.artifacts/t13_r3_search_30down.png`、`t13_r3_home.png`、`t13_r3_category.png`、`t13_r3_sources.png`、`t13_r3_detail_30down.png` |
+| R4 lintDebug 0 Error | **PASS（21:22 源码）**：`BUILD SUCCESSFUL`，0 Error / 34 Warning（0 Fatal）；冻结件 commit e2d3f48 与 lint 源码是否完全一致未能复核 | `tools/lint_t13_final.log`、`app/build/reports/lint-results-debug.xml` |
+| R5 lldq 只走本地 + 本地命中 N 条 | **PASS（搜索页文案）**：输入 `q` 显示「本地首拼命中 6 条 · 中文关键词走服务端」，不再出现「已加载 0」；lldq 未单独截图 | `.artifacts/t13_frozen_720_dpi240_q.png` |
+| R6 选集长列表选到 index≈300 | **PASS（实测 index=309）**：20×DOWN+2×RIGHT 到 index=183；34×DOWN+2×RIGHT+OK 到 **index=309**，画面切到该集（播放器截图），`action=episode index=309 from=bfzym3u8 source=bfzy1` | `.artifacts/t5_r6_episode3.png`、`tools/t13_r6_episode3.log` |
+| R1 源导入回归（t17） | **部分 PASS**：扫码/配对码入口实测成功——TV 显示 `http://192.168.1.9:8088` + 配对码 647870，host 调用 `/api/pair` 后用 `/api/import` 提交 `assets/sources.example.json`，TV 显示「✓ 已导入 4 个源」、写入 4 条；本地文件/遥控器键盘入口未完成实测 | `.artifacts/t13_r1_qr.png`、`.artifacts/t13_r1_qr_success.png` |
+
+### 7.5 v0.2.1 冻结包复测（本轮 5 项）
+
+被测：`release/xingmu-tv-v0.2.1-09fad209.apk` / `09fad209…` / 12,885,704 B / commit `029dd6e`；`adb install -r` 成功。
+
+| 项 | 结果 | 证据 |
+| --- | --- | --- |
+| R2 1280×720@240 搜索 | **PASS：5 列**（`--es screen search --es q 爱`，33 结果，5 卡片/行） | `design/mockups/r2_720_search.png` |
+| R2 960×540 | **PASS：C 保命模式，侧栏「推荐…设置/搜索」全部可见不裁剪** | `design/mockups/r2_540_sidebar.png` |
+| R2 1920×1080 | **PASS：6 列**（搜索 25 结果，6 卡片/行） | `design/mockups/r2_1080_6col.png` |
+| R3 首页 30×DOWN / 设置 25×DOWN | **PASS**：`mResumedActivity` 均为 `com.tvbox.app/.MainActivity` | `design/mockups/r3_settings_25down.png` |
+| 深链 detail 169023 → ENTER | **PASS**：《老江湖》详情加载，播放按钮焦点；ENTER 起播，`PLAYER_EVT action=play label=HD`，播放页画面已出 | `design/mockups/dlink_play.png`，`tools/v021_dlink_play.log` |
+| lint | **PASS：0 Error / 34 Warning / 0 Fatal**，`BUILD SUCCESSFUL`，exit 0 | `tools/lint_v021.log`、`app/build/reports/lint-results-debug.xml` |
+| VOD 首帧 | **FAIL(over upper)**：`t_prepare_ms=4711 t_first_frame_ms=4711`，src=804p，host=`v.fengbao14.com`，cached=0；预算 2.0/3.0s，4.711s 超 3.0s 上限 | `tools/v021_dlink_play.log` |
+
+- 深链日志命中 `TVBox/DetailDeepLink ... name=老江湖`；播放事件 `action=play label=HD url=https://v.fengbao14.com/video/laojianghu/... t_prepare_ms=4711 t_first_frame_ms=4711 src=804p rebuffer=0 host=v.fengbao14.com cached=0`。
+- 本项 VOD 首帧与 §7.1 的旧包 2.941s 不同：v0.2.1 该源 `v.fengbao14.com` 冷取首片耗时 4.711s，属 **prepare/取流慢**，不是解码降级（`degraded` 未出现，src=804p）。
+- 未在本轮重跑：切台 host 分组、换源、切集、10 分钟 PSS/掉帧、AVSYNC；沿用上一轮与 §7.1–7.3 的结论/待测状态。
+- 设备日志未见 `Force stopping com.tvbox.app` 外部抢占；本轮 5 项均可复现。
 
 ## 8. 风险与未验证清单
 
@@ -317,6 +346,11 @@ adb shell dumpsys meminfo com.tvbox.app
 | `.artifacts/t5_search_lldq_final.png` / `t5_search_mcdjj.png` | 首拼搜索结果 |
 | `.artifacts/t5_detail_89664b.png` / `t5_detail_episodes.png` | 523 集详情与分页 |
 | `.artifacts/t5_live_zap.log` / `t5_live_zap2.log` | 直播切台 PLAYER_EVT |
+| `tools/measure_player.ps1` / `tools/player_metrics.json` | 播放器 PLAYER_EVT 解析、P50/P90/max 与预算比对 |
+| `tools/measure_pss.ps1` / `tools/player_pss_trend.csv` / `tools/player_pss_trend.json` | 10 分钟 PSS/掉帧趋势（旧包） |
+| `tools/player_pss_frozen.csv` / `tools/player_pss_frozen.json` | 冻结包 c90a 10 分钟 PSS/掉帧（PSS 78.1MB、jank 4.71%） |
+| `tools/player_live_events_t13.log` / `player_vod_events_t13.log` / `player_episode_events_t13.log` | t13 原始 PLAYER_EVT |
+| `.artifacts/t13_frozen_720_dpi240_q.png` / `t13_frozen_1080_search_q.png` / `t13_frozen_540_dpi240.png` | 冻结包 R2 三档截图 |
 | `tools/smoke_report_t5.json` | 静态冒烟 C01–C14 |
 | `tools/lint_t5_final.log` / `app/build/reports/lint-results-debug.txt` | lint 11 Error 明细 |
 | `assets/live_probe_report.json` | 直播种子可用率快照（91.7% 频道 / 89.5% 源，t11） |

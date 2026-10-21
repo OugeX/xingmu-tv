@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import com.tvbox.app.core.AppError
 import com.tvbox.app.ui.DpadDownSink
 import com.tvbox.app.core.Result
+import android.os.SystemClock
 import com.tvbox.app.core.TvLog
 import com.tvbox.app.data.Episode
 import com.tvbox.app.data.VodDetail
@@ -101,11 +102,16 @@ fun DetailScreen(
     }
 
     LaunchedEffect(vodId, sourceId, reload) {
+        val startedAt = SystemClock.elapsedRealtime()
         loading = true
         error = null
         when (val result = repo.getDetail(vodId, sourceId)) {
             is Result.Ok -> {
                 detail = result.value
+                TvLog.i(
+                    "DetailPerf",
+                    "ui loaded in=${SystemClock.elapsedRealtime() - startedAt}ms vod=$vodId source=$sourceId name=${result.value.name}",
+                )
                 TvLog.i("DetailDeepLink", "request=($vodId,$sourceId) loaded=(${result.value.vodId},${result.value.sourceId}) name=${result.value.name}")
                 pinyin.index(listOf(result.value.toSummary()))
             }

@@ -146,6 +146,19 @@ fun PlayerScreen(
         controller.play(media, startMs)
     }
 
+    LaunchedEffect(current.vodId, current.sourceId, episodeIndex) {
+        // t22：把该集所有线路注册给播放器，首片 4s 未到自动切下一条（HUD 提示）
+        val detail = (repo.getDetail(current.vodId, current.sourceId) as? com.tvbox.app.core.Result.Ok)?.value
+            ?: return@LaunchedEffect
+        val lines = ArrayList<MediaUrl>()
+        detail.playFroms.sortedBy { if (it == current.playFrom) 0 else 1 }.forEach { from ->
+            detail.episodesByFrom[from]
+                ?.firstOrNull { it.index == episodeIndex }
+                ?.let { ep -> lines += MediaUrl(label = "$from · ${ep.title}", url = ep.url) }
+        }
+        if (lines.isNotEmpty()) controller.setFallbackSources(lines)
+    }
+
     LaunchedEffect(Unit) {
         runCatching { focusRequester.requestFocus() }
         controller.setQuality(appSettings.qualityCap)

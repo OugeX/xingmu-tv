@@ -62,7 +62,7 @@ class PlayerControllerImpl(
     private var player: ExoPlayer? = null
     private var trackSelector: DefaultTrackSelector? = null
     private var loadControl: SwitchingLoadControl? = null
-    private var dataSourceFactory: HeaderInjectingDataSourceFactory? = null
+    private var dataSourceFactory: PlaybackDataSourceFactory? = null
     private var audioSink: CalibrationAudioSink? = null
     private var released = false
 
@@ -114,6 +114,8 @@ class PlayerControllerImpl(
     }
 
     private var lastMedia: MediaUrl? = null
+    private var fallbackSources: List<MediaUrl> = emptyList()
+    private var fallbackCursor = 0
     private var surfaceView: android.view.SurfaceView? = null
     private var textureView: android.view.TextureView? = null
     private var lastTextureUpdateAt = 0L
@@ -132,6 +134,9 @@ class PlayerControllerImpl(
     // ---- 自愈采样窗口 ----
     private val underrunTimes = ArrayDeque<Long>()
     private val rebufferTimes = ArrayDeque<Long>()
+    private val rebufferLongTimes = ArrayDeque<Long>()
+    private var lastRebufferBurstAt = 0L
+    private var lastStatsLogAt = 0L
     private var lastEscalationAt = 0L
     private var droppedAccum = 0L
     private var droppedElapsedMs = 0L
@@ -166,7 +171,10 @@ class PlayerControllerImpl(
             prepareMs = 0L
             hasPlayed = false
             lastRebufferDowngradeAt = 0L
+            lastRebufferBurstAt = 0L
+            lastStatsLogAt = 0L
             rebufferTimes.clear()
+            rebufferLongTimes.clear()
             resetSelfHealWindows()
             // 新起播恢复默认缓冲档位（欠载升级只针对当前这一条流）
             loadControl?.reset()
@@ -329,6 +337,24 @@ class PlayerControllerImpl(
 
     fun seekBy(deltaMs: Long) {
         seekTo(_position.value + deltaMs)
+    }
+
+    /**
+     * t22 快切线路：调用方把当前集的所有线路（不同 playFrom）按顺序传入，
+     * 首片 4s 未到时自动试下一条并在 HUD 提示。
+     */
+    fun setFallbackSources(sources: List<MediaUrl>) {
+        fallbackSources = sources
+        fallbackCursor = 0
+    }
+
+    private fun tryNextVodLine(): Boolean {
+        val next = fallbackSources.getOrNull(fallbackCursor + 1) ?: return false
+        fallbackCursor++
+        TvLog.i(TAG, "VOD first slice 4s timeout -> switch line: ${next.url.take(100)}")
+        emit(PlayerEvent.Message("首片 4s 未到，已切换线路"))
+        play(next, _position.value)
+        return true
     }
 
     /** VideoSurface 只创建一次并注册 SurfaceView；切源时复用同一个 Surface，不做 detach/attach。 */
@@ -583,6 +609,18 @@ class PlayerControllerImpl(
                     if (p.playbackState == Player.STATE_READY || p.playbackState == Player.STATE_BUFFERING) {
                         updateInfo()
                     }
+                    // 30s 一次统计埋点：qa 10 分钟 rebuffer 窗口取最后一条 action=stats
+                    val t = now()
+                    if (liveMode && t - lastStatsLogAt >= 30_000L) {
+                        lastStatsLogAt = t
+                        val s = _stats.value
+                        TvLog.i(
+                            "PLAYER_EVT",
+                            "action=stats rebuffer=${s.rebufferCount} dropped=${s.droppedFrames} " +
+                                "underrun=${s.audioUnderruns} bufferEscalations=${s.bufferEscalations} " +
+                                "pos=${_position.value} host=${PlayerHttp.hostOf(lastMedia?.url)}",
+                        )
+                    }
                 }
                 delay(500)
             }
@@ -651,9 +689,9 @@ class PlayerControllerImpl(
     // 8s 无数据看门狗
     // ------------------------------------------------------------------
 
-    /** 直播首帧预算 5s（超时交给 LiveController 切次优源）；播放中 4s 无数据即判失败。 */
+    /** 直播首帧 5s；VOD 首片 4s 未到就切下一线路（t22）。 */
     private val firstFrameTimeoutMs: Long
-        get() = if (liveMode) 5_000L else PlayerTuning.FIRST_FRAME_TIMEOUT_MS
+        get() = if (liveMode) 5_000L else 4_000L
 
     private val noDataTimeoutMs: Long
         get() = if (liveMode) 4_000L else PlayerTuning.NO_DATA_TIMEOUT_MS
@@ -680,6 +718,10 @@ class PlayerControllerImpl(
                     noDataFired = true
                     TvLog.w(TAG, "watchdog: first-frame timeout ${current - playStartedAt}ms url=$url")
                     emit(PlayerEvent.NoData(current - playStartedAt, url))
+                    if (!liveMode && tryNextVodLine()) {
+                        break
+                    }
+                    if (!liveMode) emit(PlayerEvent.VodSlowStart(url))
                     emit(PlayerEvent.NeedsFallback("E_NO_DATA", "起播超时无画面", url))
                     break
                 }
@@ -716,6 +758,22 @@ class PlayerControllerImpl(
                     if (hasPlayed) {
                         val t = bufferingSince
                         rebufferTimes.addLast(t)
+                        rebufferLongTimes.addLast(t)
+                        while (rebufferLongTimes.isNotEmpty() &&
+                            t - rebufferLongTimes.first() > REBUFFER_WINDOW_MS
+                        ) {
+                            rebufferLongTimes.removeFirst()
+                        }
+                        if (rebufferLongTimes.size > REBUFFER_BURST_THRESHOLD &&
+                            t - lastRebufferBurstAt > 60_000L
+                        ) {
+                            lastRebufferBurstAt = t
+                            TvLog.w(
+                                TAG,
+                                "rebuffer burst: ${rebufferLongTimes.size} in 10min -> downgrade line",
+                            )
+                            emit(PlayerEvent.RebufferBurst(rebufferLongTimes.size, REBUFFER_WINDOW_MS))
+                        }
                         while (rebufferTimes.isNotEmpty() &&
                             t - rebufferTimes.first() > PlayerTuning.UNDERRUN_WINDOW_MS
                         ) {
@@ -809,11 +867,14 @@ class PlayerControllerImpl(
                 PlayerController.State.Ready
             }
             val src = if (_info.value.height > 0) "${_info.value.height}p" else "auto"
+            val url = lastMedia?.url
+            val host = PlayerHttp.hostOf(url)
+            val cached = if (PlayerHttp.wasWarmed(url)) 1 else 0
             TvLog.i(
                 "PLAYER_EVT",
-                "action=play label=${lastMedia?.label ?: "-"} url=${lastMedia?.url ?: "-"} " +
+                "action=play label=${lastMedia?.label ?: "-"} url=${url ?: "-"} " +
                     "t_prepare_ms=$prepareMs t_first_frame_ms=$elapsed src=$src " +
-                    "rebuffer=${_stats.value.rebufferCount}",
+                    "rebuffer=${_stats.value.rebufferCount} host=$host cached=$cached",
             )
             emit(PlayerEvent.FirstFrame)
             scheduleBlackScreenCheck()
@@ -1025,5 +1086,7 @@ class PlayerControllerImpl(
 
     private companion object {
         const val TAG = "Player"
+        const val REBUFFER_WINDOW_MS = 10 * 60 * 1000L
+        const val REBUFFER_BURST_THRESHOLD = 3
     }
 }

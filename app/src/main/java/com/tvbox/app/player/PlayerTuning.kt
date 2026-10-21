@@ -54,17 +54,17 @@ enum class BufferProfile(
     val targetBufferBytes: Int,
     val backBufferMs: Int,
 ) {
-    /** 点播：min 15s / max 30s / 12MB / backBuffer 10s（PLAYER_PERF §3 更激进：2.0/4.0s 起播） */
-    VOD(15_000, 30_000, 2_000, 4_000, 12 * 1024 * 1024, 10_000),
+    /** 点播：min 8s / max 25s / 12MB / 起播 1.2s / 重缓 3s（t22 起播优先，稳定后再回涨） */
+    VOD(8_000, 25_000, 1_200, 3_000, 12 * 1024 * 1024, 10_000),
 
     /** 点播欠载后的“提缓冲一档”（AVSYNC_SPEC §4） */
-    VOD_SAFE(20_000, 40_000, 3_000, 6_000, 16 * 1024 * 1024, 10_000),
+    VOD_SAFE(15_000, 30_000, 2_000, 4_000, 16 * 1024 * 1024, 10_000),
 
-    /** 直播：min 3s / max 15s / 8MB / bufferForPlayback 1.0s / afterRebuffer 2.5s（PLAYER_PERF §3） */
-    LIVE(3_000, 15_000, 1_000, 2_500, 8 * 1024 * 1024, 0),
+    /** 直播：min 4s / max 15s / 8MB / bufferForPlayback 1.2s / afterRebuffer 3s（t20 降 rebuffer） */
+    LIVE(4_000, 15_000, 1_200, 3_000, 8 * 1024 * 1024, 0),
 
     /** 直播欠载后的“提缓冲一档” */
-    LIVE_SAFE(5_000, 20_000, 2_000, 3_500, 10 * 1024 * 1024, 0),
+    LIVE_SAFE(6_000, 20_000, 2_000, 4_000, 10 * 1024 * 1024, 0),
 }
 
 /** 画面比例三档（PLAYBACK_SPEC §6 / 任务 §5）。 */

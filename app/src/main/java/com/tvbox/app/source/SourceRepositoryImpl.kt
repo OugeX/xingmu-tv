@@ -21,7 +21,10 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import java.util.LinkedHashMap
 import java.util.Locale
+
+private const val DETAIL_CACHE_TTL_MS = 5 * 60 * 1000L
 
 /**
  * 源仓库完整实现（t10）：SQLite 源表 + 内置源装载 + MacCMS 聚合 + m3u 频道。
@@ -38,6 +41,18 @@ class SourceRepositoryImpl(context: Context) : SourceRepository, SourceAdminData
     private val store = SourceStore(appContext)
     private val liveSeed = LiveSeed(appContext)
     private val overseas = OverseasMap(appContext)
+
+    /** t22：详情内存缓存（key=sourceId|vodId）。只保留最近 8 条、5 分钟，低端盒子内存可控。 */
+    private val detailCache = java.util.Collections.synchronizedMap(
+        object : LinkedHashMap<String, Pair<Long, VodDetail>>(8, 0.75f, true) {
+            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, Pair<Long, VodDetail>>?): Boolean =
+                size > 8
+        },
+    )
+
+    private fun rememberDetail(key: String, detail: VodDetail) {
+        detailCache[key] = System.currentTimeMillis() to detail
+    }
 
     @Volatile
     private var seedRequested = false
@@ -191,6 +206,17 @@ class SourceRepositoryImpl(context: Context) : SourceRepository, SourceAdminData
             if (vodId.isBlank() || sourceId.isBlank()) {
                 return@withContext Result.failure(ErrorCodes.SOURCE_INVALID, "缺少作品或源标识")
             }
+            // t22：内存级详情缓存（5 分钟/8 条）。播放页要拿“同集全部线路”做 4s 快切，
+            // 若每次都回源（macapi1 常 3–10s），4s 看门狗触发时线路还没注册上 → 切不了。
+            val cacheKey = "$sourceId|$vodId"
+            val nowMs = System.currentTimeMillis()
+            detailCache[cacheKey]?.let { (at, cached) ->
+                if (nowMs - at <= DETAIL_CACHE_TTL_MS) {
+                    TvLog.d("DetailCache", "hit $cacheKey (${(nowMs - at) / 1000}s)")
+                    return@withContext Result.Ok(cached)
+                }
+                detailCache.remove(cacheKey)
+            }
             val parsed = store.byId(sourceId)?.toParsedSource()
                 ?: return@withContext Result.failure(ErrorCodes.SOURCE_OFFLINE, "源不存在或已删除：$sourceId")
             if (parsed.kind != SourceKind.MACCMS) {
@@ -202,7 +228,13 @@ class SourceRepositoryImpl(context: Context) : SourceRepository, SourceAdminData
                     val fixed = r.value.episodesByFrom.mapValues { (from, eps) ->
                         eps.map { it.copy(playFrom = from) }
                     }
-                    Result.Ok(r.value.copy(episodesByFrom = fixed))
+                    val detail = r.value.copy(episodesByFrom = fixed)
+                    rememberDetail(cacheKey, detail)
+                    // t22：详情页停留 ≥300ms 预热第一集（playlist + 首片 64KB）
+                    runCatching {
+                        com.tvbox.app.player.VodPrefetch.prefetchDetail(appContext, detail)
+                    }
+                    Result.Ok(detail)
                 }
                 is Result.Err -> r
             }

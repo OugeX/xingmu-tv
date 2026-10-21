@@ -225,7 +225,6 @@ fun CategoryScreen(
                 text = buildString {
                     append("已加载 ${items.size} 条")
                     if (selectedTypeName != null) append(" · ${selectedTypeName}")
-                    if (loadMoreFailed) append(" · 加载失败，返回重试")
                 },
                 fontSize = dimens.caption,
                 color = colors.textMuted,
@@ -234,6 +233,8 @@ fun CategoryScreen(
             Spacer(Modifier.width(12.dp))
             if (loading && items.isNotEmpty()) {
                 TvLabel("加载中…", dimens.caption, colors.accent, maxLines = 1)
+            } else if (loadMoreFailed) {
+                TvButton("加载失败，点击重试", onClick = { loadMore() })
             } else if (hasMore && items.isNotEmpty()) {
                 TvButton("加载更多", onClick = { loadMore() })
             } else if (items.isNotEmpty()) {

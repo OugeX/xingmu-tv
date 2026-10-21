@@ -1,0 +1,138 @@
+{
+  "device": "192.168.1.9:5555",
+  "package": "com.tvbox.app",
+  "started_at": "2026-10-21T21:50:30+08:00",
+  "duration_sec": 600,
+  "interval_sec": 60,
+  "sample_count": 11,
+  "pss_avg_mb": 74.8,
+  "pss_max_mb": 78.1,
+  "jank_avg_pct": 0.61,
+  "jank_max_pct": 4.71,
+  "pss_budget_mb": 340,
+  "jank_budget_pct": 10,
+  "app_exited": false,
+  "samples": [
+    {
+      "t_sec": 0,
+      "pss_kb": 67811,
+      "pss_mb": 66.2,
+      "frames": 1,
+      "janky": 0,
+      "jank_pct": 0.0,
+      "app_alive": true,
+      "pss_result": "PASS",
+      "jank_result": "PASS"
+    },
+    {
+      "t_sec": 61,
+      "pss_kb": 66059,
+      "pss_mb": 64.5,
+      "frames": 85,
+      "janky": 4,
+      "jank_pct": 4.71,
+      "app_alive": true,
+      "pss_result": "PASS",
+      "jank_result": "PASS"
+    },
+    {
+      "t_sec": 121,
+      "pss_kb": 72490,
+      "pss_mb": 70.8,
+      "frames": 925,
+      "janky": 5,
+      "jank_pct": 0.54,
+      "app_alive": true,
+      "pss_result": "PASS",
+      "jank_result": "PASS"
+    },
+    {
+      "t_sec": 182,
+      "pss_kb": 78661,
+      "pss_mb": 76.8,
+      "frames": 2125,
+      "janky": 5,
+      "jank_pct": 0.24,
+      "app_alive": true,
+      "pss_result": "PASS",
+      "jank_result": "PASS"
+    },
+    {
+      "t_sec": 242,
+      "pss_kb": 79188,
+      "pss_mb": 77.3,
+      "frames": 3604,
+      "janky": 8,
+      "jank_pct": 0.22,
+      "app_alive": true,
+      "pss_result": "PASS",
+      "jank_result": "PASS"
+    },
+    {
+      "t_sec": 303,
+      "pss_kb": 79612,
+      "pss_mb": 77.7,
+      "frames": 5120,
+      "janky": 9,
+      "jank_pct": 0.18,
+      "app_alive": true,
+      "pss_result": "PASS",
+      "jank_result": "PASS"
+    },
+    {
+      "t_sec": 363,
+      "pss_kb": 79634,
+      "pss_mb": 77.8,
+      "frames": 6635,
+      "janky": 11,
+      "jank_pct": 0.17,
+      "app_alive": true,
+      "pss_result": "PASS",
+      "jank_result": "PASS"
+    },
+    {
+      "t_sec": 424,
+      "pss_kb": 79847,
+      "pss_mb": 78.0,
+      "frames": 8152,
+      "janky": 13,
+      "jank_pct": 0.16,
+      "app_alive": true,
+      "pss_result": "PASS",
+      "jank_result": "PASS"
+    },
+    {
+      "t_sec": 485,
+      "pss_kb": 79883,
+      "pss_mb": 78.0,
+      "frames": 9667,
+      "janky": 14,
+      "jank_pct": 0.14,
+      "app_alive": true,
+      "pss_result": "PASS",
+      "jank_result": "PASS"
+    },
+    {
+      "t_sec": 545,
+      "pss_kb": 79969,
+      "pss_mb": 78.1,
+      "frames": 11183,
+      "janky": 17,
+      "jank_pct": 0.15,
+      "app_alive": true,
+      "pss_result": "PASS",
+      "jank_result": "PASS"
+    },
+    {
+      "t_sec": 606,
+      "pss_kb": 79953,
+      "pss_mb": 78.1,
+      "frames": 12698,
+      "janky": 19,
+      "jank_pct": 0.15,
+      "app_alive": true,
+      "pss_result": "PASS",
+      "jank_result": "PASS"
+    }
+  ]
+}

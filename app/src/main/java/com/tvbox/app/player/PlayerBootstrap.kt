@@ -27,9 +27,14 @@ object PlayerBootstrap {
     @Volatile
     private var lifecycleRegistered = false
 
+    /** 只跟随最后一个 Activity：relaunch 时旧 Activity 的 onDestroy 不能把新实例的 player 释放掉。 */
+    @Volatile
+    private var ownerActivity: java.lang.ref.WeakReference<Activity>? = null
+
     @Synchronized
     fun createAndRegister(context: Context): PlayerControllerImpl {
         registerLifecycle(context)
+        context.findActivity()?.let { ownerActivity = java.lang.ref.WeakReference(it) }
         val existing = AppServices.playerOrNull()
         if (existing is PlayerControllerImpl && !existing.isReleased) return existing
         val controller = PlayerControllerImpl(context)
@@ -64,18 +69,34 @@ object PlayerBootstrap {
         val app = context.applicationContext as? Application ?: return
         app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
             override fun onActivityDestroyed(activity: Activity) {
+                if (ownerActivity?.get() !== activity) {
+                    TvLog.d(TAG, "ignore old activity destroy")
+                    return
+                }
+                ownerActivity = null
                 val controller = AppServices.playerOrNull()
                 if (controller is PlayerControllerImpl) destroy(controller)
             }
 
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
             override fun onActivityStarted(activity: Activity) = Unit
-            override fun onActivityResumed(activity: Activity) = Unit
+            override fun onActivityResumed(activity: Activity) {
+                ownerActivity = java.lang.ref.WeakReference(activity)
+            }
             override fun onActivityPaused(activity: Activity) = Unit
             override fun onActivityStopped(activity: Activity) = Unit
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
         })
         lifecycleRegistered = true
         TvLog.i(TAG, "activity lifecycle registered")
+    }
+
+    private fun Context.findActivity(): Activity? {
+        var current: Context? = this
+        while (current is android.content.ContextWrapper) {
+            if (current is Activity) return current
+            current = current.baseContext
+        }
+        return null
     }
 }
