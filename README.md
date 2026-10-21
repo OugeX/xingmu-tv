@@ -153,12 +153,26 @@ Windows MSI 目前不内置 libVLC（体积/许可证考虑），把 VLC 目录�
 
 ## 路线图
 
-- [x] Android TV 客户端（直播 + 点播 + 多源导入）
-- [ ] 播放器 1080p 黑屏修复（MStar GL 纹理路径）、首页冷启动骨架
-- [ ] 随便听听看看（电台 + B 站短视频）
-- [ ] 设置中心（过扫描 / 字幕字号 / 4K 优先 / 音画校准）
-- [x] **PC 客户端：Windows + macOS**（Compose Desktop + libVLC，见 `desktop/`）
-- [ ] Release 签名 + 自动构建（GitHub Actions）
+### 已完成（v0.2.4，真机 LeTV X4-50 / Android 6 验证）
+
+- [x] **Android TV 客户端**：直播 + 点播 + 多源导入（扫码 / 配对码 / 文件 / 键盘）
+- [x] **播放器兼容与提速**：>720p 在 MStar 设备自动进安全档（不再黑屏）、详情页预热（首帧 749–927ms）、详情缓存（命中 18ms）、切台预热与双源竞速
+- [x] **首页冷启动骨架**：加载态 + 失败可重试，不再白屏
+- [x] **随便听听看看**：39 个电台（Radio Browser + SomaFM）+ B 站公开榜单短视频，播完自动下一条
+- [x] **设置中心**：大字号三档 / 过扫描 / C 模式 / 4K 优先 / 硬解优先 / 画质上限 / 音画校准 ±500ms / 字幕字号 / 自建 ASR
+- [x] **界面细节**：封面失败自动重试 + 占位图、分类页脚状态互斥、焦点边界（不退出应用）
+- [x] **PC 客户端（Windows）**：Compose Desktop + libVLC，MSI/EXE 安装包已随 Release 提供
+- [x] **自动构建**：GitHub Actions 产出 APK，打 `v*` tag 自动发布 Release
+
+### 待办
+
+- [ ] **macOS 安装包**（`.dmg`）：代码已跨平台，需在 macOS 或 CI matrix 上打包
+- [ ] **Release 签名**：当前为 debug 签名（仅供侧载），正式发布前换 keystore 并接入 CI 签名
+- [ ] 103 个仅 1080p 频道：公开网络无低清变体，现默认过滤（`MENU` 可见 + 二次确认）
+- [ ] U 盘导入的真机验证（代码与空态已就绪，缺实物）
+- [ ] 详情无缓存首开（2.9–7.8s）：受源站 TLS 冷连接限制，考虑本地预置热门作品详情
+
+> 最新版本见 [Releases](https://github.com/OugeX/xingmu-tv/releases)。
 
 ## 参与贡献
 
