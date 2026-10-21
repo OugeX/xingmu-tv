@@ -17,6 +17,7 @@ data class MediaUrl(
 )
 
 /** 分集（点播） */
+@androidx.compose.runtime.Immutable
 data class Episode(
     val index: Int,             // 1-based
     val title: String,
@@ -24,7 +25,8 @@ data class Episode(
     val playFrom: String,       // vod_play_from 中的线路名，如 bfzym3u8
 )
 
-/** 列表页作品摘要 */
+/** 列表页作品摘要（@Immutable：t28 列表滚动时跳过整表重组） */
+@androidx.compose.runtime.Immutable
 data class VodSummary(
     val vodId: String,
     val sourceId: String,
@@ -36,6 +38,8 @@ data class VodSummary(
     val typeName: String,
     val score: String,
     val sourceCount: Int = 1,   // 跨源聚合时的可用源数
+    /** t28：MacCMS 的 vod_pic_thumb（缩略图）；为空时回退 [pic] 并降半尺寸请求 */
+    val picThumb: String = "",
 )
 
 /** 详情页作品 */
@@ -60,6 +64,7 @@ data class VodDetail(
 )
 
 /** 直播频道（t9 消费；字段对齐 assets/live_seed.json 与 PLAN_SOURCES §9.6） */
+@androidx.compose.runtime.Immutable
 data class Channel(
     val id: String,
     val name: String,
@@ -70,6 +75,7 @@ data class Channel(
     val urls: List<ChannelUrl>,
 )
 
+@androidx.compose.runtime.Immutable
 data class ChannelUrl(
     val url: String,
     val quality: String?,

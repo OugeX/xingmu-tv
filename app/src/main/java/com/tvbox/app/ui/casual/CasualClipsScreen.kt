@@ -47,6 +47,7 @@ import com.tvbox.app.ui.LocalTvDimens
 import com.tvbox.app.ui.LocalTvMode
 import com.tvbox.app.ui.LocalTvTier
 import com.tvbox.app.ui.TvMode
+import com.tvbox.app.ui.components.LocalListScrolling
 import com.tvbox.app.ui.components.PosterImage
 import com.tvbox.app.ui.components.TvButton
 import com.tvbox.app.ui.components.TvChip
@@ -153,7 +154,7 @@ fun CasualClipsScreen(
         }
         Spacer(Modifier.height(6.dp))
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(CasualTab.entries, key = { it.name }) { target ->
+            items(CasualTab.entries, key = { it.name }, contentType = { "tab" }) { target ->
                 TvChip(
                     text = target.label,
                     selected = tab == target,
@@ -176,20 +177,24 @@ fun CasualClipsScreen(
                     onExtraAction = { tab = CasualTab.RECOMMEND },
                 )
                 items.isEmpty() -> TvEmptyState("暂无视频，稍后再试")
-                else -> LazyVerticalGrid(
-                    columns = GridCells.Fixed(columns),
-                    state = gridState,
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(bottom = 16.dp),
+                else -> androidx.compose.runtime.CompositionLocalProvider(
+                    LocalListScrolling provides gridState.isScrollInProgress,
                 ) {
-                    items(items, key = { it.bvid }) { clip ->
-                        ClipCard(
-                            clip = clip,
-                            width = cardWidth,
-                            onClick = { onPlayVideo(items, items.indexOf(clip)) },
-                        )
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(columns),
+                        state = gridState,
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(bottom = 16.dp),
+                    ) {
+                        items(items, key = { it.bvid }, contentType = { "clip" }) { clip ->
+                            ClipCard(
+                                clip = clip,
+                                width = cardWidth,
+                                onClick = { onPlayVideo(items, items.indexOf(clip)) },
+                            )
+                        }
                     }
                 }
             }

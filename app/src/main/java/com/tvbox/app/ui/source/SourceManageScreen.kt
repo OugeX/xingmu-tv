@@ -158,7 +158,7 @@ fun SourceManageScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(bottom = 12.dp),
                 ) {
-                    items(sources, key = { it.id }) { source ->
+                    items(sources, key = { it.id }, contentType = { "source" }) { source ->
                         SourceRow(
                             source = source,
                             latencyMs = latencies[source.id],

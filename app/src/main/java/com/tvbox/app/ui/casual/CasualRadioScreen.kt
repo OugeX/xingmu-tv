@@ -338,7 +338,7 @@ private fun StationListOverlay(
             }
             Spacer(Modifier.height(8.dp))
             LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                items(stations, key = { it.id }) { station ->
+                items(stations, key = { it.id }, contentType = { "station" }) { station ->
                     val selected = station.id == currentId
                     val isFirst = station.id == stations.firstOrNull()?.id
                     TvFocusable(

@@ -78,6 +78,7 @@ import com.tvbox.app.ui.LocalTvDimens
 import com.tvbox.app.ui.LocalTvMode
 import com.tvbox.app.ui.TvMode
 import com.tvbox.app.ui.components.LiteListRow
+import com.tvbox.app.ui.components.LocalListScrolling
 import com.tvbox.app.ui.components.PosterImage
 import com.tvbox.app.ui.components.SourceBadge
 import com.tvbox.app.ui.components.TvButton
@@ -453,6 +454,9 @@ fun SearchScreen(
                     val columns = tvGridColumns()
                     val contentWidth = tvWidthDp() - (if (mode == TvMode.LITE) 300 else 150) - 96 - 18
                     val cardWidth = ((contentWidth - (columns - 1) * 16) / columns).coerceIn(112, 200).dp
+                    androidx.compose.runtime.CompositionLocalProvider(
+                        LocalListScrolling provides gridState.isScrollInProgress,
+                    ) {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(columns),
                         state = gridState,
@@ -461,7 +465,11 @@ fun SearchScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         contentPadding = PaddingValues(bottom = 16.dp),
                     ) {
-                        items(shown, key = { "${it.sourceId}|${it.vodId}" }) { vod ->
+                        items(
+                            items = shown,
+                            key = { "${it.sourceId}|${it.vodId}" },
+                            contentType = { if (mode == TvMode.LITE) "lite-row" else "search-card" },
+                        ) { vod ->
                             if (mode == TvMode.LITE) {
                                 LiteListRow(vod = vod, onClick = {
                                     if (vod.sourceId == SearchSeeds.SOURCE_ID) {
@@ -488,6 +496,7 @@ fun SearchScreen(
                                 )
                             }
                         }
+                    }
                     }
                 }
             }
@@ -663,7 +672,7 @@ private fun SearchResultCard(
                     .aspectRatio(2f / 3f)
                     .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp)),
             ) {
-                PosterImage(url = vod.pic, modifier = Modifier.fillMaxSize())
+                PosterImage(url = vod.pic, thumbUrl = vod.picThumb, modifier = Modifier.fillMaxSize())
                 if (vod.sourceCount > 1) {
                     SourceBadge(
                         count = vod.sourceCount,

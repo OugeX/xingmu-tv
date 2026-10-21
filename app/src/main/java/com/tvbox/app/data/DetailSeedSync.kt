@@ -125,9 +125,17 @@ class DetailSeedSync private constructor(
 
     private fun isWifi(): Boolean = runCatching {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return true
-        val network = cm.activeNetwork ?: return false
-        val caps = cm.getNetworkCapabilities(network) ?: return false
-        caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        // getActiveNetwork 需要 API 23，minSdk 21 走旧接口（lint NewApi 已盯过这里）
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            val network = cm.activeNetwork ?: return false
+            val caps = cm.getNetworkCapabilities(network) ?: return false
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        } else {
+            @Suppress("DEPRECATION")
+            val info = cm.activeNetworkInfo ?: return false
+            @Suppress("DEPRECATION")
+            info.type == ConnectivityManager.TYPE_WIFI
+        }
     }.getOrDefault(false)
 
     companion object {

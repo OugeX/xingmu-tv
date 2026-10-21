@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -34,9 +35,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
 import coil.request.ImageRequest
+import coil.size.Precision
 import com.tvbox.app.core.TvLog
 import com.tvbox.app.data.AppImages
+import com.tvbox.app.data.PosterPolicy
 import com.tvbox.app.data.VodSummary
 import com.tvbox.app.ui.ContentGate
 import com.tvbox.app.ui.LocalTvColors
@@ -53,28 +57,51 @@ fun PosterImage(
     requestWidth: Int = 320,
     requestHeight: Int = 450,
     fallbackText: String = "",
+    /** t28：vod_pic_thumb；有值则首帧直接用它，没值用 [url] 半尺寸先出低清 */
+    thumbUrl: String = "",
 ) {
     val context = LocalContext.current
     val colors = LocalTvColors.current
     val dimens = LocalTvDimens.current
     val lite = LocalTvMode.current == TvMode.LITE
     val imageLoader = remember(context) { AppImages.loader(context) }
+    val scrolling = LocalListScrolling.current
+
+    // t28 渐进加载：先低清（thumb / 半尺寸、INEXACT），列表停稳 250ms 后升级原尺寸（EXACT）。
+    // 升级后不回退：新卡片在滚动中仍从低清开始，但已经看清的图不会因为再滚动又变糊。
+    val plan = remember(url, thumbUrl, requestWidth, requestHeight) {
+        PosterPolicy.plan(url, thumbUrl, requestWidth, requestHeight)
+    }
+    var upgraded by remember(plan) { mutableStateOf(!plan.canUpgrade) }
+    LaunchedEffect(scrolling, plan) {
+        if (plan.canUpgrade && !upgraded && !scrolling) {
+            kotlinx.coroutines.delay(HI_RES_DELAY_MS)
+            upgraded = true
+        }
+    }
 
     // 失败自动重试：先原地址，再 http/https 互换一次，仍失败则显示占位图（不再留黑块）
     var attempt by remember(url) { mutableIntStateOf(0) }
-    var failed by remember(url) { mutableStateOf(url.isBlank()) }
-    val effectiveUrl = remember(url, attempt) {
+    var failed by remember(url) { mutableStateOf(!plan.hasImage) }
+    val effectiveUrl = remember(plan, attempt, upgraded) {
+        val base = if (upgraded) plan.fullUrl else plan.initialUrl
         when (attempt) {
-            0 -> url
-            1 -> if (url.startsWith("https://")) url.replaceFirst("https://", "http://")
-            else url.replaceFirst("http://", "https://")
-            else -> url
+            0 -> base
+            1 -> if (base.startsWith("https://")) base.replaceFirst("https://", "http://")
+            else base.replaceFirst("http://", "https://")
+            else -> base
         }
     }
-    val request = remember(effectiveUrl, lite, requestWidth, requestHeight) {
+    val request = remember(effectiveUrl, lite, plan, upgraded, scrolling) {
+        val width = if (upgraded) plan.fullWidth else plan.initialWidth
+        val height = if (upgraded) plan.fullHeight else plan.initialHeight
         ImageRequest.Builder(context)
             .data(effectiveUrl)
-            .size(requestWidth, requestHeight)
+            .size(width, height)
+            .precision(if (PosterPolicy.precisionFor(scrolling) && upgraded) Precision.EXACT else Precision.INEXACT)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .networkCachePolicy(CachePolicy.ENABLED)
             .allowRgb565(true)
             .allowHardware(!lite)
             .crossfade(false)
@@ -156,7 +183,12 @@ fun PosterCard(
                     .aspectRatio(2f / 3f)
                     .clip(shape),
             ) {
-                PosterImage(url = vod.pic, modifier = Modifier.fillMaxSize(), fallbackText = vod.name)
+                PosterImage(
+                    url = vod.pic,
+                    thumbUrl = vod.picThumb,
+                    modifier = Modifier.fillMaxSize(),
+                    fallbackText = vod.name,
+                )
                 if (!lite) {
                     Box(
                         modifier = Modifier
@@ -235,16 +267,26 @@ fun PosterRow(
             modifier = Modifier.padding(horizontal = 4.dp),
         )
         Spacer(Modifier.height(10.dp))
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp),
+        val rowState = androidx.compose.foundation.lazy.rememberLazyListState()
+        androidx.compose.runtime.CompositionLocalProvider(
+            LocalListScrolling provides rowState.isScrollInProgress,
         ) {
-            items(items, key = { "${it.sourceId}|${it.vodId}" }) { vod ->
-                PosterCard(
-                    vod = vod,
-                    onClick = { onItemClick(vod) },
-                    width = posterWidth,
-                )
+            LazyRow(
+                state = rowState,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp),
+            ) {
+                items(
+                    items = items,
+                    key = { "${it.sourceId}|${it.vodId}" },
+                    contentType = { "poster" },
+                ) { vod ->
+                    PosterCard(
+                        vod = vod,
+                        onClick = { onItemClick(vod) },
+                        width = posterWidth,
+                    )
+                }
             }
         }
         if (items.isEmpty()) {
@@ -278,6 +320,7 @@ fun LiteListRow(
         ) {
             PosterImage(
                 url = vod.pic,
+                thumbUrl = vod.picThumb,
                 modifier = Modifier
                     .size(width = 112.dp, height = 63.dp)
                     .clip(androidx.compose.foundation.shape.RoundedCornerShape(0.dp)),

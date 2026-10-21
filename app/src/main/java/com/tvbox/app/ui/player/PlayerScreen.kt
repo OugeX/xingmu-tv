@@ -487,7 +487,7 @@ private fun EpisodeSheet(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    items(episodes, key = { it.index }) { episode ->
+                    items(episodes, key = { it.index }, contentType = { "episode" }) { episode ->
                         TvButton(
                             text = if (episode.index == selectedIndex) "▶ ${episode.title}" else episode.title,
                             onClick = { onPick(episode.index) },
@@ -541,7 +541,7 @@ private fun SourceSheet(
                 loading -> TvLoading("正在找同片源…")
                 alternates.isEmpty() -> TvEmptyState("没有其它源的同名片")
                 else -> LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(alternates, key = { "${it.sourceId}|${it.vodId}" }) { candidate ->
+                    items(alternates, key = { "${it.sourceId}|${it.vodId}" }, contentType = { "alternate" }) { candidate ->
                         val missing = availability[candidate.sourceId] == false
                         Row(
                             Modifier.fillMaxWidth().background(colors.surface).padding(horizontal = 14.dp, vertical = 8.dp),

@@ -48,6 +48,7 @@ import com.tvbox.app.ui.LocalTvDimens
 import com.tvbox.app.ui.LocalTvTier
 import com.tvbox.app.ui.TvMode
 import com.tvbox.app.ui.components.LiteListRow
+import com.tvbox.app.ui.components.LocalListScrolling
 import com.tvbox.app.ui.components.PosterImage
 import com.tvbox.app.ui.components.PosterRow
 import com.tvbox.app.ui.components.TvButton
@@ -170,7 +171,11 @@ private fun CinemaHome(
                         horizontalArrangement = Arrangement.spacedBy(14.dp),
                         contentPadding = PaddingValues(horizontal = 4.dp),
                     ) {
-                        items(state.progress, key = { "${it.sourceId}|${it.vodId}" }) { progress ->
+                        items(
+                            items = state.progress,
+                            key = { "${it.sourceId}|${it.vodId}" },
+                            contentType = { "continue" },
+                        ) { progress ->
                             ContinueCard(progress, onOpenDetail)
                         }
                     }
@@ -178,7 +183,7 @@ private fun CinemaHome(
             }
         }
 
-        items(state.rows, key = { it.typeId }) { row ->
+        items(state.rows, key = { it.typeId }, contentType = { "row" }) { row ->
             PosterRow(
                 title = row.title,
                 items = row.items,
@@ -220,6 +225,7 @@ private fun HeroSection(hero: VodSummary, onOpenDetail: (VodSummary) -> Unit) {
     ) {
         PosterImage(
             url = hero.pic,
+            thumbUrl = hero.picThumb,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
             requestWidth = width,
@@ -329,7 +335,9 @@ private fun formatMinutes(positionMs: Long): String {
 private fun LiteHome(state: HomeUi.Ready, onOpenDetail: (VodSummary) -> Unit) {
     val colors = LocalTvColors.current
     val dimens = LocalTvDimens.current
-    val flat = state.rows.flatMap { row -> row.items.map { row.title to it } }
+    // t28：派生列表 remember 住，避免每次重组都 flatMap 出新 List（低端机上就是滚动抖动源）
+    val flat = remember(state.rows) { state.rows.flatMap { row -> row.items.map { row.title to it } } }
+    val gridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
     Column(Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
@@ -339,15 +347,24 @@ private fun LiteHome(state: HomeUi.Ready, onOpenDetail: (VodSummary) -> Unit) {
             Spacer(Modifier.width(1.dp).weight(1f))
             TvLabel("C 保命模式 · ${flat.size} 条", dimens.caption, colors.textMuted)
         }
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            contentPadding = PaddingValues(bottom = 16.dp),
+        androidx.compose.runtime.CompositionLocalProvider(
+            LocalListScrolling provides gridState.isScrollInProgress,
         ) {
-            items(flat, key = { "${it.second.sourceId}|${it.second.vodId}" }) { (badge, vod) ->
-                LiteListRow(vod = vod, onClick = { onOpenDetail(vod) }, badge = badge)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                state = gridState,
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                contentPadding = PaddingValues(bottom = 16.dp),
+            ) {
+                items(
+                    items = flat,
+                    key = { "${it.second.sourceId}|${it.second.vodId}" },
+                    contentType = { "lite-row" },
+                ) { (badge, vod) ->
+                    LiteListRow(vod = vod, onClick = { onOpenDetail(vod) }, badge = badge)
+                }
             }
         }
         if (flat.isEmpty()) {

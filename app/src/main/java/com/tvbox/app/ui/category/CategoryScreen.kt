@@ -42,6 +42,7 @@ import com.tvbox.app.ui.LocalTvColors
 import com.tvbox.app.ui.LocalTvDimens
 import com.tvbox.app.ui.TvMode
 import com.tvbox.app.ui.components.LiteListRow
+import com.tvbox.app.ui.components.LocalListScrolling
 import com.tvbox.app.ui.components.PosterCard
 import com.tvbox.app.ui.components.TvButton
 import com.tvbox.app.ui.components.TvChip
@@ -165,7 +166,7 @@ fun CategoryScreen(
         if (isOverseasRoot) {
             Spacer(Modifier.height(10.dp))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(vertical = 2.dp)) {
-                items(CanonicalCategory.overseas, key = { it.id }) { section ->
+                items(CanonicalCategory.overseas, key = { it.id }, contentType = { "overseas" }) { section ->
                     TvChip(
                         text = section.label,
                         selected = selectedTypeId == section.id,
@@ -181,7 +182,7 @@ fun CategoryScreen(
                 item(key = "all") {
                     TvChip("全部", selected = selectedTypeName == null, onClick = { selectedTypeName = null })
                 }
-                items(subCategories, key = { it }) { name ->
+                items(subCategories, key = { it }, contentType = { "sub-category" }) { name ->
                     TvChip(name, selected = selectedTypeName == name, onClick = { selectedTypeName = name })
                 }
             }
@@ -200,19 +201,27 @@ fun CategoryScreen(
                     val columns = tvGridColumns()
                     val contentWidth = tvWidthDp() - (if (mode == TvMode.LITE) 300 else 150) - 96 - 18
                     val cardWidth = ((contentWidth - (columns - 1) * 16) / columns).coerceIn(112, 200).dp
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(columns),
-                        state = gridState,
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        contentPadding = PaddingValues(bottom = 20.dp),
+                    androidx.compose.runtime.CompositionLocalProvider(
+                        LocalListScrolling provides gridState.isScrollInProgress,
                     ) {
-                        items(shown, key = { "${it.sourceId}|${it.vodId}" }) { vod ->
-                            if (mode == TvMode.LITE) {
-                                LiteListRow(vod = vod, onClick = { onOpenDetail(vod) })
-                            } else {
-                                PosterCard(vod = vod, onClick = { onOpenDetail(vod) }, width = cardWidth)
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(columns),
+                            state = gridState,
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(bottom = 20.dp),
+                        ) {
+                            items(
+                                items = shown,
+                                key = { "${it.sourceId}|${it.vodId}" },
+                                contentType = { if (mode == TvMode.LITE) "lite-row" else "poster" },
+                            ) { vod ->
+                                if (mode == TvMode.LITE) {
+                                    LiteListRow(vod = vod, onClick = { onOpenDetail(vod) })
+                                } else {
+                                    PosterCard(vod = vod, onClick = { onOpenDetail(vod) }, width = cardWidth)
+                                }
                             }
                         }
                     }

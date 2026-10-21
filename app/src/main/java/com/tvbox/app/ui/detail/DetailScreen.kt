@@ -376,7 +376,7 @@ private fun DetailBody(
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         TvLabel("播放线路", dimens.cardTitle, colors.text, weight = FontWeight.SemiBold)
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            items(detail.playFroms, key = { it }) { from ->
+                            items(detail.playFroms, key = { it }, contentType = { "play-from" }) { from ->
                                 TvChip(
                                     text = lineLabel(from),
                                     selected = activeFrom == from,
@@ -525,6 +525,8 @@ private fun EpisodeSection(
     var page by remember(selectedFrom, episodes.size) { mutableIntStateOf(0) }
     val pageSize = if (paged) 30 else episodes.size.coerceAtLeast(1)
     val pageCount = if (paged) (episodes.size + pageSize - 1) / pageSize else 1
+    // t28：页码列表 remember 住（原来每次重组都 (0 until n).toList() 新建对象）
+    val pageIndices = remember(pageCount) { (0 until pageCount).toList() }
     val visible = remember(ordered, page, paged, pageSize) {
         if (paged) ordered.drop(page * pageSize).take(pageSize) else ordered
     }
@@ -543,7 +545,7 @@ private fun EpisodeSection(
 
         if (paged) {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items((0 until pageCount).toList(), key = { it }) { index ->
+                items(pageIndices, key = { it }, contentType = { "page" }) { index ->
                     val start = index * pageSize + 1
                     val end = ((index + 1) * pageSize).coerceAtMost(episodes.size)
                     TvChip(

@@ -287,7 +287,7 @@ private fun ChannelOverlay(
                             modifier = Modifier.padding(vertical = 6.dp, horizontal = 4.dp),
                         )
                     }
-                    items(state.groupedChannels[group.name].orEmpty(), key = { it.id }) { channel ->
+                    items(state.groupedChannels[group.name].orEmpty(), key = { it.id }, contentType = { "channel" }) { channel ->
                         val isFirst = group.id == state.groups.firstOrNull()?.id &&
                             channel.id == state.groupedChannels[group.name]?.firstOrNull()?.id
                         ChannelRow(
