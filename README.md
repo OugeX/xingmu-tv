@@ -208,6 +208,17 @@ Windows MSI 目前不内置 libVLC（体积/许可证考虑），把 VLC 目录�
 
 > 最新版本见 [Releases](https://github.com/OugeX/xingmu-tv/releases)。
 
+## 反馈与已知问题
+
+遇到问题请开 [Issue](https://github.com/OugeX/xingmu-tv/issues/new/choose)，模板里会让你填**品牌型号 / Android 版本 / 分辨率密度 / 星幕版本 / 复现步骤 / logcat** —— 这几项齐了，定位通常一轮就够。
+
+顺手贴两条最常见的：
+
+| 现象 | 原因 | 处理 |
+| --- | --- | --- |
+| 某频道黑屏 | 该频道只有 1080p 源，老芯片解不动 | 已默认过滤，`MENU` 可见并二次确认 |
+| 点进详情要等几秒 | 首次回源站取详情（TLS 冷连接） | 已做预置详情包与本地缓存，命中 8ms |
+
 ## 参与贡献
 
 - 新增源：提交 `assets/` 下的源 JSON，或提 issue 附接口地址，跑一遍 `tools/validate_sources.py`。
