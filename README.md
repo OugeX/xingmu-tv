@@ -2,12 +2,21 @@
 
 **你家的老电视，还没到退休的年纪。**
 
+![version](https://img.shields.io/badge/version-v0.2.4-E8B872?style=flat-square)
+![android](https://img.shields.io/badge/Android-5.0%2B-3DDC84?style=flat-square&logo=android&logoColor=white)
+![size](https://img.shields.io/badge/APK-12.4MB-blue?style=flat-square)
+![license](https://img.shields.io/badge/license-MIT-green?style=flat-square)
+![build](https://img.shields.io/badge/build-GitHub%20Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
+
+
 > 开源安卓电视 / 电视盒子影视客户端：直播、电影、剧集、动漫、综艺、海外剧，外加「随便听听看看」。
 > 非商业、公益性质；不托管、不分发任何视频内容。
 
 `Android 5.0+` · `APK 12.4MB` · `无 GMS 依赖` · `Kotlin + Compose + Media3` · `MIT`
 
-![home](docs/screenshots/home.png)
+![界面预览](docs/screenshots/preview.gif)
+
+> 以上为真机截图轮播；单张静图见 [docs/screenshots](docs/screenshots)。
 
 ## 为什么是星幕
 
@@ -96,6 +105,7 @@ app/
 | --- | --- |
 | **Releases**（推荐） | 打开 [Releases](https://github.com/OugeX/xingmu-tv/releases) 下载最新 `app-debug.apk`，U 盘拷进电视或 `adb install -r` 安装 |
 | CI 产物 | 每次提交由 GitHub Actions 构建，可在 Actions → build → Artifacts 下载（保留 30 天） |
+| **不会装？** | 看 [老电视复活指南](docs/老电视复活指南.md)：开 ADB、连电视、装 APK、配源，一步一图 |
 
 > 当前为 debug 签名，仅供侧载测试；正式发布前会换 release 签名。Android 5.0+（minSdk 21）。
 
