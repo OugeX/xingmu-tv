@@ -2,7 +2,7 @@
 
 **你家的老电视，还没到退休的年纪。**
 
-![version](https://img.shields.io/badge/version-v0.2.4-E8B872?style=flat-square)
+![version](https://img.shields.io/badge/version-v0.2.6-E8B872?style=flat-square)
 ![android](https://img.shields.io/badge/Android-5.0%2B-3DDC84?style=flat-square&logo=android&logoColor=white)
 ![size](https://img.shields.io/badge/APK-2.9MB-blue?style=flat-square)
 ![license](https://img.shields.io/badge/license-MIT-green?style=flat-square)
@@ -103,7 +103,7 @@ app/
 
 | 渠道 | 说明 |
 | --- | --- |
-| **Releases · 标准包**（推荐） | [v0.2.5](https://github.com/OugeX/xingmu-tv/releases/tag/v0.2.5) 的 `xingmu-tv-v0.2.5-*.apk`（12.1MB），已在真机 LeTV 上逐项验证 |
+| **Releases · 标准包**（推荐） | [v0.2.6](https://github.com/OugeX/xingmu-tv/releases/tag/v0.2.6) 的 `xingmu-tv-v0.2.6-*.apk`（12.2MB），已在真机 LeTV 上逐项验证 |
 | **Releases · 精简包** | 同页 `*-r8-*.apk`（**2.86MB**，R8 + 资源裁剪），体积小 76%，仅在 Android TV 模拟器验证过安装/启动/渲染，真机四链路待验 |
 | CI 产物 | 每次提交由 GitHub Actions 构建，可在 Actions → build → Artifacts 下载（保留 30 天） |
 | **不会装？** | 看 [老电视复活指南](docs/老电视复活指南.md)：开 ADB、连电视、装 APK、配源，一步一图 |
