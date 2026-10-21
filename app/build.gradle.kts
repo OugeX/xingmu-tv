@@ -2,6 +2,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
+    // t24：Baseline Profile 接入（消费 :baselineprofile 生成器产出的 profile）
+    id("androidx.baselineprofile")
 }
 
 /*
@@ -43,15 +45,29 @@ android {
         jvmTarget = "17"
     }
 
+    // 内测发布包：复用本机 debug keystore（密钥不入仓）。正式分发换成 CI 注入证书。
+    // 必须定义在 buildTypes 之前，release 才能 getByName("release")。
+    signingConfigs {
+        create("release") {
+            val ks = file("${System.getProperty("user.home")}/.android/debug.keystore")
+            if (ks.exists()) {
+                storeFile = ks
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            }
+        }
+    }
+
     buildTypes {
         debug {
             isMinifyEnabled = false
         }
         release {
-            // 空骨架阶段不做 R8，避免未验证的裁剪规则影响另外两条实现线；
-            // 包体达标（≤14MB）由 t5/qa 在 release 阶段统一开启 R8 + 资源裁剪后复测。
-            isMinifyEnabled = false
-            isShrinkResources = false
+            // t24：R8 代码裁剪 + 资源裁剪（包体 12.4MB → ~8MB，冷启动类加载变少）
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -92,4 +108,10 @@ dependencies {
     implementation("io.coil-kt:coil:2.7.0")
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("com.google.zxing:core:3.5.3")
+
+    // ---- Baseline Profile 安装器（t24）：API 28+ 安装期应用 assets/dexopt/baseline.prof ----
+    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+
+    // t24：profile 生成器（com.android.test 模块，仅在 benchmark/生成任务里用到）
+    baselineProfile(project(":baselineprofile"))
 }

@@ -1,0 +1,48 @@
+# Baseline Profile（t24）—— 启动/三条主路径的热点规则（HRF 文本格式）。
+#
+# 状态：手写种子（PENDING_DEVICE）。正式版由 :baselineprofile 模块采集生成：
+#   gradlew :app:generateBaselineProfile        # 需要 API 28+ 设备
+#   cp app/src/main/generated/baselineProfiles/baseline-prof.txt app/src/main/baseline-prof.txt
+# 团队唯一真机 LeTV X4-50 是 Android 6 / API 23（ART 无 baseline profile 支持），
+# 因此本文件先按「冷启动 + 首页/详情/直播/搜索」的类级热点手工铺底，等设备到位后覆盖。
+#
+# 说明：R8 混淆后由 AGP 的 art-profile 重写（art-profile-r8-rewriting）按 mapping 改写名字；
+# 未命中的条目会被忽略，不会影响启动。
+
+# ---- App 冷启动路径 ----
+Lcom/tvbox/app/App;
+Lcom/tvbox/app/MainActivity;
+Lcom/tvbox/app/core/TvLog;
+Lcom/tvbox/app/core/AppDispatchers;
+Lcom/tvbox/app/data/AppServices;
+Lcom/tvbox/app/data/SourceGraph;
+Lcom/tvbox/app/data/LocalSourceRepository;
+Lcom/tvbox/app/data/FallbackSourceRepository;
+Lcom/tvbox/app/data/MacCmsClient;
+Lcom/tvbox/app/data/MacCmsParser;
+Lcom/tvbox/app/data/Http;
+Lcom/tvbox/app/data/EndpointRacer;
+
+# ---- 首页 / 详情 / 搜索 / 直播 UI ----
+Lcom/tvbox/app/ui/AppRootKt;
+Lcom/tvbox/app/ui/UiUtilsKt;
+Lcom/tvbox/app/ui/home/HomeScreenKt;
+Lcom/tvbox/app/ui/detail/DetailScreenKt;
+Lcom/tvbox/app/ui/search/SearchScreenKt;
+Lcom/tvbox/app/ui/live/LiveScreenKt;
+
+# ---- AndroidX / Compose 启动骨架 ----
+Landroidx/activity/ComponentActivity;
+Landroidx/compose/runtime/Recomposer;
+Landroidx/compose/runtime/ComposerImpl;
+Landroidx/compose/ui/platform/AndroidComposeView;
+Landroidx/lifecycle/ProcessLifecycleOwner;
+Landroidx/startup/AppInitializer;
+Landroidx/profileinstaller/ProfileInstaller;
+
+# ---- 网络 / 图片 / 播放（首屏后立刻用到的入口） ----
+Lokhttp3/OkHttpClient;
+Lokhttp3/internal/connection/RealConnectionPool;
+Lcoil/ImageLoader;
+Landroidx/media3/exoplayer/ExoPlayer;
+Landroidx/media3/exoplayer/ExoPlayer$Builder;

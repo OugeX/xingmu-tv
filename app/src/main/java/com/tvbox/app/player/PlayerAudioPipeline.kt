@@ -147,7 +147,8 @@ class TvRenderersFactory(
 
     init {
         setExtensionRendererMode(EXTENSION_RENDERER_MODE_OFF)
-        setEnableDecoderFallback(true)
+        // t25：codecReuse 开关打开时不再做 decoder fallback 探测（多一次失败 codec init = 白花 60ms）
+        setEnableDecoderFallback(!PlayerTuning.codecReuseEnabled)
         setEnableAudioFloatOutput(false)
         setEnableAudioTrackPlaybackParams(false)
     }

@@ -27,6 +27,25 @@ object AppImages {
     @Volatile
     private var loader: ImageLoader? = null
 
+    /** t25：可运行期限流的 Coil 内存缓存（播放时压到 8MB，退出恢复）。 */
+    @Volatile
+    private var budgeted: BudgetedMemoryCache? = null
+
+    /** ImageLoader 还没建出来时先记住上限，build() 里补上（直播页常常是首个页面）。 */
+    @Volatile
+    private var pendingCap: Int = Int.MAX_VALUE
+
+    /**
+     * 播放态资源让位（PERF_ROADMAP P1-7）：把 Coil 内存缓存软上限设为 [capBytes]。
+     * 传 [Int.MAX_VALUE] 表示恢复默认（24MB 构建值）。
+     */
+    fun setMemoryBudget(capBytes: Int) {
+        pendingCap = capBytes
+        val cache = budgeted ?: return
+        cache.capBytes = capBytes
+        if (capBytes < Int.MAX_VALUE) cache.trimToCap()
+    }
+
     fun loader(context: Context): ImageLoader {
         loader?.let { return it }
         return synchronized(this) {
@@ -49,9 +68,11 @@ object AppImages {
         .respectCacheHeaders(false)
         .crossfade(false)
         .memoryCache {
-            MemoryCache.Builder(context)
-                .maxSizeBytes(24 * 1024 * 1024)
-                .build()
+            BudgetedMemoryCache(
+                MemoryCache.Builder(context)
+                    .maxSizeBytes(24 * 1024 * 1024)
+                    .build(),
+            ).apply { capBytes = pendingCap }.also { budgeted = it }
         }
         .diskCache {
             DiskCache.Builder()

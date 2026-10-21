@@ -52,6 +52,7 @@ import com.tvbox.app.data.VodDetail
 import com.tvbox.app.data.VodSummary
 import com.tvbox.app.data.WatchProgress
 import com.tvbox.app.data.WatchProgressStore
+import com.tvbox.app.player.PlaybackMemoryGuard
 import com.tvbox.app.player.PlayerBootstrap
 import com.tvbox.app.player.PlayerController
 import com.tvbox.app.player.PlayerControllerImpl
@@ -201,7 +202,10 @@ fun PlayerScreen(
     }
 
     DisposableEffect(controller) {
+        // t25 / P1-7：点播播放态同样让位（Coil 上限压到 8MB、暂停海报请求）
+        PlaybackMemoryGuard.enter(context)
         onDispose {
+            PlaybackMemoryGuard.exit()
             saveProgress(current, progressStore, position)
             PlayerBootstrap.release(controller)
         }

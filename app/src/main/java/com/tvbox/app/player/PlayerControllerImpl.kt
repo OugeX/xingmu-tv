@@ -126,6 +126,18 @@ class PlayerControllerImpl(
     private var decoderRebuilt = false
     private var prepareMs = 0L
     private var hasPlayed = false
+
+    // t25：解码器 init 统计（跨切台累计，不随单次 play 重置；player 重建才归零）
+    private var decoderInitCount = 0
+    private var lastDecoderInitMs = 0L
+    private var decoderInitTotalMs = 0L
+
+    private fun reuseResultName(result: Int): String = when (result) {
+        DecoderReuseEvaluation.REUSE_RESULT_YES_WITHOUT_RECONFIGURATION -> "YES_NO_RECONFIG"
+        DecoderReuseEvaluation.REUSE_RESULT_YES_WITH_FLUSH -> "YES_FLUSH"
+        DecoderReuseEvaluation.REUSE_RESULT_YES_WITH_RECONFIGURATION -> "YES_RECONFIG"
+        else -> "NO"
+    }
     private var lastRebufferDowngradeAt = 0L
 
     private var tickerJob: Job? = null
@@ -547,6 +559,10 @@ class PlayerControllerImpl(
         loadControl = control
         dataSourceFactory = dataSource
         _generation.update { it + 1 }
+        // t25：新 renderers = 新解码器，init 统计归零（跨切台的复用率就看这之后累计）
+        decoderInitCount = 0
+        lastDecoderInitMs = 0L
+        decoderInitTotalMs = 0L
         startTicker()
         TvLog.i(TAG, "player created #${_generation.value} quality=${QualityOptions.label(qualityHeight)} live=$liveMode")
         return p
@@ -874,7 +890,8 @@ class PlayerControllerImpl(
                 "PLAYER_EVT",
                 "action=play label=${lastMedia?.label ?: "-"} url=${url ?: "-"} " +
                     "t_prepare_ms=$prepareMs t_first_frame_ms=$elapsed src=$src " +
-                    "rebuffer=${_stats.value.rebufferCount} host=$host cached=$cached",
+                    "rebuffer=${_stats.value.rebufferCount} host=$host cached=$cached " +
+                    "decoder_init_ms=$lastDecoderInitMs decoder_inits=$decoderInitCount codec_reuse=${if (PlayerTuning.codecReuseEnabled) 1 else 0}",
             )
             emit(PlayerEvent.FirstFrame)
             scheduleBlackScreenCheck()
@@ -888,7 +905,16 @@ class PlayerControllerImpl(
             initializationDurationMs: Long,
         ) {
             _info.update { it.copy(decoderName = decoderName) }
+            // t25：解码器会话复用 A/B 的证据链——每次 init 都记，切 20 次台能看到 20 条 init 还是 <20 条
+            decoderInitCount += 1
+            lastDecoderInitMs = initializationDurationMs
+            decoderInitTotalMs += initializationDurationMs
             TvLog.i(TAG, "decoder=$decoderName init=${initializationDurationMs}ms")
+            TvLog.i(
+                "CODEC_EVT",
+                "action=init decoder=$decoderName init_ms=$initializationDurationMs " +
+                    "count=$decoderInitCount total_ms=$decoderInitTotalMs reuse=${if (PlayerTuning.codecReuseEnabled) 1 else 0}",
+            )
         }
 
         override fun onVideoInputFormatChanged(
@@ -896,6 +922,14 @@ class PlayerControllerImpl(
             format: Format,
             decoderReuseEvaluation: DecoderReuseEvaluation?,
         ) {
+            // t25：复用评估（REUSE_RESULT_* / DISCARD_REASON_*），真机据此判断 MStar 能否复用
+            decoderReuseEvaluation?.let { evaluation ->
+                TvLog.i(
+                    "CODEC_EVT",
+                    "action=format decoder=${evaluation.decoderName} result=${reuseResultName(evaluation.result)} " +
+                        "discard=${evaluation.discardReasons} fmt=${format.width}x${format.height} ${format.sampleMimeType}",
+                )
+            }
             handleVideoFormatChanged(format)
         }
 

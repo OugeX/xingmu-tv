@@ -182,6 +182,10 @@ foreach ($p in $logPaths) {
         $from = if ($line -match 'from=(.*?) to=') { $Matches[1] } else { '' }
         $to = if ($line -match 'to=(.*?) t_prepare_ms=') { $Matches[1] } else { '' }
         $degraded = if ($line -match 'degraded=(\d+)') { [int]$Matches[1] } else { 0 }
+        # t25：解码器会话复用证据（旧包没有这些字段 → $null）
+        $decInit = if ($line -match 'decoder_init_ms=(\d+)') { [int]$Matches[1] } else { $null }
+        $decInits = if ($line -match 'decoder_inits=(\d+)') { [int]$Matches[1] } else { $null }
+        $codecReuse = if ($line -match 'codec_reuse=(\d+)') { [int]$Matches[1] } else { $null }
         $events.Add([pscustomobject]@{
             phase     = $phase
             action    = $action
@@ -193,6 +197,9 @@ foreach ($p in $logPaths) {
             from      = $from
             to        = $to
             degraded  = $degraded
+            decoder_init_ms = $decInit
+            decoder_inits   = $decInits
+            codec_reuse     = $codecReuse
             raw       = $line.Trim()
         })
     }

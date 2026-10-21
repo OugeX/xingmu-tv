@@ -110,6 +110,10 @@ class LiveController(
     private val prefetchedUrls = HashSet<String>()
     private val prefetchedPlaylists = HashSet<String>()
 
+    /** t25：已做过 TLS 预握手的 host（避免同一台反复握手）。多协程访问，用同步包装。 */
+    private val preconnectedHosts: MutableSet<String> =
+        java.util.Collections.synchronizedSet(HashSet<String>())
+
     // PLAYER_PERF 埋点
     private var lastPrepareMs = 0L
     private var zapAt = 0L
@@ -149,6 +153,8 @@ class LiveController(
     fun start() {
         if (started) return
         started = true
+        // t25 / P1-7：直播页 = 播放态，Coil 缓存压到 8MB + 暂停海报请求
+        com.tvbox.app.player.PlaybackMemoryGuard.enter(appContext)
         scope.launch {
             _state.update { it.copy(loading = true) }
             val snapshot = seedRepository.load()
@@ -248,6 +254,8 @@ class LiveController(
         warmJob?.cancel()
         warmJob = null
         BandwidthGate.zapping = false
+        // t25 / P1-7：退出直播页恢复图片缓存上限与请求
+        com.tvbox.app.player.PlaybackMemoryGuard.exit()
         // 离开直播页后把播放器恢复点播档位（否则同一实例上点播倍速会被直播拦截）
         profile?.setLiveMode(false)
         scope.cancel()
@@ -276,6 +284,8 @@ class LiveController(
             val target = if (safeMode) channel.safeLine?.url ?: channel.bestLine?.url
             else channel.bestLine?.url
             target?.let { warmUp(it) }
+            // t25 / PERF_ROADMAP P0-2：预连接相邻频道（CH+/CH-），连切时命中已建好的 TLS 连接
+            preconnectNeighbors(channel)
         }
         _state.update {
             it.copy(
@@ -422,6 +432,13 @@ class LiveController(
         scope.launch(Dispatchers.IO) {
             com.tvbox.app.player.PlayerHttp.prewarm(appContext, url, fetchSegment = false)
         }
+        // t25：下一个频道的 TLS 也一并预握手（连按 CH+ 时最先用到的就是它）
+        scope.launch(Dispatchers.IO) {
+            if (preconnectedHosts.add(hostOf(url) ?: url)) {
+                val ms = com.tvbox.app.player.PlayerHttp.preconnect(appContext, url)
+                if (ms >= 0) TvLog.d(TAG, "next preconnect ${hostOf(url)} ${ms}ms")
+            }
+        }
     }
 
     private fun playFirstLine(channel: LiveChannel) {
@@ -498,6 +515,37 @@ class LiveController(
         scope.launch(Dispatchers.IO) {
             // 拉 playlist（≤256KB）写入 SimpleCache，再预取首个分片前 64KB（Range）
             com.tvbox.app.player.PlayerHttp.prewarm(appContext, url)
+        }
+        // 并行做 TLS 预握手：playlist 预取走 SimpleCache 数据源，连接池不同，
+        // 只预热首片不足以让播放器复用连接（P0-2 的真收益在这里）。
+        scope.launch(Dispatchers.IO) {
+            if (preconnectedHosts.add(hostOf(url) ?: url)) {
+                val ms = com.tvbox.app.player.PlayerHttp.preconnect(appContext, url)
+                if (ms >= 0) TvLog.i(TAG, "preconnect ${hostOf(url)} ${ms}ms")
+            }
+        }
+    }
+
+    /**
+     * t25：焦点停留时预连接 CH+/CH- 相邻频道（只握手，不拉 playlist——避免抢当前台带宽）。
+     * 连切场景下 2 条相邻连接的 TLS 早在切台前就绪。
+     */
+    private fun preconnectNeighbors(current: LiveChannel) {
+        val list = _state.value.channels
+        if (list.isEmpty()) return
+        val index = list.indexOfFirst { it.id == current.id }
+        if (index < 0) return
+        val neighbors = listOfNotNull(list.getOrNull(index - 1), list.getOrNull(index + 1))
+        if (neighbors.isEmpty()) return
+        scope.launch(Dispatchers.IO) {
+            neighbors.forEach { neighbor ->
+                val url = if (safeMode) neighbor.safeLine?.url ?: neighbor.bestLine?.url
+                else neighbor.bestLine?.url
+                if (url != null && preconnectedHosts.add(hostOf(url) ?: url)) {
+                    val ms = com.tvbox.app.player.PlayerHttp.preconnect(appContext, url)
+                    if (ms >= 0) TvLog.d(TAG, "neighbor preconnect ${hostOf(url)} ${ms}ms")
+                }
+            }
         }
     }
 

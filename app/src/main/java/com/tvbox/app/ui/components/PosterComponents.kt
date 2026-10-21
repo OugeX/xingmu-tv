@@ -82,7 +82,7 @@ fun PosterImage(
     }
 
     Box(modifier.background(colors.surface)) {
-        if (!failed && effectiveUrl.isNotBlank() && !ContentGate.zapping) {
+        if (!failed && effectiveUrl.isNotBlank() && !ContentGate.zapping && !com.tvbox.app.player.PlaybackMemoryGuard.pauseImages) {
             AsyncImage(
                 model = request,
                 imageLoader = imageLoader,

@@ -43,6 +43,23 @@ object PlayerTuning {
 
     /** 5 档倍速；直播全部置灰（PLAYBACK_SPEC §4）。 */
     val SPEEDS: List<Float> = listOf(0.75f, 1.0f, 1.25f, 1.5f, 2.0f)
+
+    // ---- t25 / PERF_ROADMAP P2-9：解码器会话复用开关（默认关） ----
+    /**
+     * 关闭时 = 现状：每次切台 stop → setMediaItem → prepare，Media3 会释放并重建 MediaCodec
+     * （真机 init 55–68ms）。
+     *
+     * 打开时：Renderers 关掉 decoder fallback 探测（少一次失败的 codec init），并把
+     * `CODEC_EVT action=reuse` 的复用评估打全。**注意**：Media3 1.5.1 公共 API 没有“跨 MediaItem
+     * 保留同一个 MediaCodec 会话”的入口（`MediaCodecRenderer.onDisabled()` 必 release），所以
+     * 真正意义上的会话复用要等自研 MediaCodecAdapter 池或 Media3 升级；开关先留给真机 A/B。
+     */
+    @Volatile
+    var codecReuseEnabled: Boolean = false
+
+    fun toggleCodecReuse(enabled: Boolean) {
+        codecReuseEnabled = enabled
+    }
 }
 
 /** 点播/直播两套 DefaultLoadControl 参数（PLAYBACK_SPEC §1 保险 4）。 */

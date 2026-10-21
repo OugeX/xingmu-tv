@@ -22,3 +22,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "tvbox"
 include(":app")
+// t24：Baseline Profile 生成模块（com.android.test，仅 benchmark 变体参与编译）
+include(":baselineprofile")

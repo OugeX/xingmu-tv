@@ -58,18 +58,28 @@ object PlayerHttp {
      * 直接用默认信任链会 SSLHandshakeException → 表现为「Source error」，真机必现。
      * 仅额外信任两张公开根证书，不放开任意证书。
      */
-    fun playbackClient(context: android.content.Context): OkHttpClient = try {
-        AppImages.networkClient(context.applicationContext)
-            .newBuilder()
-            .connectTimeout(5, TimeUnit.SECONDS)
-            .readTimeout(8, TimeUnit.SECONDS)
-            .writeTimeout(8, TimeUnit.SECONDS)
-            .retryOnConnectionFailure(true)
-            .followRedirects(true)
-            .build()
-    } catch (t: Throwable) {
-        client
+    fun playbackClient(context: android.content.Context): OkHttpClient {
+        playback?.let { return it }
+        return synchronized(this) {
+            playback ?: try {
+                AppImages.networkClient(context.applicationContext)
+                    .newBuilder()
+                    .dns(DnsCache)
+                    .connectTimeout(5, TimeUnit.SECONDS)
+                    .readTimeout(8, TimeUnit.SECONDS)
+                    .writeTimeout(8, TimeUnit.SECONDS)
+                    .retryOnConnectionFailure(true)
+                    .followRedirects(true)
+                    .build()
+            } catch (t: Throwable) {
+                client
+            }.also { playback = it }
+        }
     }
+
+    /** 播放器客户端单例：必须复用同一个 ConnectionPool，否则切台预连接形同虚设。 */
+    @Volatile
+    private var playback: OkHttpClient? = null
 
     /** 频道焦点预热专用：8MB playlist 缓存（只缓存 m3u8 文本，不缓存分片）。 */
     @Volatile
@@ -83,6 +93,71 @@ object PlayerHttp {
                 playbackClient(context).newBuilder().cache(cache).build()
             }.getOrElse { playbackClient(context) }.also { warm = it }
         }
+    }
+
+    // ------------------------------------------------------------------
+    // 切台预连接（PERF_ROADMAP P0-2）：DNS 解析缓存 + TLS 预握手
+    // ------------------------------------------------------------------
+
+    /**
+     * DNS 解析缓存：Android 6 的 InetAddress 缓存很小且不可控，切台时 DNS 常占 20–120ms。
+     * 这里做 10 分钟进程级缓存，并给 [preconnect] 一个「提前解析」入口。
+     */
+    object DnsCache : okhttp3.Dns {
+        private const val TTL_MS = 10 * 60 * 1000L
+        private val cache = java.util.concurrent.ConcurrentHashMap<String, Pair<Long, List<java.net.InetAddress>>>()
+
+        override fun lookup(hostname: String): List<java.net.InetAddress> {
+            cache[hostname]?.let { (at, ips) ->
+                if (System.currentTimeMillis() - at <= TTL_MS) return ips
+            }
+            val ips = okhttp3.Dns.SYSTEM.lookup(hostname)
+            if (ips.isNotEmpty()) cache[hostname] = System.currentTimeMillis() to ips
+            return ips
+        }
+
+        fun warm(host: String): List<java.net.InetAddress> =
+            runCatching { lookup(host) }.getOrDefault(emptyList())
+    }
+
+    /**
+     * 预连接：对目标 URL 做 DNS + TCP + TLS 预握手，连接留在 [playbackClient] 的
+     * ConnectionPool 里，切台时 OkHttp 直接复用（省掉 DNS + 2×RTT 握手）。
+     *
+     * 先用 HEAD（无 body，连接可回收）；CDN 若拒绝 HEAD 则退回 `Range: bytes=0-0` 的 GET
+     * 并读完 1 字节，保证连接真被放回池子。返回耗时（ms），失败返回 -1。
+     */
+    fun preconnect(context: android.content.Context, url: String): Long {
+        val host = hostOf(url)
+        if (host == "-") return -1L
+        val started = System.currentTimeMillis()
+        return runCatching {
+            runCatching { DnsCache.warm(host) }
+            val client = playbackClient(context)
+            val pooled = runCatching {
+                val head = okhttp3.Request.Builder()
+                    .url(url)
+                    .head()
+                    .header("User-Agent", USER_AGENT)
+                    .build()
+                client.newCall(head).execute().use { resp -> resp.isSuccessful || resp.code in 200..399 }
+            }.getOrDefault(false)
+            if (!pooled) {
+                runCatching {
+                    val get = okhttp3.Request.Builder()
+                        .url(url)
+                        .header("User-Agent", USER_AGENT)
+                        .header("Range", "bytes=0-0")
+                        .build()
+                    client.newCall(get).execute().use { resp ->
+                        resp.body?.byteStream()?.let { stream ->
+                            stream.read(ByteArray(64))
+                        }
+                    }
+                }
+            }
+            (System.currentTimeMillis() - started).coerceAtLeast(0L)
+        }.getOrElse { -1L }
     }
 
     // ------------------------------------------------------------------

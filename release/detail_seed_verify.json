@@ -1,0 +1,129 @@
+{
+ "generated_at": "2026-10-22T05:54:03+0800",
+ "seed": "release/detail_seed.json",
+ "seed_count": 500,
+ "sampled": [
+  {
+   "vodId": "168941",
+   "name": "邪修宗门独宠我一人第五季",
+   "play_url_bytes": 89,
+   "m3u8_count": 1,
+   "first_m3u8": "https://s3.bfllvip.com/video/xiexiuzongmenduchongwoyirendiwuji/987a2105adda/index.m3u8"
+  },
+  {
+   "vodId": "169103",
+   "name": "我隐瞒身份,妹妹真以为我月薪两千八",
+   "play_url_bytes": 105,
+   "m3u8_count": 1,
+   "first_m3u8": "https://s3.bfllvip.com/video/woyinmanshenfenmeimeizhenyiweiwoyuexinliangqianba/2cee9baa61ee/index.m3u8"
+  },
+  {
+   "vodId": "88979",
+   "name": "女人我最大",
+   "play_url_bytes": 58408,
+   "m3u8_count": 803,
+   "first_m3u8": "https://c1.ddbbffcdn.com/video/nvrenwozuida/20240715/index.m3u8"
+  },
+  {
+   "vodId": "168886",
+   "name": "大明,李景隆的别样人生第六季",
+   "play_url_bytes": 96,
+   "m3u8_count": 1,
+   "first_m3u8": "https://s3.bfllvip.com/video/daminglijinglongdebieyangrenshengdiliuji/edab3b014384/index.m3u8"
+  },
+  {
+   "vodId": "167999",
+   "name": "去“湘”当有味的地方第四季",
+   "play_url_bytes": 681,
+   "m3u8_count": 7,
+   "first_m3u8": "https://fengbao13.com/video/quxiangdangyouweidedifangdisiji/bdf1535fb107/index.m3u8"
+  },
+  {
+   "vodId": "169030",
+   "name": "丑妻仙缘第六季",
+   "play_url_bytes": 80,
+   "m3u8_count": 1,
+   "first_m3u8": "https://v.fengbao14.com/video/chouqixianyuandiliuji/8a9cd749aebf/index.m3u8"
+  },
+  {
+   "vodId": "169044",
+   "name": "斯诺克北爱尔兰公开赛64进32:侯赛因·瓦菲VS马修·塞尔特",
+   "play_url_bytes": 118,
+   "m3u8_count": 1,
+   "first_m3u8": "https://s3.bfllvip.com/video/sinuokebeiaierlangongkaisai64jin32housaiyinwafeiVSmaxiusaierte/a552f3ae5534/index.m3u8"
+  },
+  {
+   "vodId": "169091",
+   "name": "德甲联赛:沙尔克04VS美因茨20261017",
+   "play_url_bytes": 95,
+   "m3u8_count": 1,
+   "first_m3u8": "https://s3.bfllvip.com/video/dejialiansaishaerke04VSmeiyinci20261017/1794109b9011/index.m3u8"
+  },
+  {
+   "vodId": "168888",
+   "name": "凡人修仙:我靠小树苗逆仙途第五季",
+   "play_url_bytes": 99,
+   "m3u8_count": 1,
+   "first_m3u8": "https://s3.bfllvip.com/video/fanrenxiuxianwokaoxiaoshumiaonixiantudiwuji/6bef13f001b8/index.m3u8"
+  },
+  {
+   "vodId": "169108",
+   "name": "退租倒计时:假少爷的末日",
+   "play_url_bytes": 84,
+   "m3u8_count": 1,
+   "first_m3u8": "https://s3.bfllvip.com/video/tuizudaojishijiashaoyedemori/6ca010f5b2ee/index.m3u8"
+  }
+ ],
+ "probes": [
+  {
+   "url": "https://c1.rrcdnbf6.com/video/nvrenwozuida/20240408/index.m3u8",
+   "http": 200,
+   "content_type": "application/vnd.apple.mpegurl",
+   "bytes": 32393,
+   "extm3u": true,
+   "ok": true
+  },
+  {
+   "url": "https://c1.rrcdnbf5.com/video/nvrenwozuida/20230922/index.m3u8",
+   "http": 200,
+   "content_type": "application/vnd.apple.mpegurl",
+   "bytes": 21048,
+   "extm3u": true,
+   "ok": true
+  },
+  {
+   "url": "https://p.bvvvvvvvvv1f.com/video/nvrenwozuida/20230327期/index.m3u8",
+   "http": 200,
+   "content_type": "application/vnd.apple.mpegurl",
+   "bytes": 21686,
+   "extm3u": true,
+   "ok": true
+  },
+  {
+   "url": "https://fengbao13.com/video/nvrenwozuida/7418096da85d/index.m3u8",
+   "http": 200,
+   "content_type": "application/vnd.apple.mpegurl",
+   "bytes": 57472,
+   "extm3u": true,
+   "ok": true
+  },
+  {
+   "url": "https://v.fengbao14.com/video/nvrenwozuida/16f4152ce06f/index.m3u8",
+   "http": 200,
+   "content_type": "application/vnd.apple.mpegurl",
+   "bytes": 64758,
+   "extm3u": true,
+   "ok": true
+  }
+ ],
+ "probed_candidates": 30,
+ "candidate_hosts": 13,
+ "probe_ok": 5,
+ "summary": {
+  "sampled": 10,
+  "with_play_url": 10,
+  "unique_m3u8": 818,
+  "probed": 5,
+  "probe_ok": 5
+ }
+}
