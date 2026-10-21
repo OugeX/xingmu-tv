@@ -11,6 +11,22 @@ class MacCmsException(val code: String, message: String, cause: Throwable? = nul
  */
 object MacCmsParser {
 
+    fun parseClasses(json: String): List<MacCmsClass> {
+        val root = JSONObject(json)
+        val code = root.optInt("code", 1)
+        if (code != 1) throw MacCmsException("SOURCE_OFFLINE", "分类接口错误：${root.optString("msg", "code=$code")}")
+        val array = root.optJSONArray("class") ?: root.optJSONArray("list") ?: JSONArray()
+        val result = ArrayList<MacCmsClass>(array.length())
+        for (i in 0 until array.length()) {
+            val obj = array.optJSONObject(i) ?: continue
+            val id = obj.optInt("type_id", -1)
+            val name = obj.optString("type_name").trim()
+            if (id <= 0 || name.isEmpty()) continue
+            result += MacCmsClass(id, name, obj.optInt("type_pid", 0))
+        }
+        return result
+    }
+
     fun parseList(json: String, source: SourceConfig): List<VodSummary> {
         val root = JSONObject(json)
         val code = root.optInt("code", 1)

@@ -66,7 +66,7 @@ fun AppRoot(vm: AppViewModel, windowState: WindowState, onClose: () -> Unit) {
                     false
                 } else {
                     val activeWindow = java.awt.KeyboardFocusManager.getCurrentKeyboardFocusManager().activeWindow
-                    if (activeWindow?.title != "星幕 TV") {
+                    if ((activeWindow as? java.awt.Frame)?.title != "星幕 TV") {
                         false
                     } else {
                         when (event.keyCode) {

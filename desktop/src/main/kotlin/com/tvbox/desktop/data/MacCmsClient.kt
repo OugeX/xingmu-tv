@@ -39,6 +39,24 @@ class MacCmsClient(
         }
     }
 
+    /** MacCMS `ac=list`：分类树；源未配置 categories 时用它把 MOVIE/TV/... 映射到 type_id。 */
+    suspend fun classes(source: SourceConfig, forceRefresh: Boolean = false): Outcome<List<MacCmsClass>> {
+        if (!forceRefresh) {
+            classCache[source.id]?.let { return Outcome(it) }
+        }
+        val query = "?ac=list&pg=1"
+        return when (val raw = fetch(source, "classes|${source.id}", query, CLASS_TTL_MS)) {
+            is Fetch.Ok -> try {
+                val parsed = MacCmsParser.parseClasses(raw.text)
+                classCache[source.id] = parsed
+                Outcome(parsed, stale = raw.stale)
+            } catch (t: Throwable) {
+                Outcome(null, SourceError("PARSE", "分类解析失败：${t.message}"))
+            }
+            is Fetch.Err -> Outcome(null, raw.error)
+        }
+    }
+
     suspend fun search(source: SourceConfig, keyword: String, page: Int): Outcome<List<VodSummary>> {
         val encoded = URLEncoder.encode(keyword, "UTF-8")
         val query = "?ac=detail&wd=$encoded&pg=${page.coerceAtLeast(1)}"
@@ -131,16 +149,37 @@ class MacCmsClient(
         java.net.URI(endpoint).host ?: endpoint
     }.getOrDefault(endpoint)
 
-    private fun typeIdFor(source: SourceConfig, category: String): Int? {
+    private suspend fun typeIdFor(source: SourceConfig, category: String): Int? {
         source.categories[category]?.firstOrNull()?.let { return it }
-        return DEFAULT_TYPE_IDS[category]
+        val resolved = matchCategory(classes(source).value.orEmpty(), category)
+        return resolved?.typeId ?: DEFAULT_TYPE_IDS[category]
+    }
+
+    private fun matchCategory(classes: List<MacCmsClass>, category: String): MacCmsClass? {
+        if (classes.isEmpty()) return null
+        val keywords = when (category) {
+            "MOVIE" -> listOf("电影", "片")
+            "TV" -> listOf("连续剧", "电视剧", "剧集")
+            "ANIME" -> listOf("动漫", "动画")
+            "VARIETY" -> listOf("综艺")
+            "SHORT" -> listOf("短剧")
+            "SPORTS" -> listOf("体育")
+            else -> emptyList()
+        }
+        if (keywords.isEmpty()) return null
+        val topLevel = classes.filter { it.typePid == 0 }.ifEmpty { classes }
+        for (keyword in keywords) {
+            topLevel.firstOrNull { it.typeName.contains(keyword) }?.let { return it }
+        }
+        return null
     }
 
     companion object {
         private const val LIST_TTL_MS = 5 * 60 * 1000L
         private const val DETAIL_TTL_MS = 30 * 60 * 1000L
+        private const val CLASS_TTL_MS = 24 * 60 * 60 * 1000L
 
-        /** MacCMS 通用分类号，仅当源未配置 categories 时兜底。 */
+        /** MacCMS 通用分类号，仅当 ac=list 与源配置都给不出映射时兜底。 */
         val DEFAULT_TYPE_IDS = mapOf(
             "MOVIE" to 1,
             "TV" to 2,
@@ -151,4 +190,7 @@ class MacCmsClient(
             "OTHER" to 7,
         )
     }
+
+    /** 分类树内存缓存：ac=list 一天有效（文件缓存负责跨进程 SWR）。 */
+    private val classCache = java.util.concurrent.ConcurrentHashMap<String, List<MacCmsClass>>()
 }

@@ -89,6 +89,14 @@ class SmokeRunner(
         var vodTitle = ""
         var vodDetailInfo = ""
         if (source != null) {
+            val classes = macCms.classes(source)
+            val classList = classes.value.orEmpty()
+            add(
+                "maccms.classes",
+                classList.isNotEmpty(),
+                if (classList.isNotEmpty()) "ac=list 返回 ${classList.size} 个分类，示例=${classList.take(3).joinToString { "${it.typeName}(${it.typeId})" }}"
+                else "失败：${classes.error?.message}",
+            )
             val list = macCms.list(source, "MOVIE", 1)
             val first = list.value?.firstOrNull()
             add(

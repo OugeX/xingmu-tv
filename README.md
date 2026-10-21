@@ -93,6 +93,50 @@ adb connect 192.168.1.9:5555
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
+## PC 客户端（desktop/）
+
+Windows / macOS 桌面客户端 v0.1：**Compose Multiplatform Desktop + libVLC(vlcj)**，独立 Gradle 工程 `desktop/`，
+不修改 Android 构建、`app/` 与仓库根构建脚本。
+
+![PC 客户端 · 直播](screenshots/desktop_t15_live.png)
+
+- **三栏式桌面布局**：左侧导航（直播/电影/电视剧/动漫/综艺/搜索/源管理/设置）、中部列表或播放器、右侧详情与线路/剧集。
+- **直播 + 点播**：复用 `assets/live_seed.json`（266 频道）与 MacCMS 源；libVLC 播放 HLS 直播与 mp4/m3u8 点播，支持暂停、seek、音量、0.5×–2× 倍速、全屏。
+- **1080p 黑屏降级**：每条线路按「硬解 → 软解 → 更低清晰度线路」自动重试，并在右侧展示降级阶梯。
+- **键盘快捷键**：`空格` 暂停、`←/→` 快退/快进 10s、`↑/↓` 音量、`F` 全屏、`Esc` 退出。
+- **源管理**：本地 JSON / 粘贴文本 / URL 导入，错误码与 `tools/validate_sources.py` 一致。
+- 数据层纯 JVM：MacCMS `ac=list/detail`、多源聚合搜索、SWR 文件缓存、UA/Referer 与 Android 端一致；
+  内置 `assets/sources.builtin.json`、`assets/live_seed.json` 直接相对引用，不复制。
+- 暗色主题与 Android A 影院模式一致（`#0A0A0C` + `#E8B872`）。
+
+```bash
+# 需要 JDK 17 + VLC 3.x
+cd desktop
+./gradlew run                      # 起窗
+./gradlew run --args="--smoke"     # 非交互自检（数据链路 + 实播直播/点播）
+./gradlew packageMsi               # Windows 安装包（Compose 插件自动下载 WiX 3）
+./gradlew packageDmg               # macOS .dmg（需在 macOS 上执行）
+```
+
+本机验证产物：`desktop/build/compose/binaries/main/msi/XingmuTV-0.1.0.msi`（57,760,138 bytes）、
+`desktop/build/compose/binaries/main/exe/XingmuTV-0.1.0.exe`（58,420,736 bytes）。
+
+详细说明、验证记录与已知限制见 [`desktop/README.md`](desktop/README.md)。
+
+### PC 客户端依赖 libVLC
+
+桌面端播放器使用系统安装的 **libVLC 3.x**（vlcj 4.8.2 只是 JVM 绑定，不含原生库）：
+
+| 平台 | 获取方式 | 自动检测位置 |
+| --- | --- | --- |
+| Windows | 安装 [VLC 3.0.x 64 位](https://www.videolan.org/vlc/)；或用 portable zip 解压 | `%ProgramFiles%\VideoLAN\VLC`、`%ProgramFiles(x86)%\VideoLAN\VLC`、`%LOCALAPPDATA%\Programs\VideoLAN\VLC`、`PATH` |
+| macOS | 把 `VLC.app` 放入 `/Applications` | `/Applications/VLC.app/Contents/MacOS/lib`、`/opt/homebrew/lib`、`/usr/local/lib` |
+
+找不到原生库时应用不会崩溃：窗口和列表可正常使用，播放会提示未找到 libVLC；可在
+「设置 → libVLC 播放器」填写 VLC 安装目录，或设置环境变量 `TVAPP_VLC_HOME`（也支持 `VLC_HOME`）。
+Windows MSI 目前不内置 libVLC（体积/许可证考虑），把 VLC 目录复制到应用可执行文件旁的 `vlc/`
+子目录即可被检测；正常安装 VLC 的机器无需任何配置。
+
 ## 数据与源
 
 | 文件 | 说明 |
@@ -112,7 +156,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - [ ] 播放器 1080p 黑屏修复（MStar GL 纹理路径）、首页冷启动骨架
 - [ ] 随便听听看看（电台 + B 站短视频）
 - [ ] 设置中心（过扫描 / 字幕字号 / 4K 优先 / 音画校准）
-- [ ] **PC 客户端：Windows + macOS**（Compose Multiplatform Desktop，共用数据层与源协议）
+- [x] **PC 客户端：Windows + macOS**（Compose Desktop + libVLC，见 `desktop/`）
 - [ ] Release 签名 + 自动构建（GitHub Actions）
 
 ## 参与贡献

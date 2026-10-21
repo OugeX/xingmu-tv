@@ -58,6 +58,28 @@ class MacCmsParserTest {
     }
 
     @Test
+    fun `parse ac list classes`() {
+        val json = JSONObject()
+            .put("code", 1)
+            .put(
+                "class",
+                JSONArray()
+                    .put(JSONObject().put("type_id", 20).put("type_pid", 0).put("type_name", "电影片"))
+                    .put(JSONObject().put("type_id", 30).put("type_pid", 0).put("type_name", "连续剧"))
+                    .put(JSONObject().put("type_id", 33).put("type_pid", 30).put("type_name", "国产剧"))
+                    .put(JSONObject().put("type_id", 0).put("type_name", "坏数据")),
+            )
+            .toString()
+        val classes = MacCmsParser.parseClasses(json)
+        assertEquals(3, classes.size)
+        assertEquals(20, classes[0].typeId)
+        assertEquals("电影片", classes[0].typeName)
+        assertEquals(0, classes[0].typePid)
+        assertEquals("连续剧", classes[1].typeName)
+        assertEquals(30, classes[2].typePid)
+    }
+
+    @Test
     fun `parse list maps fields and filters empty names`() {
         val items = MacCmsParser.parseList(listJson(), source)
         assertEquals(1, items.size)

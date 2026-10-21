@@ -43,6 +43,9 @@ data class ImportedSource(val config: SourceConfig, val raw: JSONObject)
 
 data class VodRef(val sourceId: String, val sourceName: String, val vodId: String)
 
+/** MacCMS `ac=list` 返回的分类节点（type_pid=0 为一级分类）。 */
+data class MacCmsClass(val typeId: Int, val typeName: String, val typePid: Int)
+
 data class VodSummary(
     val vodId: String,
     val sourceId: String,
