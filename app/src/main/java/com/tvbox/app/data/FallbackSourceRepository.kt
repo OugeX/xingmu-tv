@@ -1,6 +1,7 @@
 package com.tvbox.app.data
 
 import com.tvbox.app.core.Result
+import com.tvbox.app.core.TvLog
 import com.tvbox.app.source.SourceRepository
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -44,9 +45,20 @@ class FallbackSourceRepository(
     }
 
     override suspend fun getDetail(vodId: String, sourceId: String): Result<VodDetail> {
-        val primaryResult = withTimeoutOrNull(PRIMARY_PROBE_MS) { primary.getDetail(vodId, sourceId) }
-        if (primaryResult is Result.Ok) return primaryResult
-        return fallback.getDetail(vodId, sourceId)
+        // t23：详情优先走 data 层（端点竞速 + ids + 6h 文件缓存 + 8 条内存缓存），
+        // t10 primary 仅作为兜底，避免 macapi1 在盒子上 17s 慢请求挡住详情页。
+        val started = System.currentTimeMillis()
+        val fallbackResult = fallback.getDetail(vodId, sourceId)
+        if (fallbackResult is Result.Ok) {
+            TvLog.i("DetailPerf", "fallback ok in=${System.currentTimeMillis() - started}ms vod=$vodId")
+            return fallbackResult
+        }
+        val primaryResult = withTimeoutOrNull(1_500L) { primary.getDetail(vodId, sourceId) }
+        if (primaryResult is Result.Ok) {
+            TvLog.i("DetailPerf", "primary ok in=${System.currentTimeMillis() - started}ms vod=$vodId")
+            return primaryResult
+        }
+        return fallbackResult
     }
 
     override suspend fun findAlternateSources(

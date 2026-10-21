@@ -7,6 +7,7 @@ import com.tvbox.app.core.ErrorCodes
 import com.tvbox.app.core.Result
 import com.tvbox.app.core.TvLog
 import com.tvbox.app.source.SourceRepository
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Locale
@@ -21,11 +22,25 @@ class LocalSourceRepository(context: Context) : SourceRepository, SourceAdminDat
 
     private val appContext = context.applicationContext
     private val cache = FileCache(File(appContext.cacheDir, "maccms"))
-    private val client = MacCmsClient(cache)
+    private val racer = EndpointRacer(appContext)
+    private val client = MacCmsClient(cache, racer)
     private val builtin = BuiltinSources(appContext)
     private val states = SourceStateStore(appContext)
     private val overseas = OverseasMap(appContext)
     private val liveSeed = LiveSeed(appContext)
+
+    init {
+        // t23：应用启动即后台竞速前几个源，用户点进详情前 winner 已就绪（不阻塞首帧）
+        kotlinx.coroutines.CoroutineScope(
+            kotlinx.coroutines.SupervisorJob() + AppDispatchers.Io,
+        ).launch {
+            runCatching {
+                maccmsSources().take(4).forEach { source ->
+                    racer.orderedEndpoints(source)
+                }
+            }
+        }
+    }
 
     override suspend fun listSources(): Result<List<SourceConfig>> = Result.Ok(allSources())
 
@@ -77,7 +92,11 @@ class LocalSourceRepository(context: Context) : SourceRepository, SourceAdminDat
         }
         val source = allSources().firstOrNull { it.id == sourceId }
             ?: return Result.failure(ErrorCodes.SOURCE_OFFLINE, "源不存在或已被删除：$sourceId")
-        return client.detail(source, vodId)
+        val result = client.detail(source, vodId)
+        if (result is Result.Ok) {
+            runCatching { com.tvbox.app.player.VodPrefetch.prefetchDetail(appContext, result.value) }
+        }
+        return result
     }
 
     override suspend fun findAlternateSources(

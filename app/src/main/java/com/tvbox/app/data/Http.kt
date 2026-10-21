@@ -7,6 +7,7 @@ import com.tvbox.app.core.Result
 import com.tvbox.app.core.TvLog
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Dispatcher
@@ -85,6 +86,38 @@ object Http {
                     }
                 },
             )
+        }
+
+    /**
+     * 轻量 TTFB 探测（t23 端点竞速）：只等响应头，不读 body，立即 close/cancel。
+     * 避免为了测速把 45–164KB 的 JSON 全下载下来。
+     */
+    suspend fun probeLatencyMs(url: String, headers: Map<String, String>, timeoutMs: Long): Long? =
+        withTimeoutOrNull(timeoutMs) {
+            suspendCancellableCoroutine<Long> { cont ->
+                val started = System.nanoTime()
+                val call = client.newCall(buildRequest(url, headers))
+                cont.invokeOnCancellation { runCatching { call.cancel() } }
+                call.enqueue(
+                    object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            if (cont.isActive) cont.resumeWithException(e)
+                        }
+
+                        override fun onResponse(call: Call, response: Response) {
+                            val elapsed = (System.nanoTime() - started) / 1_000_000L
+                            val ok = response.isSuccessful
+                            response.close()
+                            runCatching { call.cancel() }
+                            if (cont.isActive) {
+                                if (ok) cont.resume(elapsed) else cont.resumeWithException(
+                                    IOException("HTTP ${response.code}"),
+                                )
+                            }
+                        }
+                    },
+                )
+            }
         }
 
     /** 内部工具：把异常折成带错误码的 Result。 */
