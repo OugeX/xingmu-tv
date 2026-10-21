@@ -1,0 +1,53 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configure SDK path
+        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+
+      - name: Build debug APK
+        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
+
+      - name: Report APK
+        run: |
+          ls -lh app/build/outputs/apk/debug/
+          echo "SHA256: $(sha256sum app/build/outputs/apk/debug/app-debug.apk)"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: xingmu-tv-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+
+      - name: Publish release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: app/build/outputs/apk/debug/app-debug.apk
+          generate_release_notes: true
+          body: |
+            ## 星幕 TV ${{ github.ref_name }}
+
+            - 下载下方 `app-debug.apk`，用 U 盘或 `adb install -r` 安装到安卓电视 / 电视盒子。
+            - 支持 Android 5.0+（minSdk 21），已在 LeTV 超4 X50（Android 6）实测。
+            - 项目不提供内容，只做播放器与源管理；资源均来自公开网络。
