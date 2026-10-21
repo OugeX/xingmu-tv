@@ -70,7 +70,13 @@ import com.xingmu.tv.ui.source.SourceManageScreen
 sealed interface Dest {
     data object Home : Dest
     data class Category(val typeId: Int, val title: String) : Dest
-    data class Detail(val vodId: String, val sourceId: String, val title: String) : Dest
+    data class Detail(
+        val vodId: String,
+        val sourceId: String,
+        val title: String,
+        /** t29：来源分类 id（分类页进入时用于同分类推荐） */
+        val fromTypeId: Int? = null,
+    ) : Dest
     data object Search : Dest
     data class Play(val request: PlaybackRequest) : Dest
     data object Sources : Dest
@@ -104,6 +110,10 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
     var settings by remember { mutableStateOf(settingsStore.read()) }
 
     val stack = remember { mutableStateListOf<Dest>(initialDest ?: Dest.Home) }
+    // t29：分类页滚动位置按 typeId 缓存，从详情返回时不跳回顶部
+    val categoryGridStates = remember {
+        mutableMapOf<Int, androidx.compose.foundation.lazy.grid.LazyGridState>()
+    }
     LaunchedEffect(Unit) { TvLog.i("AppRoot", "initialDest=$initialDest stack=${stack.joinToString(",")}") }
     var mode by remember { mutableStateOf(if (settings.forceLite) TvMode.LITE else initialMode) }
     val forcedLite = shouldForceLiteMode()
@@ -239,6 +249,7 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
                                 mode = effectiveMode,
                                 onOpenDetail = { vod -> push(Dest.Detail(vod.vodId, vod.sourceId, vod.name)) },
                                 onOpenCategory = { typeId, title -> push(Dest.Category(typeId, title)) },
+                                onOpenLive = { push(Dest.Live) },
                             )
 
                             is Dest.Category -> CategoryScreen(
@@ -247,8 +258,11 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
                                 repo = repo,
                                 pinyin = pinyin,
                                 mode = effectiveMode,
-                                onOpenDetail = { vod -> push(Dest.Detail(vod.vodId, vod.sourceId, vod.name)) },
+                                onOpenDetail = { vod -> push(Dest.Detail(vod.vodId, vod.sourceId, vod.name, fromTypeId = current.typeId)) },
                                 onBack = { pop() },
+                                gridState = categoryGridStates.getOrPut(current.typeId) {
+                                    androidx.compose.foundation.lazy.grid.LazyGridState()
+                                },
                             )
 
                             is Dest.Detail -> DetailScreen(
@@ -261,6 +275,7 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
                                 mode = effectiveMode,
                                 onPlay = { request -> push(Dest.Play(request)) },
                                 onBack = { pop() },
+                                categoryTypeId = current.fromTypeId,
                             )
 
                             is Dest.Search -> SearchScreen(

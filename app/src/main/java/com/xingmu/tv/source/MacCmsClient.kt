@@ -248,6 +248,7 @@ object MacCmsClient {
             typeName = stringValue(o, "type_name") ?: "",
             score = stringValue(o, "vod_score") ?: "",
             picThumb = stringValue(o, "vod_pic_thumb") ?: "",
+            area = stringValue(o, "vod_area") ?: "",
         )
     }
 

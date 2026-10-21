@@ -80,6 +80,7 @@ object MacCmsParser {
             typeName = typeName.trim(),
             score = o.optString("vod_score").trim(),
             picThumb = o.optString("vod_pic_thumb").trim(),
+            area = o.optString("vod_area").trim(),
         )
     }
 

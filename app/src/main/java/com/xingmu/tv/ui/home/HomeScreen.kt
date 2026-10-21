@@ -38,6 +38,7 @@ import com.xingmu.tv.ui.DpadDownSink
 import com.xingmu.tv.core.AppError
 import com.xingmu.tv.core.Result
 import com.xingmu.tv.data.CanonicalCategory
+import com.xingmu.tv.data.Channel
 import com.xingmu.tv.data.VodSummary
 import com.xingmu.tv.data.WatchProgress
 import com.xingmu.tv.data.WatchProgressStore
@@ -55,6 +56,7 @@ import com.xingmu.tv.ui.components.TvButton
 import com.xingmu.tv.ui.components.TvEmptyState
 import com.xingmu.tv.ui.components.TvErrorState
 import com.xingmu.tv.ui.components.TvLabel
+import com.xingmu.tv.ui.components.DividerLine
 import com.xingmu.tv.ui.components.TvFocusable
 import com.xingmu.tv.ui.components.TvLoading
 import com.xingmu.tv.ui.components.TvSkeletonRows
@@ -84,9 +86,11 @@ fun HomeScreen(
     mode: TvMode,
     onOpenDetail: (VodSummary) -> Unit,
     onOpenCategory: (Int, String) -> Unit,
+    onOpenLive: () -> Unit = {},
 ) {
     var reload by remember { mutableIntStateOf(0) }
     var ui by remember { mutableStateOf<HomeUi>(HomeUi.Loading) }
+    var channels by remember { mutableStateOf<List<Channel>>(emptyList()) }
 
     LaunchedEffect(reload) {
         ui = HomeUi.Loading
@@ -108,6 +112,7 @@ fun HomeScreen(
         val all = rows.flatMap { it.items }
         pinyin.index(all)
         val progress = withContext(AppDispatchers.Io) { progressStore.list() }.take(12)
+        channels = repo.listChannels().getOrNull().orEmpty()
         val errors = results.mapNotNull { it.second.errorOrNull() }
         ui = if (rows.all { it.items.isEmpty() } && errors.isNotEmpty()) {
             HomeUi.Failed(errors.first())
@@ -128,7 +133,7 @@ fun HomeScreen(
         is HomeUi.Failed -> TvErrorState(error = state.error, onRetry = { reload++ })
 
         is HomeUi.Ready -> if (mode == TvMode.LITE) {
-            LiteHome(state, onOpenDetail)
+            LiteHome(state, channels, onOpenDetail, onOpenLive)
         } else {
             CinemaHome(state, onOpenDetail, onOpenCategory)
         }
@@ -332,20 +337,81 @@ private fun formatMinutes(positionMs: Long): String {
 }
 
 @Composable
-private fun LiteHome(state: HomeUi.Ready, onOpenDetail: (VodSummary) -> Unit) {
+private fun LiteHome(
+    state: HomeUi.Ready,
+    channels: List<Channel>,
+    onOpenDetail: (VodSummary) -> Unit,
+    onOpenLive: () -> Unit,
+) {
     val colors = LocalTvColors.current
     val dimens = LocalTvDimens.current
     // t28：派生列表 remember 住，避免每次重组都 flatMap 出新 List（低端机上就是滚动抖动源）
     val flat = remember(state.rows) { state.rows.flatMap { row -> row.items.map { row.title to it } } }
     val gridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
+    val resume = state.progress.firstOrNull()
+    val featured = resume?.let { p -> state.rows.flatMap { it.items }.firstOrNull { it.vodId == p.vodId } }
+        ?: state.hero
+        ?: flat.firstOrNull()?.second
+    val liveChannels = remember(channels) { channels.take(4) }
+
     Column(Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            TvLabel("最新更新", dimens.rowTitle, colors.text, weight = FontWeight.Bold)
+        // ── 顶部条：星幕 · 保命模式 ──────────────────────────────────────
+        Row(Modifier.fillMaxWidth().padding(bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            TvLabel("星幕 · 保命模式", dimens.rowTitle, colors.text, weight = FontWeight.Bold)
             Spacer(Modifier.width(1.dp).weight(1f))
-            TvLabel("C 保命模式 · ${flat.size} 条", dimens.caption, colors.textMuted)
+            TvLabel("源 ${state.rows.count { it.items.isNotEmpty() }} · 直播 ${channels.size} 台", dimens.caption, colors.textMuted)
+        }
+        DividerLine()
+
+        // ── 推荐条：240×135 + 继续观看 ─────────────────────────────────
+        if (featured != null) {
+            Spacer(Modifier.height(8.dp))
+            TvFocusable(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { onOpenDetail(featured) },
+            ) { focused ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .background(if (focused) colors.surfaceHigh else colors.bg)
+                        .padding(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    PosterImage(
+                        url = featured.pic,
+                        thumbUrl = featured.picThumb,
+                        modifier = Modifier.size(width = 240.dp, height = 135.dp),
+                        requestWidth = 240,
+                        requestHeight = 135,
+                        fallbackText = featured.name,
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Column(Modifier.weight(1f)) {
+                        TvLabel(
+                            featured.name,
+                            dimens.cardTitle,
+                            if (focused) colors.accent else colors.text,
+                            weight = FontWeight.Medium,
+                            maxLines = 2,
+                        )
+                        TvLabel(
+                            if (resume != null) "▶ 继续观看 第 ${resume.episodeIndex} 集" else "▶ 播放第 1 集",
+                            dimens.caption,
+                            colors.accent,
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
+            DividerLine()
+        }
+
+        // ── 最新更新：两列文字列表（行高 96dp，缩略图 72×96）─────────────
+        Spacer(Modifier.height(6.dp))
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            TvLabel("最新更新", dimens.cardTitle, colors.text, weight = FontWeight.Bold)
+            Spacer(Modifier.width(1.dp).weight(1f))
+            TvLabel("${flat.size} 条", dimens.caption, colors.textMuted)
         }
         androidx.compose.runtime.CompositionLocalProvider(
             LocalListScrolling provides gridState.isScrollInProgress,
@@ -354,21 +420,69 @@ private fun LiteHome(state: HomeUi.Ready, onOpenDetail: (VodSummary) -> Unit) {
                 columns = GridCells.Fixed(2),
                 state = gridState,
                 modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                contentPadding = PaddingValues(bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                contentPadding = PaddingValues(bottom = 8.dp, end = 40.dp),
             ) {
                 items(
                     items = flat,
                     key = { "${it.second.sourceId}|${it.second.vodId}" },
                     contentType = { "lite-row" },
                 ) { (badge, vod) ->
-                    LiteListRow(vod = vod, onClick = { onOpenDetail(vod) }, badge = badge)
+                    LiteListRow(
+                        vod = vod,
+                        onClick = { onOpenDetail(vod) },
+                        badge = badge,
+                        thumbWidth = 72.dp,
+                        thumbHeight = 96.dp,
+                        rowHeight = 96.dp,
+                    )
                 }
             }
         }
+
         if (flat.isEmpty()) {
             TvEmptyState("暂无内容，检查网络后重试")
+        }
+
+        // ── 直播：一行 4 台（OK 进直播页）──────────────────────────────
+        if (liveChannels.isNotEmpty()) {
+            DividerLine()
+            Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                TvLabel("直播", dimens.caption, colors.textMuted, maxLines = 1)
+                Spacer(Modifier.width(8.dp))
+                liveChannels.forEach { channel ->
+                    TvFocusable(
+                        modifier = Modifier.width(150.dp),
+                        onClick = onOpenLive,
+                    ) { focused ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .background(if (focused) colors.surfaceHigh else colors.bg)
+                                .padding(horizontal = 6.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            TvLabel(channel.name.take(1), dimens.caption, colors.accent, weight = FontWeight.Bold, maxLines = 1)
+                            Spacer(Modifier.width(6.dp))
+                            TvLabel(
+                                channel.name,
+                                dimens.caption,
+                                if (focused) colors.accent else colors.textSecondary,
+                                maxLines = 1,
+                            )
+                        }
+                    }
+                    Spacer(Modifier.width(6.dp))
+                }
+            }
+        }
+
+        // ── 底部状态栏 ────────────────────────────────────────────────
+        DividerLine()
+        Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            TvLabel("硬解 H.264 · 缓存就绪", dimens.caption, colors.textMuted, maxLines = 1)
+            Spacer(Modifier.width(1.dp).weight(1f))
+            TvLabel("OK 打开 · 返回 退出", dimens.caption, colors.textMuted, maxLines = 1)
         }
         DpadDownSink()
     }

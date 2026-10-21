@@ -1,6 +1,7 @@
 package com.xingmu.tv.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -221,6 +223,20 @@ fun PosterCard(
                         maxLines = 1,
                     )
                 }
+                // t29：评分角标（海报右下，金色描边；有评分才显示）
+                val scoreText = vod.score.takeIf { it.isNotBlank() && it != "0.0" }
+                if (scoreText != null) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(4.dp)
+                            .border(1.dp, colors.accent, RoundedCornerShape(3.dp))
+                            .background(Color.Black.copy(alpha = 0.55f), RoundedCornerShape(3.dp))
+                            .padding(horizontal = 5.dp, vertical = 1.dp),
+                    ) {
+                        TvLabel(scoreText, dimens.caption, colors.accent, weight = FontWeight.Bold, maxLines = 1)
+                    }
+                }
             }
             Spacer(Modifier.height(6.dp))
             TvLabel(
@@ -231,20 +247,45 @@ fun PosterCard(
                 maxLines = if (largeText) 2 else 1,
                 modifier = Modifier.fillMaxWidth(),
             )
-            TvLabel(
-                text = buildString {
-                    if (vod.year.isNotBlank()) append(vod.year)
-                    if (vod.score.isNotBlank() && vod.score != "0.0") {
-                        if (isNotEmpty()) append(" · ")
-                        append(vod.score)
-                    }
-                },
-                fontSize = dimens.caption,
-                color = colors.textMuted,
-                maxLines = 1,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            // t29：副标题 = 年份 · 子分类 · N 源（UI_TUNE §1.2）
+            val subtitle = remember(vod) {
+                buildList {
+                    vod.year.takeIf { it.isNotBlank() }?.let(::add)
+                    vod.typeName.takeIf { it.isNotBlank() }?.let(::add)
+                    if (vod.sourceCount > 1) add("${vod.sourceCount} 源")
+                }.joinToString(" · ")
+            }
+            if (subtitle.isNotEmpty()) {
+                TvLabel(
+                    text = subtitle,
+                    fontSize = dimens.caption,
+                    color = colors.textMuted,
+                    maxLines = 1,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
         }
+    }
+}
+
+/** t29：首屏骨架卡（纯色块，无动画；数据到达后被真实卡片替换）。 */
+@Composable
+fun SkeletonPosterCard(
+    modifier: Modifier = Modifier,
+    width: Dp = 150.dp,
+) {
+    val colors = LocalTvColors.current
+    Column(modifier.width(width)) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .aspectRatio(2f / 3f)
+                .background(colors.surfaceHigh),
+        )
+        Spacer(Modifier.height(6.dp))
+        Box(Modifier.fillMaxWidth(0.8f).height(14.dp).background(colors.surface))
+        Spacer(Modifier.height(4.dp))
+        Box(Modifier.fillMaxWidth(0.5f).height(12.dp).background(colors.surface))
     }
 }
 
@@ -295,37 +336,47 @@ fun PosterRow(
     }
 }
 
-/** C 模式文字列表行：112×63 缩略图 + 两行文字。 */
+/** C 模式文字列表行：缩略图 + 两行文字（t29：支持 96×128 / 72×96 与 96dp 行高，左侧红条焦点）。 */
 @Composable
 fun LiteListRow(
     vod: VodSummary,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     badge: String? = null,
+    thumbWidth: Dp = 96.dp,
+    thumbHeight: Dp = 128.dp,
+    rowHeight: Dp? = null,
 ) {
     val colors = LocalTvColors.current
     val dimens = LocalTvDimens.current
     TvFocusable(
         modifier = modifier.fillMaxWidth(),
         shape = RectangleShape,
-        borderWidth = 2.dp,
+        borderWidth = 0.dp,
         onClick = onClick,
     ) { focused ->
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .then(if (rowHeight != null) Modifier.height(rowHeight) else Modifier)
                 .background(if (focused) colors.surfaceHigh else colors.bg)
-                .padding(horizontal = 8.dp, vertical = 6.dp),
+                .padding(horizontal = 8.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // t29：左侧 4dp 红条焦点（零动画）
+            Box(
+                Modifier
+                    .width(4.dp)
+                    .height(rowHeight ?: 88.dp)
+                    .background(if (focused) colors.accent else Color.Transparent),
+            )
+            Spacer(Modifier.width(8.dp))
             PosterImage(
                 url = vod.pic,
                 thumbUrl = vod.picThumb,
-                modifier = Modifier
-                    .size(width = 112.dp, height = 63.dp)
-                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(0.dp)),
-                requestWidth = 112,
-                requestHeight = 63,
+                modifier = Modifier.size(width = thumbWidth, height = thumbHeight),
+                requestWidth = thumbWidth.value.toInt().coerceAtLeast(1),
+                requestHeight = thumbHeight.value.toInt().coerceAtLeast(1),
             )
             Spacer(Modifier.width(10.dp))
             Column(modifier = Modifier.weight(1f)) {

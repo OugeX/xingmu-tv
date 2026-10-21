@@ -40,6 +40,8 @@ data class VodSummary(
     val sourceCount: Int = 1,   // 跨源聚合时的可用源数
     /** t28：MacCMS 的 vod_pic_thumb（缩略图）；为空时回退 [pic] 并降半尺寸请求 */
     val picThumb: String = "",
+    /** t29：地区（vod_area），分类页「地区」筛选用 */
+    val area: String = "",
 )
 
 /** 详情页作品 */

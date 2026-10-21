@@ -59,6 +59,8 @@ import com.xingmu.tv.player.PlayerControllerImpl
 import com.xingmu.tv.player.VideoSurface
 import com.xingmu.tv.source.SourceRepository
 import com.xingmu.tv.ui.LocalTvColors
+import com.xingmu.tv.ui.LocalTvMode
+import com.xingmu.tv.ui.TvMode
 import com.xingmu.tv.ui.LocalTvDimens
 import com.xingmu.tv.ui.settings.SettingsStore
 import com.xingmu.tv.ui.LocalTvTier
@@ -96,6 +98,7 @@ fun PlayerScreen(
     val context = LocalContext.current
     val colors = LocalTvColors.current
     val dimens = LocalTvDimens.current
+    val lite = LocalTvMode.current == TvMode.LITE
     val scope = rememberCoroutineScope()
     val controller: PlayerControllerImpl = remember { PlayerBootstrap.createAndRegister(context) }
     val appSettings = remember { SettingsStore(context).read() }
@@ -351,7 +354,10 @@ fun PlayerScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color.Black.copy(alpha = 0.68f))
+                        .background(
+                            // t29：C 模式下用纯色 90% 底条（无渐变遮罩）
+                            if (lite) Color.Black.copy(alpha = 0.90f) else Color.Black.copy(alpha = 0.68f),
+                        )
                         .padding(horizontal = 20.dp, vertical = 12.dp),
                 ) {
                     if (message != null) {
@@ -381,6 +387,7 @@ fun PlayerScreen(
                             val target = (position + 10_000L).coerceAtMost(if (max > 0) max else position + 10_000L)
                             controller.seekTo(target)
                         }, enabled = true)
+                        if (!lite) {
                         TvButton("倍速 ${formatSpeed(speed)}", onClick = {
                             val next = SPEEDS[(SPEEDS.indexOf(speed).coerceAtLeast(0) + 1) % SPEEDS.size]
                             speed = next
@@ -398,6 +405,7 @@ fun PlayerScreen(
                             audioDelay = if (audioDelay >= 500) -500 else audioDelay + 50
                             controller.setAudioDelayMs(audioDelay)
                         }, enabled = true)
+                        }
                         TvButton("选集", onClick = { showEpisodes = true })
                         TvButton("换源", onClick = { showSources = true })
                         TvButton("‹ 返回", onClick = onBack)
@@ -462,7 +470,8 @@ fun PlayerScreen(
 @Composable
 private fun ProgressBar(positionMs: Long, durationMs: Long, live: Boolean) {
     val colors = LocalTvColors.current
-    val barHeight = if (LocalTvTier.current.isLarge) 10.dp else 6.dp
+    // t29：C 模式进度条 8dp（UI_TUNE §3.5）
+    val barHeight = if (LocalTvMode.current == TvMode.LITE) 8.dp else if (LocalTvTier.current.isLarge) 10.dp else 6.dp
     val fraction = if (durationMs > 0) (positionMs.toFloat() / durationMs).coerceIn(0f, 1f) else 0f
     Row(verticalAlignment = Alignment.CenterVertically) {
         TvLabel(formatTime(positionMs), LocalTvDimens.current.caption, colors.textSecondary, maxLines = 1)

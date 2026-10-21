@@ -1,6 +1,7 @@
 package com.xingmu.tv.ui.detail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -85,6 +86,8 @@ fun DetailScreen(
     mode: TvMode,
     onPlay: (PlaybackRequest) -> Unit,
     onBack: () -> Unit,
+    /** t29：从分类页进入时带上分类 id，用于底部「同分类推荐」；深链/首页进入为 null。 */
+    categoryTypeId: Int? = null,
 ) {
     var detail by remember { mutableStateOf<VodDetail?>(null) }
     var error by remember { mutableStateOf<AppError?>(null) }
@@ -176,6 +179,7 @@ fun DetailScreen(
             progressStore = progressStore,
             mode = mode,
             onPlay = onPlay,
+            categoryTypeId = categoryTypeId,
             onBack = onBack,
             onReplaceDetail = { detail = it },
         )
@@ -204,11 +208,11 @@ private fun DetailBody(
     onPlay: (PlaybackRequest) -> Unit,
     onBack: () -> Unit,
     onReplaceDetail: (VodDetail) -> Unit,
+    categoryTypeId: Int?,
 ) {
     val colors = LocalTvColors.current
     val dimens = LocalTvDimens.current
     val scope = rememberCoroutineScope()
-    val screenHeight = LocalConfiguration.current.screenHeightDp
     val playFocus = remember { FocusRequester() }
 
     LaunchedEffect(detail.vodId, detail.sourceId) {
@@ -230,6 +234,27 @@ private fun DetailBody(
     var loadingAlternates by remember { mutableStateOf(false) }
     var switching by remember { mutableStateOf(false) }
     var altAvailability by remember { mutableStateOf<Map<String, Boolean>>(emptyMap()) }
+
+    // t29：收藏 / 更多面板 / 集数直达 / 同分类推荐
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val favorites = remember { com.xingmu.tv.ui.FavoritesStore(context) }
+    var isFavorite by remember(detail.sourceId, detail.vodId) {
+        mutableStateOf(favorites.isFavorite(detail.sourceId, detail.vodId))
+    }
+    var showMore by remember { mutableStateOf(false) }
+    var showJump by remember { mutableStateOf(false) }
+    var similar by remember(detail.vodId) { mutableStateOf<List<VodSummary>>(emptyList()) }
+
+    // 同分类推荐：复用 list(typeId, 1)，取 8 部并排除自己（UI_TUNE §2.3）
+    LaunchedEffect(categoryTypeId, detail.vodId) {
+        val typeId = categoryTypeId ?: return@LaunchedEffect
+        when (val result = repo.list(typeId, 1)) {
+            is Result.Ok -> similar = result.value
+                .filter { !(it.vodId == detail.vodId && it.sourceId == detail.sourceId) }
+                .take(8)
+            is Result.Err -> similar = emptyList()
+        }
+    }
 
     val activeFrom = remember(detail.sourceId, detail.playFroms, selectedFrom) {
         if (selectedFrom.isNotBlank() && detail.episodesByFrom.containsKey(selectedFrom)) {
@@ -298,13 +323,20 @@ private fun DetailBody(
             contentPadding = PaddingValues(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            item(key = "hero") {
-                DetailHero(detail = detail, mode = mode, screenHeightDp = screenHeight)
+            // ── 首屏信息重排（t29 / UI_TUNE §2.1）：左海报 + 右信息，不滚动就能看全 ──
+            item(key = "head") {
+                DetailHead(
+                    detail = detail,
+                    mode = mode,
+                    sourceLabel = sourceLabel(detail.sourceId),
+                    expanded = expanded,
+                    onToggleExpanded = { expanded = !expanded },
+                )
             }
 
             item(key = "actions") {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                    TvButton("‹ 返回", onClick = onBack)
+                    // 顺序：播放第 N 集 → 收藏 → 切换源(N) → 更多
                     TvButton(
                         text = "▶ 播放第 ${selectedIndex} 集",
                         onClick = {
@@ -314,60 +346,26 @@ private fun DetailBody(
                         primary = true,
                         modifier = Modifier.focusRequester(playFocus),
                     )
-                    TvButton("切换源（${detail.sourceId}）", onClick = { showSourcePanel = true })
-                    TvButton("标记已看", onClick = {
-                        progressStore.markWatched(detail.sourceId, detail.vodId, selectedIndex)
-                        message = "已标记第 $selectedIndex 集为已看"
-                    })
+                    TvButton(
+                        text = if (isFavorite) "✓ 已收藏" else "＋ 收藏",
+                        onClick = {
+                            isFavorite = favorites.toggle(detail.sourceId, detail.vodId)
+                            message = if (isFavorite) "已加入收藏" else "已取消收藏"
+                        },
+                    )
+                    TvButton(
+                        text = "切换源（${if (alternates.isNotEmpty()) alternates.size + 1 else 1}）",
+                        onClick = { showSourcePanel = true },
+                    )
+                    TvButton("更多", onClick = { showMore = true })
+                    Spacer(Modifier.width(1.dp).weight(1f))
+                    TvButton("‹ 返回", onClick = onBack)
                 }
             }
 
             if (message != null) {
                 item(key = "message") {
                     TvLabel(message.orEmpty(), dimens.body, colors.accent, maxLines = 2)
-                }
-            }
-
-            item(key = "meta") {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    TvLabel(detail.name, dimens.rowTitle, colors.text, weight = FontWeight.Bold, maxLines = 2)
-                    TvLabel(
-                        listOfNotNull(
-                            detail.typeName.takeIf { it.isNotBlank() },
-                            detail.year.takeIf { it.isNotBlank() },
-                            detail.area.takeIf { it.isNotBlank() },
-                            detail.lang.takeIf { it.isNotBlank() },
-                            detail.remarks.takeIf { it.isNotBlank() },
-                            detail.score.takeIf { it.isNotBlank() && it != "0.0" }?.let { "评分 $it" },
-                        ).joinToString(" · "),
-                        dimens.body,
-                        colors.textSecondary,
-                        maxLines = 2,
-                    )
-                    if (detail.actors.isNotBlank()) {
-                        TvLabel("演员：${detail.actors}", dimens.caption, colors.textMuted, maxLines = 2)
-                    }
-                    if (detail.director.isNotBlank()) {
-                        TvLabel("导演：${detail.director}", dimens.caption, colors.textMuted, maxLines = 1)
-                    }
-                }
-            }
-
-            item(key = "synopsis") {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    if (detail.content.isNotBlank()) {
-                        TvLabel(
-                            text = detail.content,
-                            fontSize = dimens.body,
-                            color = colors.textSecondary,
-                            maxLines = if (expanded) Int.MAX_VALUE else 4,
-                        )
-                        if (detail.content.length > 120) {
-                            TvButton(if (expanded) "收起简介" else "展开简介", onClick = { expanded = !expanded })
-                        }
-                    } else {
-                        TvLabel("暂无简介", dimens.caption, colors.textMuted)
-                    }
                 }
             }
 
@@ -399,7 +397,9 @@ private fun DetailBody(
                         selectedIndex = selectedIndex,
                         watched = watched,
                         reversed = reversed,
+                        lite = mode == TvMode.LITE,
                         onToggleReverse = { reversed = !reversed },
+                        onJumpRequest = { showJump = true },
                         onSelect = { episode ->
                             selectedIndex = episode.index
                             val request = requestFor(episode.index)
@@ -410,6 +410,39 @@ private fun DetailBody(
             } else {
                 item(key = "no-lines") {
                     TvEmptyState("该作品暂无播放地址，换一个源试试")
+                }
+            }
+
+            // t29：同分类推荐（复用 list(typeId,1)，取 8 部，排除自己）
+            if (similar.isNotEmpty()) {
+                item(key = "similar") {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        TvLabel("同分类推荐", dimens.cardTitle, colors.text, weight = FontWeight.SemiBold)
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                            items(
+                                items = similar,
+                                key = { "${it.sourceId}|${it.vodId}" },
+                                contentType = { "similar" },
+                            ) { vod ->
+                                com.xingmu.tv.ui.components.PosterCard(
+                                    vod = vod,
+                                    onClick = {
+                                        scope.launch {
+                                            pinyin.index(listOf(vod))
+                                            when (val result = repo.getDetail(vod.vodId, vod.sourceId)) {
+                                                is Result.Ok -> {
+                                                    onReplaceDetail(result.value)
+                                                    message = "已打开《${result.value.name}》"
+                                                }
+                                                is Result.Err -> message = "打开失败：${result.error.display()}"
+                                            }
+                                        }
+                                    },
+                                    width = 132.dp,
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
@@ -460,49 +493,211 @@ private fun DetailBody(
                 },
             )
         }
+
+        // t29：「更多」面板（标记已看 / 复制片名 / 刷新详情 / 收藏数）
+        if (showMore) {
+            MoreSheet(
+                favoriteCount = favorites.count(),
+                onMarkWatched = {
+                    progressStore.markWatched(detail.sourceId, detail.vodId, selectedIndex)
+                    message = "已标记第 $selectedIndex 集为已看"
+                    showMore = false
+                },
+                onCopyName = {
+                    val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
+                        as? android.content.ClipboardManager
+                    clipboard?.setPrimaryClip(android.content.ClipData.newPlainText("片名", detail.name))
+                    message = "已复制片名"
+                    showMore = false
+                },
+                onReload = {
+                    showMore = false
+                    onReplaceDetail(detail)
+                },
+                onClearFavorites = {
+                    message = "收藏为本地记录，当前 ${favorites.count()} 部"
+                    showMore = false
+                },
+                onClose = { showMore = false },
+            )
+        }
+
+        // t29：跳到第 N 集（数字键盘浮层，遥控器输 3 位）
+        if (showJump) {
+            JumpSheet(
+                total = detail.episodesByFrom[activeFrom].orEmpty().size,
+                onJump = { target ->
+                    val episodes = detail.episodesByFrom[activeFrom].orEmpty()
+                    val episode = episodes.firstOrNull { it.index == target }
+                    showJump = false
+                    if (episode == null) {
+                        message = "没有第 $target 集（共 ${episodes.size} 集）"
+                    } else {
+                        selectedIndex = episode.index
+                        val request = requestFor(episode.index)
+                        if (request != null) onPlay(request) else message = "该集地址无效"
+                    }
+                },
+                onClose = { showJump = false },
+            )
+        }
     }
 }
 
+/** t29：首屏信息区——左海报 300×420（C 180×252）+ 右标题/元信息/演员/简介。 */
 @Composable
-private fun DetailHero(detail: VodDetail, mode: TvMode, screenHeightDp: Int) {
+private fun DetailHead(
+    detail: VodDetail,
+    mode: TvMode,
+    sourceLabel: String,
+    expanded: Boolean,
+    onToggleExpanded: () -> Unit,
+) {
     val colors = LocalTvColors.current
     val dimens = LocalTvDimens.current
     val lite = mode == TvMode.LITE
-    val heroHeight = if (lite) 150.dp else (screenHeightDp * 0.42f).coerceIn(220f, 460f).dp
+    val posterWidth = if (lite) 180.dp else 300.dp
+    val posterHeight = if (lite) 252.dp else 420.dp
+
+    Row(horizontalArrangement = Arrangement.spacedBy(if (lite) 14.dp else 20.dp)) {
+        // 封面兜底：PosterImage 失败时用片名首字占位，绝不留黑块
+        Box(
+            Modifier
+                .width(posterWidth)
+                .height(posterHeight)
+                .clip(if (lite) RoundedCornerShape(0.dp) else RoundedCornerShape(6.dp)),
+        ) {
+            PosterImage(
+                url = detail.pic.ifBlank { detail.slidePic },
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                requestWidth = posterWidth.value.toInt(),
+                requestHeight = posterHeight.value.toInt(),
+                fallbackText = detail.name,
+            )
+        }
+
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            TvLabel(detail.name, dimens.rowTitle, colors.text, weight = FontWeight.Bold, maxLines = 2)
+            TvLabel(
+                listOfNotNull(
+                    detail.score.takeIf { it.isNotBlank() && it != "0.0" }?.let { "评分 $it" },
+                    detail.year.takeIf { it.isNotBlank() },
+                    detail.area.takeIf { it.isNotBlank() },
+                    detail.duration.takeIf { it.isNotBlank() } ?: detail.remarks.takeIf { it.isNotBlank() },
+                ).joinToString(" · "),
+                dimens.body,
+                colors.textSecondary,
+                maxLines = 1,
+            )
+            if (detail.actors.isNotBlank()) {
+                TvLabel("演员：${detail.actors}", dimens.caption, colors.textMuted, maxLines = 1)
+            }
+            if (detail.content.isNotBlank()) {
+                TvLabel(
+                    text = detail.content,
+                    fontSize = dimens.body,
+                    color = colors.textSecondary,
+                    maxLines = if (expanded) Int.MAX_VALUE else 3,
+                )
+                if (detail.content.length > 90 || expanded) {
+                    TvButton(if (expanded) "收起简介" else "展开简介", onClick = onToggleExpanded)
+                }
+            } else {
+                TvLabel("暂无简介", dimens.caption, colors.textMuted)
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TvLabel("源：$sourceLabel", dimens.caption, colors.textMuted, maxLines = 1)
+                Spacer(Modifier.width(10.dp))
+                TvLabel(detail.typeName.ifBlank { "点播" }, dimens.caption, colors.accent, maxLines = 1)
+            }
+        }
+    }
+}
+
+/** t29：「更多」面板。 */
+@Composable
+private fun MoreSheet(
+    favoriteCount: Int,
+    onMarkWatched: () -> Unit,
+    onCopyName: () -> Unit,
+    onReload: () -> Unit,
+    onClearFavorites: () -> Unit,
+    onClose: () -> Unit,
+) {
+    val colors = LocalTvColors.current
+    val dimens = LocalTvDimens.current
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.72f)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            Modifier
+                .width(460.dp)
+                .background(colors.surface)
+                .border(1.dp, colors.divider)
+                .padding(horizontal = 20.dp, vertical = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            TvLabel("更多", dimens.cardTitle, colors.text, weight = FontWeight.SemiBold, maxLines = 1)
+            TvButton("标记第 N 集已看", onClick = onMarkWatched)
+            TvButton("复制片名", onClick = onCopyName)
+            TvButton("刷新详情", onClick = onReload)
+            TvLabel("本地收藏：$favoriteCount 部", dimens.caption, colors.textMuted, maxLines = 1)
+            TvButton("收藏说明", onClick = onClearFavorites)
+            TvButton("关闭", onClick = onClose, primary = true)
+        }
+    }
+}
+
+/** t29：跳到第 N 集（数字键盘，遥控器友好；输满 3 位或按确定跳转）。 */
+@Composable
+private fun JumpSheet(total: Int, onJump: (Int) -> Unit, onClose: () -> Unit) {
+    val colors = LocalTvColors.current
+    val dimens = LocalTvDimens.current
+    var digits by remember { mutableStateOf("") }
+
+    fun submit() {
+        val target = digits.toIntOrNull()
+        if (target == null || target <= 0) return
+        onJump(target)
+    }
 
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(heroHeight)
-            .clip(if (lite) RoundedCornerShape(0.dp) else RoundedCornerShape(10.dp)),
+        Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.78f)),
+        contentAlignment = Alignment.Center,
     ) {
-        PosterImage(
-            url = detail.slidePic.ifBlank { detail.pic },
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop,
-            requestWidth = 1280,
-            requestHeight = 720,
-        )
-        if (!lite) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            0f to Color.Transparent,
-                            0.55f to Color.Transparent,
-                            1f to colors.bg,
-                        ),
-                    ),
-            )
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 14.dp),
-            ) {
-                TvLabel(detail.name, dimens.heroTitle * 0.52f, colors.text, weight = FontWeight.Black, maxLines = 1)
+        Column(
+            Modifier
+                .width(420.dp)
+                .background(colors.surface)
+                .border(1.dp, colors.divider)
+                .padding(horizontal = 20.dp, vertical = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            TvLabel("跳到第几集（共 $total 集）", dimens.cardTitle, colors.text, weight = FontWeight.SemiBold, maxLines = 1)
+            TvLabel(digits.ifBlank { "—" }, dimens.rowTitle, colors.accent, weight = FontWeight.Bold, maxLines = 1)
+            listOf(listOf("1", "2", "3"), listOf("4", "5", "6"), listOf("7", "8", "9"), listOf("删除", "0", "跳转")).forEach { rowKeys ->
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    rowKeys.forEach { key ->
+                        TvButton(
+                            text = key,
+                            onClick = {
+                                when (key) {
+                                    "删除" -> digits = digits.dropLast(1)
+                                    "跳转" -> submit()
+                                    else -> if (digits.length < 3) digits += key
+                                }
+                            },
+                        )
+                    }
+                }
             }
+            TvButton("取消", onClick = onClose)
         }
     }
 }
@@ -515,7 +710,9 @@ private fun EpisodeSection(
     watched: Set<Int>,
     reversed: Boolean,
     onToggleReverse: () -> Unit,
+    onJumpRequest: () -> Unit,
     onSelect: (Episode) -> Unit,
+    lite: Boolean = false,
 ) {
     val colors = LocalTvColors.current
     val dimens = LocalTvDimens.current
@@ -540,6 +737,9 @@ private fun EpisodeSection(
                 weight = FontWeight.SemiBold,
             )
             Spacer(Modifier.width(1.dp).weight(1f))
+            // t29：集数直达（长剧友好）
+            TvButton("跳到第 __ 集", onClick = onJumpRequest)
+            Spacer(Modifier.width(8.dp))
             TvChip("倒序", selected = reversed, onClick = onToggleReverse)
         }
 
@@ -562,7 +762,7 @@ private fun EpisodeSection(
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            visible.chunked(8).forEach { chunk ->
+            visible.chunked(if (lite) 6 else 8).forEach { chunk ->
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     chunk.forEach { episode ->
                         EpisodeChip(
@@ -702,4 +902,11 @@ private fun lineLabel(from: String): String = when {
     from.contains("guangsu", ignoreCase = true) -> "光速线路"
     from.contains("zuid", ignoreCase = true) -> "最大线路"
     else -> from
+}
+
+/** t29：源显示名（bfzy1 → 暴风；未知源原样显示）。 */
+private fun sourceLabel(sourceId: String): String = when (sourceId) {
+    "bfzy1" -> "暴风"
+    "ffzy" -> "非凡"
+    else -> sourceId
 }

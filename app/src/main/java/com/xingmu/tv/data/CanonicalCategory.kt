@@ -10,8 +10,23 @@ object CanonicalCategory {
     const val ANIME = 39
     const val VARIETY = 45
 
+    /** 短剧（t29）：bfzy1 实测 type_id=58（现代言情/古装仙侠/AI漫剧 的父分类）。 */
+    const val SHORT_DRAMA = 58
+
     /** 海外一级入口（UI 用它进入海外分区选择页，本身不对应具体分类）。 */
     const val OVERSEAS_ROOT = 0
+
+    /** 分类页一级 Tab 顺序（UI_TUNE §1.1）。 */
+    data class PrimaryTab(val typeId: Int, val label: String)
+
+    val primaryTabs: List<PrimaryTab> = listOf(
+        PrimaryTab(MOVIE, "电影"),
+        PrimaryTab(TV, "剧集"),
+        PrimaryTab(ANIME, "动漫"),
+        PrimaryTab(VARIETY, "综艺"),
+        PrimaryTab(OVERSEAS_ROOT, "海外"),
+        PrimaryTab(SHORT_DRAMA, "短剧"),
+    )
 
     /** 海外子分类使用独立的规范 id（90+），避免和各站真实分类号冲突。 */
     const val OVERSEAS_KOREA = 90
@@ -44,6 +59,7 @@ object CanonicalCategory {
         TV -> "剧集"
         ANIME -> "动漫"
         VARIETY -> "综艺"
+        SHORT_DRAMA -> "短剧"
         else -> overseas.firstOrNull { it.id == typeId }?.label
     }
 
