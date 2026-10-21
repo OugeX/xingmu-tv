@@ -1,6 +1,7 @@
 package com.tvbox.app.ui.detail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -41,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import com.tvbox.app.core.AppError
 import com.tvbox.app.ui.DpadDownSink
 import com.tvbox.app.core.Result
+import com.tvbox.app.core.TvLog
 import com.tvbox.app.data.Episode
 import com.tvbox.app.data.VodDetail
 import com.tvbox.app.data.VodSummary
@@ -82,6 +89,16 @@ fun DetailScreen(
     var error by remember { mutableStateOf<AppError?>(null) }
     var loading by remember { mutableStateOf(true) }
     var reload by remember { mutableIntStateOf(0) }
+    var pendingPlay by remember { mutableStateOf(false) }
+    val loadingFocus = remember { FocusRequester() }
+
+    // 深链打开详情时，焦点默认会落在左侧导航（ENTER 会误触「推荐」回首页）；
+    // 加载态主动把焦点抢到内容区，保证 OK 是“播放”而不是“切导航”。
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(60)
+        val ok = runCatching { loadingFocus.requestFocus() }.isSuccess
+        TvLog.i("DetailDeepLink", "loadingFocus=$ok")
+    }
 
     LaunchedEffect(vodId, sourceId, reload) {
         loading = true
@@ -89,6 +106,7 @@ fun DetailScreen(
         when (val result = repo.getDetail(vodId, sourceId)) {
             is Result.Ok -> {
                 detail = result.value
+                TvLog.i("DetailDeepLink", "request=($vodId,$sourceId) loaded=(${result.value.vodId},${result.value.sourceId}) name=${result.value.name}")
                 pinyin.index(listOf(result.value.toSummary()))
             }
             is Result.Err -> {
@@ -99,9 +117,50 @@ fun DetailScreen(
         loading = false
     }
 
+    // 深链/加载中按 OK：记下来，数据到后直接播第 1 集（避免“按了没反应”）
+    LaunchedEffect(detail, pendingPlay) {
+        if (pendingPlay && detail != null) {
+            val loaded = detail!!
+            val from = loaded.playFroms.firstOrNull()
+            val episodes = loaded.episodesByFrom[from].orEmpty()
+            val first = episodes.firstOrNull()
+            pendingPlay = false
+            if (first != null) {
+                onPlay(
+                    PlaybackRequest(
+                        vodId = loaded.vodId,
+                        sourceId = loaded.sourceId,
+                        vodName = loaded.name,
+                        year = loaded.year,
+                        playFrom = from.orEmpty(),
+                        episodeIndex = first.index,
+                        episodes = episodes,
+                    ),
+                )
+            }
+        }
+    }
+
     val current = detail
     when {
-        loading && current == null -> TvLoading("正在打开《$fallbackTitle》…")
+        loading && current == null -> Box(
+            Modifier
+                .fillMaxSize()
+                .focusRequester(loadingFocus)
+                .focusable()
+                .onKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown &&
+                    (event.key == Key.DirectionCenter || event.key == Key.Enter || event.key == Key.NumPadEnter)
+                ) {
+                    pendingPlay = true
+                    true
+                } else {
+                    false
+                }
+            },
+        ) {
+            TvLoading("正在打开《$fallbackTitle》…（按 OK 加载后直接播放第 1 集）")
+        }
         error != null && current == null -> TvErrorState(error = error!!, onRetry = { reload++ }, extraActionText = "返回", onExtraAction = onBack)
         current == null -> TvErrorState(AppError("E_NULL", "详情为空"), onRetry = { reload++ }, extraActionText = "返回", onExtraAction = onBack)
         else -> DetailBody(
@@ -146,9 +205,10 @@ private fun DetailBody(
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val playFocus = remember { FocusRequester() }
 
-    LaunchedEffect(Unit) {
-        delay(100)
-        runCatching { playFocus.requestFocus() }
+    LaunchedEffect(detail.vodId, detail.sourceId) {
+        kotlinx.coroutines.delay(80)
+        val ok = runCatching { playFocus.requestFocus() }.isSuccess
+        TvLog.i("DetailDeepLink", "playFocus=$ok vod=${detail.vodId}")
     }
 
     val initialProgress = remember(detail.vodId) { progressStore.lastFor(detail.sourceId, detail.vodId) }

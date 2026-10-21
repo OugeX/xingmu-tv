@@ -23,7 +23,7 @@ fun DpadDownSink(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(1.dp)
+            .height(24.dp)
             .focusable()
             .onKeyEvent { event ->
                 event.type == KeyEventType.KeyDown &&

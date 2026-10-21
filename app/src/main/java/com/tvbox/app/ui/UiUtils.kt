@@ -26,16 +26,18 @@ fun baseScaleFor(widthDp: Int): Float = (widthDp / 960f).coerceIn(0.85f, 1.15f)
 @Composable
 @ReadOnlyComposable
 fun tvGridColumns(): Int {
-    val config = LocalConfiguration.current
-    val density = LocalDensity.current.density
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val dm = context.resources.displayMetrics
+    // 唯一列数来源：C 模式 2 列；A 模式按物理宽/widthDp 档位（4K 保持 6 列）
+    if (shouldForceLiteMode()) return 2
     val tier = LocalTvTier.current
     if (tier.isLarge) return tier.columns
-    if (shouldForceLiteMode()) return 2
-    // 4K：layout 仍按 1080p（6 列），仅图片尺寸按 density 提升
-    if (config.screenWidthDp * density >= 3840f && density >= 2f) return 6
+    if (dm.widthPixels < 960) return 4
+    val widthDp = LocalConfiguration.current.screenWidthDp
     return when {
-        config.screenWidthDp < 800 -> 4
-        config.screenWidthDp < 1200 -> 5
+        widthDp < 800 -> 4
+        widthDp < 1200 -> 5
+        widthDp < 1600 -> 6
         else -> 6
     }
 }
@@ -91,9 +93,14 @@ fun tvWidthDp(): Int = LocalConfiguration.current.screenWidthDp
 @Composable
 @ReadOnlyComposable
 fun shouldForceLiteMode(): Boolean {
-    val config = LocalConfiguration.current
-    if (config.screenWidthDp < 800) return true
     val context = androidx.compose.ui.platform.LocalContext.current
+    val dm = context.resources.displayMetrics
+    // 1) 物理分辨率优先：960×540 及以下（heightPixels<=540）一律 C
+    if (dm.heightPixels <= 540) return true
+    // 2) 真 540p 宽度的设备（widthDp<800），但 1280×720@dpi160 的 widthDp=1280 不会误判
+    val widthDp = LocalConfiguration.current.screenWidthDp
+    if (widthDp < 800) return true
+    // 3) 低内存/显存档位不足
     return runCatching {
         val am = context.getSystemService(android.content.Context.ACTIVITY_SERVICE) as android.app.ActivityManager
         am.isLowRamDevice || am.memoryClass <= 128

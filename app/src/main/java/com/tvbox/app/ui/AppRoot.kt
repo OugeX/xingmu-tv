@@ -41,6 +41,7 @@ import com.tvbox.app.data.CanonicalCategory
 import com.tvbox.app.data.FallbackSourceRepository
 import com.tvbox.app.data.LocalSourceRepository
 import com.tvbox.app.data.WatchProgressStore
+import com.tvbox.app.core.TvLog
 import com.tvbox.app.player.PlayerControllerImpl
 import com.tvbox.app.ui.settings.AppSettingsValues
 import com.tvbox.app.ui.settings.SettingsScreen
@@ -87,7 +88,7 @@ private data class NavItem(
 )
 
 @Composable
-fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, casualSegment: Int = 0) {
+fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, casualSegment: Int = 0, initialSearchQuery: String = "") {
     val context = LocalContext.current
     val repo = remember(context) {
         // 接线：t10 的完整源仓库（SQLite + 导入）为主；网络超时时按调用回退到内置实现，
@@ -103,6 +104,7 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
     var settings by remember { mutableStateOf(settingsStore.read()) }
 
     val stack = remember { mutableStateListOf<Dest>(initialDest ?: Dest.Home) }
+    LaunchedEffect(Unit) { TvLog.i("AppRoot", "initialDest=$initialDest stack=${stack.joinToString(",")}") }
     var mode by remember { mutableStateOf(if (settings.forceLite) TvMode.LITE else initialMode) }
     val forcedLite = shouldForceLiteMode()
     val effectiveMode = if (settings.forceLite || forcedLite) TvMode.LITE else mode
@@ -251,6 +253,7 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
                                 mode = effectiveMode,
                                 onOpenDetail = { vod -> push(Dest.Detail(vod.vodId, vod.sourceId, vod.name)) },
                                 onBack = { pop() },
+                                initialQuery = initialSearchQuery,
                             )
 
                             is Dest.Sources -> SourceManageScreen(repo = repo, onBack = { pop() })
@@ -298,8 +301,12 @@ private fun NavRail(
     val tier = LocalTvTier.current
     val lite = mode == TvMode.LITE
     val screenWidthDp = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp
+    val metrics = androidx.compose.ui.platform.LocalContext.current.resources.displayMetrics
+    val screenWidthPx = metrics.widthPixels
+    // R2：≤960 物理宽（含 960×540）的 C 侧栏固定 180dp，字号下调一档，避免裁剪
+    val tinyC = lite && (screenWidthPx <= 960 || metrics.heightPixels <= 540)
     val width = when {
-        // 540p 电视屏宽仅 640dp：侧栏按 42% 收缩（220–300dp），避免挤压/裁剪
+        tinyC -> 180.dp
         lite -> (screenWidthDp * 0.42f).coerceIn(220f, 300f).dp
         tier == FontTier.LARGE -> 190.dp
         tier == FontTier.XLARGE -> 220.dp
@@ -359,7 +366,7 @@ private fun NavRail(
             Spacer(Modifier.width(8.dp))
             TvLabel(
                 text = stringResource(R.string.app_name),
-                fontSize = if (lite) 24.sp else dimens.rowTitle,
+                fontSize = if (tinyC) 16.sp else if (lite) 24.sp else dimens.rowTitle,
                 color = colors.accent,
                 weight = FontWeight.Black,
                 maxLines = 1,
@@ -377,34 +384,39 @@ private fun NavRail(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(if (selected || focused) colors.surfaceHigh else Color.Transparent)
-                        .padding(horizontal = if (lite) 6.dp else 10.dp, vertical = if (lite) 3.dp else 8.dp),
+                        .padding(
+                            horizontal = if (tinyC) 8.dp else if (lite) 6.dp else 10.dp,
+                            vertical = if (tinyC) 2.dp else if (lite) 3.dp else 8.dp,
+                        ),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (lite) {
                         Box(
                             Modifier
-                                .width(4.dp)
-                                .height(26.dp)
+                                .width(if (tinyC) 3.dp else 4.dp)
+                                .height(if (tinyC) 18.dp else 26.dp)
                                 .background(if (selected) colors.accent else Color.Transparent),
                         )
+                        Spacer(Modifier.width(if (tinyC) 4.dp else 10.dp))
+                    }
+                    if (!tinyC) {
+                        Box(
+                            Modifier.size(if (tier.isLarge) 44.dp else if (lite) 24.dp else 30.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            TvLabel(
+                                text = item.glyph,
+                                fontSize = if (lite) 20.sp else 22.sp,
+                                color = if (selected) colors.accent else colors.textSecondary,
+                                weight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                                maxLines = 1,
+                            )
+                        }
                         Spacer(Modifier.width(10.dp))
                     }
-                    Box(
-                        Modifier.size(if (tier.isLarge) 44.dp else if (lite) 24.dp else 30.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        TvLabel(
-                            text = item.glyph,
-                            fontSize = if (lite) 20.sp else 22.sp,
-                            color = if (selected) colors.accent else colors.textSecondary,
-                            weight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                            maxLines = 1,
-                        )
-                    }
-                    Spacer(Modifier.width(10.dp))
                     TvLabel(
                         text = item.label,
-                        fontSize = if (lite) dimens.body else dimens.cardTitle,
+                        fontSize = if (tinyC) 14.sp else if (lite) dimens.body else dimens.cardTitle,
                         color = if (selected) colors.text else colors.textSecondary,
                         weight = if (selected) FontWeight.Bold else FontWeight.Normal,
                         maxLines = 1,
@@ -413,6 +425,7 @@ private fun NavRail(
             }
         }
         Spacer(Modifier.weight(1f))
+        if (!tinyC) {
         TvButton(
             text = if (mode == TvMode.CINEMA) "模式 A · 影院" else "模式 C · 保命",
             onClick = onToggleMode,
@@ -438,5 +451,6 @@ private fun NavRail(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
             maxLines = 1,
         )
+        }
     }
 }

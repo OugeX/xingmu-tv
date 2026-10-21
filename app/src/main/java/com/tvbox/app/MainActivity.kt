@@ -23,9 +23,13 @@ class MainActivity : ComponentActivity() {
                 initialMode = pickMode(),
                 initialDest = destFromIntent(),
                 casualSegment = intent?.getIntExtra("casualSegment", 0) ?: 0,
+                initialSearchQuery = deepLinkQuery,
             )
         }
     }
+
+    /** 深链搜索词（--es screen search --es q 关键词），由 TvBoxApp 传给搜索页。 */
+    private var deepLinkQuery: String = ""
 
     /** singleTask 下再次收到带 screen 的调试 Intent 时重建页面，避免停留在旧页面。 */
     override fun onNewIntent(intent: Intent) {
@@ -39,14 +43,27 @@ class MainActivity : ComponentActivity() {
     /** 支持 adb/一键直达（也方便 QA 自动截图）：--es screen search|sources|live|common|category|detail|casual|casualVideo。 */
     private fun destFromIntent(): Dest? {
         val intent = intent ?: return null
-        return when (intent.getStringExtra("screen")) {
+        val extras = intent.extras
+        fun text(vararg keys: String): String? {
+            if (extras == null) return null
+            for (key in keys) {
+                val value = extras.get(key) ?: continue
+                val asText = value.toString().trim()
+                if (asText.isNotEmpty()) return asText
+            }
+            return null
+        }
+        val screen = text("screen")
+        deepLinkQuery = text("q", "keyword").orEmpty()
+        TvLog.i("DeepLink", "screen=$screen vodId=${text("vodId", "vid", "id")} sourceId=${text("sourceId")} title=${text("title")}")
+        return when (screen) {
             "search" -> Dest.Search
             "sources" -> Dest.Sources
             "live" -> Dest.Live
             "casual" -> Dest.Casual
             "settings" -> Dest.Settings
             "casualVideo" -> {
-                val bvid = intent.getStringExtra("bvid").orEmpty()
+                val bvid = text("bvid").orEmpty()
                 if (bvid.isBlank()) null else Dest.CasualVideo(
                     clips = listOf(ShortClip(bvid = bvid, title = bvid, pic = "", durationSec = 0, owner = "", views = 0)),
                     startIndex = 0,
@@ -54,12 +71,12 @@ class MainActivity : ComponentActivity() {
             }
             "category" -> Dest.Category(
                 intent.getIntExtra("typeId", 20),
-                intent.getStringExtra("title") ?: "分类",
+                text("title") ?: "分类",
             )
             "detail" -> Dest.Detail(
-                vodId = intent.getStringExtra("vodId").orEmpty(),
-                sourceId = intent.getStringExtra("sourceId") ?: "bfzy1",
-                title = intent.getStringExtra("title") ?: "",
+                vodId = text("vodId", "vid", "id").orEmpty(),
+                sourceId = text("sourceId") ?: "bfzy1",
+                title = text("title") ?: "",
             )
             else -> null
         }

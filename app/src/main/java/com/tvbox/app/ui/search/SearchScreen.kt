@@ -129,6 +129,7 @@ fun SearchScreen(
     mode: TvMode,
     onOpenDetail: (VodSummary) -> Unit,
     onBack: () -> Unit,
+    initialQuery: String = "",
 ) {
     val context = LocalContext.current
     val colors = LocalTvColors.current
@@ -150,7 +151,7 @@ fun SearchScreen(
         }
     }
 
-    var query by remember { mutableStateOf("") }
+    var query by remember { mutableStateOf(initialQuery) }
     var searchToken by remember { mutableIntStateOf(0) }
     var history by remember { mutableStateOf(historyStore.list()) }
     var localHits by remember { mutableStateOf<List<PinyinIndex.Hit>>(emptyList()) }
