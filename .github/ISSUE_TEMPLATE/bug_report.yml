@@ -1,0 +1,85 @@
+name: 🐞 BUG 反馈
+description: 播放/界面/崩溃等问题，填完整能省掉一轮来回
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈。星幕支持 Android 5.0+，真机差异很大，**设备信息填全**能让我直接定位（否则只能猜）。
+  - type: input
+    id: device
+    attributes:
+      label: 设备品牌 + 型号
+      placeholder: 例：Konka Android TV 828 / LeTV 超4 X50 / 小米电视4A
+    validations:
+      required: true
+  - type: input
+    id: android
+    attributes:
+      label: Android 版本 / API
+      placeholder: 例：5.0.1 (API 21) / 6.0 (API 23)
+    validations:
+      required: true
+  - type: input
+    id: screen
+    attributes:
+      label: 分辨率与密度
+      placeholder: 例：1920×1080 @240dpi（设置→显示，或 adb shell wm size / wm density）
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: 星幕版本
+      placeholder: 例：v0.3.1（设置→关于）
+    validations:
+      required: true
+  - type: dropdown
+    id: module
+    attributes:
+      label: 出问题的模块
+      options:
+        - 直播（频道列表/切台/画面）
+        - 点播播放器（快进/音画/清晰度）
+        - 分类页 / 详情页
+        - 搜索 / 首拼
+        - 源导入（扫码/配对码/U盘/键盘）
+        - 随便听听看看（电台/短视频）
+        - C 保命模式 / 大字号模式
+        - 崩溃闪退
+        - 其他
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 打开…
+        2. 按遥控器…
+        3. 预期…，实际…
+    validations:
+      required: true
+  - type: textarea
+    id: logcat
+    attributes:
+      label: 日志（强烈建议）
+      description: 电脑执行 `adb logcat -d > log.txt` 后贴关键片段；崩溃请贴 `AndroidRuntime` 段
+      render: shell
+    validations:
+      required: false
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: 截图 / 录屏
+      description: 直接拖进来即可
+    validations:
+      required: false
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 确认
+      options:
+        - label: 我已在最新 Release 上复现（不是旧版本）
+          required: true
