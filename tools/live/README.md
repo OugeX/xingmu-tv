@@ -67,3 +67,16 @@ python spotcheck.py               # -> spotcheck.json
 - 出口非大陆，部分大陆 ISP 源在本目录结果中为超时；不能据此判定源永久失效。
 - 身份以来源标注为准，未做画面级核验；明显错配已在 `build_seed.py` 的 `MISLABELED` 列表中剔除。
 - `probe.py` 是修复前的对照版本，结果 `probe_results.json` 未随目录保留（如需可比对请按上述流程重跑）。
+
+## t16 追加：≤720p 兜底源流水线
+
+| 文件 | 说明 |
+| --- | --- |
+| `remeasure_segments.py` | 对现有源取首个媒体分片、PyAV 本地解码，修正 `av.open(url)` 选最高 variant 的误判；master 逐 variant 测量 |
+| `find_safe.py` / `find_safe2.py` | 低码率 URL 重写（1080p→720p/576p、hd→sd、bestv 码率位）与原候选池探测 |
+| `find_safe3.py` | best-fan/iptv-sources 每日 `[576]/[720]` 低清晰度列表 |
+| `find_safe4.py` / `find_safe5.py` | imDazui/Tvlist 聚合列表（4 个大文件 / 全部 224 个文件） |
+| `validate_safe.py` | 发布前终验：所有候选 safe URL 重新取首分片测量两次，取并集 |
+| `apply_safe.py` | 合并 safe 源进 `assets/live_seed.json`，生成 `assets/live_safe.json`，保证 ≤4 源/频道且 safe 在列 |
+
+判定：播放列表 `#EXTM3U` + 首分片 200/206 且可读 + **PyAV 实测 180 ≤ height ≤ 720**；不采用 manifest 自报。
