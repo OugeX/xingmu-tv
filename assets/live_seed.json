@@ -306,8 +306,8 @@
    "best_tier": "unknown",
    "best_height": 360,
    "safe_tier_urls": [
-    "https://cd-live-stream.news.cctvplus.com/live/smil:CHANNEL1.smil/chunklist_w538615432_b700000.m3u8",
-    "https://cd-live-stream.news.cctvplus.com/live/smil:CHANNEL1.smil/playlist.m3u8"
+    "https://cd-live-stream.news.cctvplus.com/live/smil:CHANNEL1.smil/playlist.m3u8",
+    "https://cd-live-stream.news.cctvplus.com/live/smil:CHANNEL1.smil/chunklist_w538615432_b700000.m3u8"
    ],
    "has_safe_tier": true,
    "safe_tier_height": 360
@@ -1600,8 +1600,8 @@
    "best_tier": "720p",
    "best_height": 720,
    "safe_tier_urls": [
-    "https://dash2.antik.sk/live/test_cctv_tizen/playlist.m3u8",
-    "http://74.91.26.218:82/live/cctv4hd.m3u8"
+    "http://74.91.26.218:82/live/cctv4hd.m3u8",
+    "https://dash2.antik.sk/live/test_cctv_tizen/playlist.m3u8"
    ],
    "has_safe_tier": true,
    "safe_tier_height": 720
@@ -2578,9 +2578,9 @@
    "best_tier": "1080p",
    "best_height": 1080,
    "safe_tier_urls": [
-    "https://0472.org/hls/cgtnd.m3u8",
     "https://english-livetx.cgtn.com/hls/yypdjlctzb_hd.m3u8",
-    "https://amg00405-rakutentv-cgtndocumentary-rakuten-0ql8j.amagi.tv/master.m3u8"
+    "https://amg00405-rakutentv-cgtndocumentary-rakuten-0ql8j.amagi.tv/master.m3u8",
+    "https://0472.org/hls/cgtnd.m3u8"
    ],
    "has_safe_tier": true,
    "safe_tier_height": 720
@@ -2859,8 +2859,8 @@
    "best_tier": "1080p",
    "best_height": 1080,
    "safe_tier_urls": [
-    "https://dash4.antik.sk/live/test_cgtn_esp_tizen/playlist.m3u8",
-    "http://45.186.106.147:8880/play/a06f/index.m3u8"
+    "http://45.186.106.147:8880/play/a06f/index.m3u8",
+    "https://dash4.antik.sk/live/test_cgtn_esp_tizen/playlist.m3u8"
    ],
    "has_safe_tier": true,
    "safe_tier_height": 720
@@ -3538,8 +3538,8 @@
    "best_tier": "1080p",
    "best_height": 1080,
    "safe_tier_urls": [
-    "https://cdn4.skygo.mn/live/disk1/NeigMGL/HLSv3-FTA/NeigMGL-avc1_3000000=674-mp4a_256000=194.m3u8",
-    "https://cdn4.skygo.mn/live/disk1/NeigMGL/HLSv3-FTA/NeigMGL.m3u8"
+    "https://cdn4.skygo.mn/live/disk1/NeigMGL/HLSv3-FTA/NeigMGL.m3u8",
+    "https://cdn4.skygo.mn/live/disk1/NeigMGL/HLSv3-FTA/NeigMGL-avc1_3000000=674-mp4a_256000=194.m3u8"
    ],
    "has_safe_tier": true,
    "safe_tier_height": 720
@@ -11225,9 +11225,9 @@
    "best_tier": "720p",
    "best_height": 720,
    "safe_tier_urls": [
-    "http://r.jdshipin.com/iR6Gq",
     "http://tencentplay.gztv.com/live/zonghes.m3u8?txSecret=c8dbe86d6f86eb1a21999ab479fd5667&txTime=18d3c4690e8",
     "https://tencentplay.gztv.com/live/zonghes.m3u8?txSecret=f0147ae6453a80f5989f382368b72aad&txTime=18d00acf487",
+    "http://r.jdshipin.com/iR6Gq",
     "http://r.jdshipin.com/snhya"
    ],
    "has_safe_tier": true,
