@@ -1,0 +1,153 @@
+{
+  "schema": "tvapp.source.v1",
+  "kind": "bundle",
+  "id": "team-bundle",
+  "name": "团队源合集",
+  "version": 4,
+  "updatedAt": "2026-10-21T11:05:00Z",
+  "refreshIntervalHour": 24,
+  "merge": "byId",
+  "priority": 50,
+  "headers": {
+    "User-Agent": "okhttp/4.12.0",
+    "Referer": "https://bfzy1.tv/"
+  },
+  "note": "示例：bfzy1 主源(v1.1) + 标准 MacCMS 备用端点(v1) + m3u 直播源(v1.1, 含频道元数据) + 内联直播源(v1)",
+  "sources": [
+    {
+      "schema": "tvapp.source.v1.1",
+      "kind": "maccms",
+      "id": "bfzy1",
+      "name": "暴风影音",
+      "enabled": true,
+      "priority": 10,
+      "baseUrl": "https://macapi1.com/maccms/json/baofeng/",
+      "flavor": "macjson",
+      "fallbackBaseUrls": [
+        "https://bfzyapi.com/api.php/provide/vod/"
+      ],
+      "headers": {
+        "User-Agent": "okhttp/4.12.0",
+        "Referer": "https://bfzy1.tv/"
+      },
+      "timeoutMs": 6000,
+      "maxConcurrent": 2,
+      "pageSize": 20,
+      "categories": {
+        "MOVIE": [20],
+        "TV": [30],
+        "ANIME": [39],
+        "VARIETY": [45],
+        "SHORT": [58],
+        "SPORTS": [53]
+      },
+      "classTtlMin": 1440,
+      "adBlock": {
+        "enabled": true,
+        "domains": [
+          "doubleclick.net",
+          "googlesyndication.com",
+          "*.admaster.com.cn"
+        ],
+        "urlKeywords": [
+          "/ad/",
+          "/ads/",
+          "/adv/",
+          "promo="
+        ]
+      },
+      "skipIntroSeconds": 90,
+      "skipIntroCue": true,
+      "maxQuality": "1080p",
+      "preferredCodec": "auto",
+      "note": "官方网关；v1.1 示例：广告拦截 + 跳过 90s 片头 + 1080p 上限"
+    },
+    {
+      "schema": "tvapp.source.v1",
+      "kind": "maccms",
+      "id": "bfzyapi",
+      "name": "暴风备用（标准 MacCMS）",
+      "enabled": true,
+      "priority": 20,
+      "baseUrl": "https://bfzyapi.com/api.php/provide/vod/",
+      "flavor": "maccms",
+      "headers": {
+        "User-Agent": "okhttp/4.12.0",
+        "Referer": "https://bfzy1.tv/"
+      },
+      "timeoutMs": 6000,
+      "maxConcurrent": 1,
+      "pageSize": 20,
+      "classTtlMin": 1440,
+      "note": "v1 老配置：不写任何 v1.1 字段也必须通过校验（向后兼容验证样本）"
+    },
+    {
+      "schema": "tvapp.source.v1.1",
+      "kind": "m3u",
+      "id": "live-iptv",
+      "name": "IPTV 直播源",
+      "enabled": true,
+      "priority": 30,
+      "url": "https://example.com/iptv.m3u",
+      "refreshIntervalMin": 360,
+      "epgUrls": [
+        "https://example.com/epg.xml.gz"
+      ],
+      "headers": {
+        "User-Agent": "okhttp/4.12.0"
+      },
+      "filters": {
+        "includeGroups": ["央视", "卫视"],
+        "excludeGroups": ["成人", "测试"],
+        "excludeNameRegex": "(?i)test|备用"
+      },
+      "dedupe": {
+        "byTvgId": true,
+        "byName": true,
+        "mergeUrls": true
+      },
+      "channels": [
+        {
+          "name": "CCTV-1 综合",
+          "urls": [
+            "https://example.com/live/cctv1.m3u8",
+            "https://example.com/live/cctv1-b.m3u8"
+          ],
+          "group": "央视频道",
+          "tvgId": "cctv1",
+          "epgId": "cctv1",
+          "logo": "https://example.com/logo/cctv1.png",
+          "desc": "中央电视台综合频道，新闻、专题与大型晚会主频道。"
+        },
+        {
+          "name": "湖南卫视",
+          "url": "https://example.com/live/hunan.m3u8",
+          "group": "卫视频道",
+          "tvgId": "hunan",
+          "logo": "https://example.com/logo/hunan.png",
+          "desc": "湖南广播电视台卫星频道，综艺与电视剧为主。"
+        }
+      ],
+      "maxQuality": "720p",
+      "maxBytes": 2097152,
+      "timeoutMs": 8000,
+      "note": "远端订阅示例（example.com 为占位域名，导入后探测为 FAILED 属预期）；channels 为手工频道元数据"
+    },
+    {
+      "schema": "tvapp.source.v1",
+      "kind": "m3u",
+      "id": "live-inline",
+      "name": "内联直播（粘贴导入）",
+      "enabled": true,
+      "priority": 40,
+      "refreshIntervalMin": 0,
+      "inline": "#EXTM3U\n#EXTINF:-1 tvg-id=\"cctv1\" tvg-name=\"CCTV-1 综合\" tvg-logo=\"https://example.com/logo/cctv1.png\" group-title=\"央视频道\",CCTV-1 综合\nhttps://example.com/live/cctv1.m3u8\n#EXTINF:-1 tvg-id=\"cctv2\" group-title=\"央视频道\",CCTV-2 财经\nhttps://example.com/live/cctv2.m3u8\n#EXTINF:-1 tvg-id=\"hunan\" group-title=\"卫视频道\",湖南卫视\nhttps://example.com/live/hunan.m3u8\n",
+      "filters": {
+        "includeGroups": ["央视", "卫视"]
+      },
+      "maxBytes": 262144,
+      "timeoutMs": 4000,
+      "note": "v1 老配置：inline 与 url 二选一；示例地址为占位域名"
+    }
+  ]
+}

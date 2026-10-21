@@ -1,0 +1,287 @@
+{
+ "schema": "tvapp.source.v1.1",
+ "kind": "bundle",
+ "id": "builtin-v1",
+ "name": "内置源合集 v1",
+ "version": 1,
+ "updatedAt": "2026-10-21T11:07:11Z",
+ "refreshIntervalHour": 24,
+ "merge": "byId",
+ "priority": 0,
+ "note": "首次启动自动装载；全部经 tools/probe_sources.py 实测可用（2026-10-21）",
+ "sources": [
+  {
+   "schema": "tvapp.source.v1.1",
+   "kind": "maccms",
+   "id": "bfzy1",
+   "name": "暴风资源(主)",
+   "enabled": true,
+   "priority": 10,
+   "baseUrl": "https://macapi1.com/maccms/json/baofeng/",
+   "flavor": "macjson",
+   "pageSize": 20,
+   "timeoutMs": 6000,
+   "maxQuality": "1080p",
+   "preferredCodec": "h264",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+    "Referer": "https://bfzy1.tv/"
+   },
+   "adBlock": {
+    "enabled": true,
+    "domains": [],
+    "urlKeywords": [
+     "/ad/",
+     "/ads/",
+     "/adv/",
+     "/gg/"
+    ]
+   },
+   "fallbackBaseUrls": [
+    "https://bfzyapi.com/api.php/provide/vod/"
+   ],
+   "categories": {
+    "MOVIE": [
+     20
+    ],
+    "TV": [
+     30
+    ],
+    "ANIME": [
+     39
+    ],
+    "VARIETY": [
+     45
+    ]
+   }
+  },
+  {
+   "schema": "tvapp.source.v1.1",
+   "kind": "maccms",
+   "id": "ffzy",
+   "name": "非凡资源",
+   "enabled": true,
+   "priority": 20,
+   "baseUrl": "https://api.ffzyapi.com/api.php/provide/vod/",
+   "flavor": "macjson",
+   "pageSize": 20,
+   "timeoutMs": 6000,
+   "maxQuality": "1080p",
+   "preferredCodec": "h264",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+    "Referer": "https://bfzy1.tv/"
+   },
+   "adBlock": {
+    "enabled": true,
+    "domains": [],
+    "urlKeywords": [
+     "/ad/",
+     "/ads/",
+     "/adv/",
+     "/gg/"
+    ]
+   },
+   "fallbackBaseUrls": [
+    "https://cj.ffzyapi.com/api.php/provide/vod/"
+   ],
+   "categories": {
+    "MOVIE": [
+     1
+    ],
+    "TV": [
+     2
+    ],
+    "ANIME": [
+     4
+    ],
+    "VARIETY": [
+     3
+    ]
+   }
+  },
+  {
+   "schema": "tvapp.source.v1.1",
+   "kind": "maccms",
+   "id": "dytt",
+   "name": "电影天堂资源",
+   "enabled": true,
+   "priority": 30,
+   "baseUrl": "https://caiji.dyttzyapi.com/api.php/provide/vod/",
+   "flavor": "macjson",
+   "pageSize": 20,
+   "timeoutMs": 6000,
+   "maxQuality": "1080p",
+   "preferredCodec": "h264",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+    "Referer": "https://bfzy1.tv/"
+   },
+   "adBlock": {
+    "enabled": true,
+    "domains": [],
+    "urlKeywords": [
+     "/ad/",
+     "/ads/",
+     "/adv/",
+     "/gg/"
+    ]
+   },
+   "categories": {
+    "MOVIE": [
+     1
+    ],
+    "TV": [
+     2
+    ],
+    "ANIME": [
+     4
+    ],
+    "VARIETY": [
+     3
+    ]
+   }
+  },
+  {
+   "schema": "tvapp.source.v1.1",
+   "kind": "maccms",
+   "id": "lziapi",
+   "name": "量子资源",
+   "enabled": true,
+   "priority": 70,
+   "baseUrl": "https://cj.lziapi.com/api.php/provide/vod/",
+   "flavor": "macjson",
+   "pageSize": 20,
+   "timeoutMs": 6000,
+   "maxQuality": "1080p",
+   "preferredCodec": "h264",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+    "Referer": "https://bfzy1.tv/"
+   },
+   "adBlock": {
+    "enabled": true,
+    "domains": [],
+    "urlKeywords": [
+     "/ad/",
+     "/ads/",
+     "/adv/",
+     "/gg/"
+    ]
+   },
+   "categories": {
+    "MOVIE": [
+     1
+    ],
+    "TV": [
+     2
+    ],
+    "ANIME": [
+     4
+    ],
+    "VARIETY": [
+     3
+    ]
+   },
+   "note": "量子资源：分类齐全但 TLS 握手偶发超时，作低优先备用"
+  },
+  {
+   "schema": "tvapp.source.v1.1",
+   "kind": "maccms",
+   "id": "apibdzy",
+   "name": "百度资源",
+   "enabled": true,
+   "priority": 50,
+   "baseUrl": "https://api.apibdzy.com/api.php/provide/vod/",
+   "flavor": "macjson",
+   "pageSize": 20,
+   "timeoutMs": 6000,
+   "maxQuality": "1080p",
+   "preferredCodec": "h264",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+    "Referer": "https://bfzy1.tv/"
+   },
+   "adBlock": {
+    "enabled": true,
+    "domains": [],
+    "urlKeywords": [
+     "/ad/",
+     "/ads/",
+     "/adv/",
+     "/gg/"
+    ]
+   }
+  },
+  {
+   "schema": "tvapp.source.v1.1",
+   "kind": "maccms",
+   "id": "guangsu",
+   "name": "光速资源",
+   "enabled": true,
+   "priority": 60,
+   "baseUrl": "https://api.guangsuapi.com/api.php/provide/vod/",
+   "flavor": "macjson",
+   "pageSize": 20,
+   "timeoutMs": 6000,
+   "maxQuality": "1080p",
+   "preferredCodec": "h264",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+    "Referer": "https://bfzy1.tv/"
+   },
+   "adBlock": {
+    "enabled": true,
+    "domains": [],
+    "urlKeywords": [
+     "/ad/",
+     "/ads/",
+     "/adv/",
+     "/gg/"
+    ]
+   },
+   "categories": {
+    "MOVIE": [
+     1
+    ],
+    "TV": [
+     2
+    ],
+    "ANIME": [
+     4
+    ],
+    "VARIETY": [
+     3
+    ]
+   }
+  },
+  {
+   "schema": "tvapp.source.v1.1",
+   "kind": "maccms",
+   "id": "zuidapi",
+   "name": "最大资源",
+   "enabled": true,
+   "priority": 80,
+   "baseUrl": "https://api.zuidapi.com/api.php/provide/vod/",
+   "flavor": "macjson",
+   "pageSize": 20,
+   "timeoutMs": 6000,
+   "maxQuality": "1080p",
+   "preferredCodec": "h264",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+    "Referer": "https://bfzy1.tv/"
+   },
+   "adBlock": {
+    "enabled": true,
+    "domains": [],
+    "urlKeywords": [
+     "/ad/",
+     "/ads/",
+     "/adv/",
+     "/gg/"
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1920px;height:1080px;overflow:hidden;background:#0A0A0C;font-family:"Microsoft YaHei",sans-serif;color:#fff}
+.rail{position:fixed;left:0;top:0;width:130px;height:1080px;background:linear-gradient(180deg,#0c0c0e,#0c0c0eE0);border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;align-items:center;padding-top:46px;gap:30px}
+.logo{width:52px;height:52px;border-radius:14px;background:linear-gradient(140deg,#E8B872,#8a5a1e);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#1a1206;margin-bottom:10px}
+.nav{display:flex;flex-direction:column;align-items:center;gap:8px;opacity:.45}
+.nav.on{opacity:1}
+.nav .ico{width:44px;height:44px;border:2px solid currentColor;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.nav.on .ico{border-color:#E8B872;color:#E8B872;background:rgba(232,184,114,.12)}
+.nav span{font-size:13px;color:#cfc7bd}
+.main{position:absolute;left:170px;top:0;width:1660px;padding-top:44px}
+.searchbar{display:flex;align-items:center;gap:18px}
+.box{flex:1;height:88px;border-radius:12px;background:#141416;border:2px solid #E8B872;display:flex;align-items:center;padding:0 28px;gap:18px;box-shadow:0 10px 40px rgba(232,184,114,.18)}
+.box .q{font-size:40px;font-weight:700;letter-spacing:3px}
+.box .caret{width:3px;height:46px;background:#E8B872;animation:none}
+.box .hint{margin-left:auto;font-size:17px;color:#8d857c}
+.mic{width:88px;height:88px;border-radius:12px;background:#141416;border:1px solid #2a2a2e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.mic .g{font-size:28px}
+.mic .t{font-size:11px;color:#8d857c}
+.tabs{display:flex;gap:12px;margin-top:26px;align-items:center}
+.tab{padding:11px 24px;border-radius:8px;background:#141416;font-size:20px;color:#b8b0a6;border:1px solid #232327}
+.tab.on{background:rgba(232,184,114,.14);border-color:#E8B872;color:#E8B872;font-weight:700}
+.tab i{font-style:normal;font-size:15px;color:#7d766e;margin-left:8px}
+.tab.on i{color:#c9a55f}
+.cand{margin-top:22px;display:flex;align-items:center;gap:14px;font-size:18px;color:#8d857c}
+.chip{padding:9px 18px;border-radius:999px;background:#141416;border:1px solid #2a2a2e;font-size:18px;color:#d8d0c7}
+.chip b{color:#E8B872}
+.chip.sel{border-color:#E8B872;background:rgba(232,184,114,.14)}
+.grid{display:flex;flex-wrap:wrap;gap:22px 20px;margin-top:30px;width:1640px}
+.card{width:250px}
+.ph{width:250px;height:352px;border-radius:10px;position:relative;overflow:hidden}
+.ph .src{position:absolute;left:10px;top:10px;font-size:13px;background:rgba(0,0,0,.66);border:1px solid rgba(232,184,114,.5);color:#E8B872;padding:3px 8px;border-radius:4px}
+.ph .sc{position:absolute;right:10px;bottom:10px;font-size:14px;background:rgba(0,0,0,.66);color:#E8B872;padding:3px 7px;border-radius:4px}
+.nm{margin-top:12px;font-size:21px;font-weight:600;color:#fff}
+.nm b{color:#E8B872}
+.meta2{margin-top:6px;font-size:15px;color:#8d857c}
+.py{margin-top:6px;font-size:13px;color:#6f6960;letter-spacing:1px}
+.focus{outline:3px solid #E8B872;outline-offset:5px;box-shadow:0 16px 44px rgba(232,184,114,.28)}
+.footer{position:absolute;left:170px;bottom:34px;width:1640px;display:flex;justify-content:space-between;font-size:16px;color:#6f6960;border-top:1px solid #1e1e20;padding-top:18px}
+</style></head><body>
+<div class="rail">
+  <div class="logo">影</div>
+  <div class="nav"><div class="ico">首</div><span>推荐</span></div>
+  <div class="nav"><div class="ico">影</div><span>电影</span></div>
+  <div class="nav"><div class="ico">剧</div><span>剧集</span></div>
+  <div class="nav"><div class="ico">漫</div><span>动漫</span></div>
+  <div class="nav"><div class="ico">综</div><span>综艺</span></div>
+  <div class="nav"><div class="ico">外</div><span>海外</span></div>
+  <div class="nav"><div class="ico">直</div><span>直播</span></div>
+  <div class="nav on"><div class="ico">搜</div><span>搜索</span></div>
+</div>
+<div class="main">
+  <div class="searchbar">
+    <div class="box"><div class="q">lldj</div><div class="caret"></div><div class="hint">首拼已命中 38 条 · 正在聚合 3 个源…</div></div>
+    <div class="mic"><div class="g">🎤</div><div class="t">语音</div></div>
+  </div>
+  <div class="tabs">
+    <div class="tab on">全部<i>128</i></div>
+    <div class="tab">电影<i>42</i></div>
+    <div class="tab">剧集<i>36</i></div>
+    <div class="tab">动漫<i>18</i></div>
+    <div class="tab">综艺<i>12</i></div>
+    <div class="tab">海外<i>31</i></div>
+    <div class="tab">直播<i>0</i></div>
+  </div>
+  <div class="cand">候选：
+    <div class="chip sel"><b>流浪地球2</b> · 2026</div>
+    <div class="chip">流浪地球</div>
+    <div class="chip">流浪地球3</div>
+    <div class="chip">流浪猫鲍勃</div>
+  </div>
+  <div class="grid">
+    <div class="card focus"><div class="ph" style="background:linear-gradient(160deg,#20304f,#0d1118)"><div class="src">3 源可用</div><div class="sc">8.7</div></div><div class="nm"><b>流浪</b>地球2</div><div class="meta2">科幻 · 2026 · 3h02m</div><div class="py">lldj · 首拼命中</div></div>
+    <div class="card"><div class="ph" style="background:linear-gradient(160deg,#3a2a1c,#0d1118)"><div class="src">2 源可用</div><div class="sc">8.4</div></div><div class="nm"><b>流浪</b>地球</div><div class="meta2">科幻 · 2019 · 2h05m</div><div class="py">lldj · 首拼命中</div></div>
+    <div class="card"><div class="ph" style="background:linear-gradient(160deg,#2b1a33,#0d1118)"><div class="src">1 源可用</div><div class="sc">—</div></div><div class="nm"><b>流浪</b>地球3</div><div class="meta2">科幻 · 2027 · 待上映</div><div class="py">lldj · 首拼命中</div></div>
+    <div class="card"><div class="ph" style="background:linear-gradient(160deg,#1f332a,#0d1118)"><div class="src">2 源可用</div><div class="sc">8.1</div></div><div class="nm">流浪猫鲍勃</div><div class="meta2">剧情 · 2016 · 1h43m</div><div class="py">llmb · 前缀命中</div></div>
+    <div class="card"><div class="ph" style="background:linear-gradient(160deg,#331f22,#0d1118)"><div class="src">1 源可用</div><div class="sc">7.6</div></div><div class="nm">流浪者</div><div class="meta2">动作 · 2018</div><div class="py">llz · 包含命中</div></div>
+    <div class="card"><div class="ph" style="background:linear-gradient(160deg,#22313a,#0d1118)"><div class="src">2 源可用</div><div class="sc">8.9</div></div><div class="nm">流浪地球·幕后</div><div class="meta2">纪录 · 2026</div><div class="py">lldj · 首拼命中</div></div>
+  </div>
+</div>
+<div class="footer"><span>共 128 个结果 · 已加载 24 · 同片合并 9 组</span><span>Ok 进入详情 · MENU 开关连播 · BACK 逐字删除</span></div>
+</body></html>

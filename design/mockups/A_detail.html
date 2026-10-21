@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1920px;height:1080px;overflow:hidden;background:#0A0A0C;font-family:"Microsoft YaHei",sans-serif;color:#fff}
+.backdrop{position:absolute;left:0;top:0;width:1920px;height:560px;overflow:hidden}
+.backdrop img{width:100%;height:100%;object-fit:cover;filter:blur(6px) brightness(.45)}
+.backdrop::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,12,.55) 0%,rgba(10,10,12,.72) 45%,#0A0A0C 96%)}
+.wrap{position:absolute;left:150px;top:70px;width:1620px}
+.head{display:flex;gap:44px}
+.poster{width:300px;height:420px;border-radius:10px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.65);flex:0 0 auto}
+.poster img{width:100%;height:100%;object-fit:cover}
+.meta{flex:1;padding-top:6px}
+.title{font-size:62px;font-weight:800;letter-spacing:1px}
+.tags{margin-top:16px;display:flex;gap:10px;align-items:center;font-size:17px;color:#b9b0a5}
+.chip{border:1px solid #3a3430;padding:5px 12px;border-radius:4px;color:#cfc7bd}
+.score{color:#E8B872;font-weight:800;font-size:26px}
+.people{margin-top:18px;font-size:17px;color:#9d948a;line-height:1.9}
+.people b{color:#cfc7bd;font-weight:600}
+.desc{margin-top:14px;font-size:18px;line-height:1.72;color:#b3a99e;width:1080px}
+.more{color:#E8B872;font-size:16px;margin-left:6px}
+.btns{margin-top:26px;display:flex;gap:14px;align-items:center}
+.btn{padding:14px 34px;border-radius:6px;font-size:20px;font-weight:700}
+.btn.p{background:#E8B872;color:#1a1206;box-shadow:0 10px 34px rgba(232,184,114,.34)}
+.btn.s{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22)}
+.btn.src{border-color:rgba(232,184,114,.55);color:#E8B872}
+.eps{position:absolute;left:150px;top:592px;width:1620px}
+.epshead{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.epshead h2{font-size:26px}
+.epshead .cnt{font-size:15px;color:#8d857c}
+.lines{display:flex;gap:10px;margin-left:auto}
+.line{padding:9px 18px;border-radius:6px;font-size:16px;border:1px solid #2b2b30;color:#b8b0a6}
+.line.on{background:rgba(232,184,114,.14);border-color:#E8B872;color:#E8B872;font-weight:700}
+.pager{display:flex;gap:8px;margin:6px 0 14px}
+.pager div{padding:7px 16px;border-radius:5px;font-size:15px;background:#141416;border:1px solid #232327;color:#9d948a}
+.pager .on{background:#E8B872;color:#1a1206;border-color:#E8B872;font-weight:700}
+.grid{display:flex;flex-wrap:wrap;gap:10px}
+.ep{width:190px;height:74px;border-radius:6px;background:#141416;border:1px solid #232326;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.ep .t{font-size:19px}
+.ep .s{font-size:12px;color:#7d766e}
+.ep.on{border-color:#E8B872;background:rgba(232,184,114,.16)}
+.ep.on .t{color:#E8B872;font-weight:700}
+.ep.seen .t{color:#8d857c}
+.ep.seen::after{content:"✓";position:absolute;color:#5c8a5c}
+.ep.hot{outline:3px solid #E8B872;outline-offset:3px}
+.foot{position:absolute;left:150px;bottom:26px;width:1620px;display:flex;justify-content:space-between;font-size:15px;color:#6f6960;border-top:1px solid #1e1e20;padding-top:16px}
+</style></head><body>
+<div class="backdrop"><img src="posters/detail.webp"></div>
+<div class="wrap">
+  <div class="head">
+    <div class="poster"><img src="posters/detail.webp"></div>
+    <div class="meta">
+      <div class="title">家庭关系证明书</div>
+      <div class="tags">
+        <span class="score">8.2</span>
+        <span>2024</span><span>韩国</span><span>韩语</span><span>64 集</span>
+        <span class="chip">韩国剧</span><span class="chip">剧情 / 家庭</span>
+        <span style="color:#8d857c">3 个源可用</span>
+      </div>
+      <div class="people"><b>主演</b> 朴世荣 / 韩高恩 / 林志恩 / 成伊言 / 朴率拉 / 徐道永 / 全胜彬<br><b>导演</b> 金美淑 · <b>状态</b> 更新至第 64 集</div>
+      <div class="desc">本剧讲述的是从出生瞬间开始就被打上家庭崩溃烙印的一个孩子，和面对冷酷的偏见与命运、重新找回自己人生的女性故事。<span class="more">展开 ›</span></div>
+      <div class="btns">
+        <div class="btn p">▶ 从第 1 集播放</div>
+        <div class="btn s">＋ 收藏</div>
+        <div class="btn s src">切换源（3）</div>
+        <div class="btn s">更多 ⋯</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="eps">
+  <div class="epshead">
+    <h2>选集</h2><span class="cnt">共 64 集 · 已看 12 集</span>
+    <div class="lines"><div class="line on">暴风线路 · 1080p</div><div class="line">备用线路 · 720p</div><div class="line">排序 正序</div></div>
+  </div>
+  <div class="pager"><div class="on">1-30</div><div>31-60</div><div>61-64</div></div>
+  <div class="grid">
+    <div class="ep seen"><div class="t">第1集</div><div class="s">已看</div></div>
+    <div class="ep seen"><div class="t">第2集</div><div class="s">已看</div></div>
+    <div class="ep seen"><div class="t">第3集</div><div class="s">已看</div></div>
+    <div class="ep"><div class="t">第4集</div><div class="s">45:12</div></div>
+    <div class="ep hot"><div class="t">第5集</div><div class="s">上次看到 12:38</div></div>
+    <div class="ep"><div class="t">第6集</div><div class="s">44:50</div></div>
+    <div class="ep"><div class="t">第7集</div><div class="s">45:02</div></div>
+    <div class="ep"><div class="t">第8集</div><div class="s">44:31</div></div>
+    <div class="ep"><div class="t">第9集</div><div class="s">45:20</div></div>
+    <div class="ep"><div class="t">第10集</div><div class="s">44:58</div></div>
+    <div class="ep"><div class="t">第11集</div><div class="s">45:11</div></div>
+    <div class="ep"><div class="t">第12集</div><div class="s">44:47</div></div>
+    <div class="ep"><div class="t">第13集</div><div class="s">45:05</div></div>
+    <div class="ep"><div class="t">第14集</div><div class="s">44:39</div></div>
+    <div class="ep"><div class="t">第15集</div><div class="s">45:22</div></div>
+    <div class="ep"><div class="t">第16集</div><div class="s">44:55</div></div>
+    <div class="ep"><div class="t">第17集</div><div class="s">45:08</div></div>
+    <div class="ep"><div class="t">第18集</div><div class="s">44:44</div></div>
+    <div class="ep"><div class="t">第19集</div><div class="s">45:16</div></div>
+    <div class="ep"><div class="t">第20集</div><div class="s">44:51</div></div>
+    <div class="ep"><div class="t">第21集</div><div class="s">45:03</div></div>
+    <div class="ep"><div class="t">第22集</div><div class="s">44:42</div></div>
+    <div class="ep"><div class="t">第23集</div><div class="s">45:19</div></div>
+    <div class="ep"><div class="t">第24集</div><div class="s">44:57</div></div>
+  </div>
+</div>
+<div class="foot"><span>详情数据来自暴风源 ac=detail&ids=… · 64 集全部有播放串</span><span>左右切线路 · 上下选集 · OK 立即播放 · 长按 OK 更多</span></div>
+</body></html>

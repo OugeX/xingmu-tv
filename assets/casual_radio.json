@@ -1,0 +1,474 @@
+{
+ "generatedAt": "2026-10-21T19:51:00+08:00",
+ "source": "radio-browser + somafm",
+ "stations": [
+  {
+   "id": "soma-groove",
+   "name": "SomaFM Groove Salad",
+   "group": "内置精选",
+   "tag": "ambient/downtempo",
+   "codec": "MP3",
+   "bitrateKbps": 256,
+   "urls": [
+    "https://ice6.somafm.com/groovesalad-256-mp3"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "soma-lush",
+   "name": "SomaFM Lush",
+   "group": "内置精选",
+   "tag": "vocal chill",
+   "codec": "MP3",
+   "bitrateKbps": 128,
+   "urls": [
+    "https://ice6.somafm.com/lush-128-mp3"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "soma-drone",
+   "name": "SomaFM Drone Zone",
+   "group": "内置精选",
+   "tag": "ambient",
+   "codec": "MP3",
+   "bitrateKbps": 128,
+   "urls": [
+    "https://ice6.somafm.com/dronezone-128-mp3"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "cn-4a953750",
+   "name": "CNR-1 中国之声",
+   "group": "华语电台",
+   "tag": "information,news,public radio",
+   "codec": "UNKNOWN",
+   "bitrateKbps": 228,
+   "urls": [
+    "http://zbbf2.ahbztv.com/live/4f3.m3u8"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "cn-94b627b7",
+   "name": "AsiaFM亚洲经典台",
+   "group": "华语电台",
+   "tag": "classic hits,hd,music,oldies",
+   "codec": "AAC+",
+   "bitrateKbps": 128,
+   "urls": [
+    "http://goldfm.cn:8000/goldfm"
+   ],
+   "logo": "http://pic.qtfm.cn/2022/0712/20220712122112.jpeg!200"
+  },
+  {
+   "id": "cn-82a2903d",
+   "name": "REPLAY NEWS - 中文 每5分钟播报一次新闻的电台",
+   "group": "华语电台",
+   "tag": "news",
+   "codec": "MP3",
+   "bitrateKbps": 128,
+   "urls": [
+    "https://replaynewszh.ice.infomaniak.ch/replaynewszh-128.mp3"
+   ],
+   "logo": "https://www.publicsante.com/BIENVENU/LOGO REPLAY NEWS-ZH.png"
+  },
+  {
+   "id": "cn-e4599290",
+   "name": "AsiaFM高清音乐台",
+   "group": "华语电台",
+   "tag": "192kbps,hd,music",
+   "codec": "AAC+",
+   "bitrateKbps": 96,
+   "urls": [
+    "http://asiafm.hk:8000/asiahd"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "cn-3f6d52c1",
+   "name": "新闻联播",
+   "group": "华语电台",
+   "tag": "news",
+   "codec": "MP3",
+   "bitrateKbps": 64,
+   "urls": [
+    "https://rfienchinois64k.ice.infomaniak.ch//rfienchinois-64.mp3"
+   ],
+   "logo": "https://www.rfi.fr/apple-touch-icon.png"
+  },
+  {
+   "id": "cn-dc722c5e",
+   "name": "凤凰卫视资讯台",
+   "group": "华语电台",
+   "tag": "news",
+   "codec": "UNKNOWN",
+   "bitrateKbps": 0,
+   "urls": [
+    "http://playtv-live.ifeng.com/live/06OLEEWQKN4_audio.m3u8"
+   ],
+   "logo": "http://d.ifengimg.com/w250_h160_q90_webp/x0.ifengimg.com/ucms/2021_23/4F53E3FD6DBDAF0374F35223C9F6316706F6A08F_size23_w250_h160.jpg"
+  },
+  {
+   "id": "cn-2bf82625",
+   "name": "CCTV-13新闻伴音",
+   "group": "华语电台",
+   "tag": "tv",
+   "codec": "UNKNOWN",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://piccpndali.v.myalicdn.com/audio/cctv13_2.m3u8"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "cn-835070cd",
+   "name": "CNR-1 中国之声",
+   "group": "华语电台",
+   "tag": "news",
+   "codec": "MP3",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://lhttp.qtfm.cn/live/15318317/64k.mp3"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "cn-24711f7f",
+   "name": "怀集音乐之声",
+   "group": "华语电台",
+   "tag": "music",
+   "codec": "MP3",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://lhttp.qingting.fm/live/4804/64k.mp3"
+   ],
+   "logo": "http://www.hj0758.cn/favicon.ico"
+  },
+  {
+   "id": "cn-ab0cc7f6",
+   "name": "国际新闻",
+   "group": "华语电台",
+   "tag": "information,news",
+   "codec": "MP3",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://lhttp.qtfm.cn/live/20500172/64k.mp3"
+   ],
+   "logo": "https://pic.qtfm.cn/sso/48/1678171152584_a6BwhQSVz.png"
+  },
+  {
+   "id": "cn-951b325b",
+   "name": "华语金曲500首",
+   "group": "华语电台",
+   "tag": "golden music",
+   "codec": "UNKNOWN",
+   "bitrateKbps": 0,
+   "urls": [
+    "http://ls.qingting.fm/live/3412131.m3u8?bitrate=64"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "cn-94de57d1",
+   "name": "清晨音乐台",
+   "group": "华语电台",
+   "tag": "music,pop music",
+   "codec": "MP3",
+   "bitrateKbps": 0,
+   "urls": [
+    "http://lhttp.qingting.fm/live/4915/64k.mp3"
+   ],
+   "logo": "https://h5.sinaimg.cn/m/weibo-lite/appicon.png"
+  },
+  {
+   "id": "cn-431eb0c9",
+   "name": "CNR-2 经济之声",
+   "group": "华语电台",
+   "tag": "economic,news",
+   "codec": "UNKNOWN",
+   "bitrateKbps": 0,
+   "urls": [
+    "http://ngcdn002.cnr.cn/live/jjzs/index.m3u8"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "cn-0863581e",
+   "name": "CCTV-13 新闻（伴音）",
+   "group": "华语电台",
+   "tag": "cctv,国家台,新闻,电视伴音,综合",
+   "codec": "UNKNOWN",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://piccpndali.v.myalicdn.com/audio/cctv13_2.m3u8"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "cn-0c7e5ad0",
+   "name": "凤凰卫视中文台",
+   "group": "华语电台",
+   "tag": "",
+   "codec": "UNKNOWN",
+   "bitrateKbps": 0,
+   "urls": [
+    "http://playtv-live.ifeng.com/live/06OLEGEGM4G_audio.m3u8"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "cn-ef678e2d",
+   "name": "CRI环球资迅广播",
+   "group": "华语电台",
+   "tag": "905fm,china,information,news",
+   "codec": "UNKNOWN",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://sk.cri.cn/905.m3u8"
+   ],
+   "logo": "https://newsradio.cri.cn/favicon.ico"
+  },
+  {
+   "id": "cn-ba8cf3a2",
+   "name": "两广之声音乐台",
+   "group": "华语电台",
+   "tag": "internet radio,oldies",
+   "codec": "MP3",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://lhttp.qtfm.cn/live/20500149/64k.mp3"
+   ],
+   "logo": "https://pic.qtfm.cn/2022/0619/20220619063631.jpeg"
+  },
+  {
+   "id": "cn-7478cbd8",
+   "name": "CCTV-4中文国际伴音",
+   "group": "华语电台",
+   "tag": "news",
+   "codec": "UNKNOWN",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://piccpndali.v.myalicdn.com/audio/cctv4_2.m3u8"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "cn-815f20d0",
+   "name": "500首华语经典",
+   "group": "华语电台",
+   "tag": "music,oldies",
+   "codec": "MP3",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://lhttp.qtfm.cn/live/5022308/64k.mp3"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "cn-d3eda505",
+   "name": "江苏经典流行音乐广播",
+   "group": "华语电台",
+   "tag": "chinese pop",
+   "codec": "MP3",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://lhttp.qtfm.cn/live/4938/64k.mp3"
+   ],
+   "logo": "https://www.vojs.cn/favicon.ico"
+  },
+  {
+   "id": "cn-a09db942",
+   "name": "CNR-3 音乐之声",
+   "group": "华语电台",
+   "tag": "music",
+   "codec": "UNKNOWN",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://ngcdn001.cnr.cn/live/yyzs/index.m3u8"
+   ],
+   "logo": "https://cnvod.cnr.cn/audio2017/ondemand/img/1100/20191224/1577155745280.png"
+  },
+  {
+   "id": "cn-ce451760",
+   "name": "听云音乐台",
+   "group": "华语电台",
+   "tag": "music",
+   "codec": "MP3",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://m.tyradio.uk/radio.mp3"
+   ],
+   "logo": "http://pic.qtfm.cn/device/3cf081e3ac9d4d379619837c028b43bf/1698026321500_OjBqkGwMS.jpg!200"
+  },
+  {
+   "id": "cn-aae8f50a",
+   "name": "天籁之音 - 经典正流行",
+   "group": "华语电台",
+   "tag": "music,oldies",
+   "codec": "UNKNOWN",
+   "bitrateKbps": 0,
+   "urls": [
+    "http://play-radio-stream3.hndt.com/now/WUBA5hW2/chunklist.m3u8"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "cn-f0a47ae7",
+   "name": "CNR-1 中国之声",
+   "group": "华语电台",
+   "tag": "information,news",
+   "codec": "UNKNOWN",
+   "bitrateKbps": 0,
+   "urls": [
+    "http://ngcdn002.cnr.cn/live/zgzs/index.m3u8"
+   ],
+   "logo": "https://cnvod.cnr.cn/audio2017/ondemand/media/1100/20210425/1619317448858.jpg"
+  },
+  {
+   "id": "cn-d84ba969",
+   "name": "AisaFM亚洲粤语台",
+   "group": "华语电台",
+   "tag": "music",
+   "codec": "UNKNOWN",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://live.ximalaya.com/radio-first-page-app/live/999/64.m3u8?transcode=ts"
+   ],
+   "logo": "https://imagev2.xmcdn.com/storages/20ef-audiofreehighqps/00/CA/GMCoOR8HJFh9AAMCbwGzjNlB.jpg!strip=1&quality=7&magick=jpg&op_type=5&upload_type=cover&name=web_large&device_type=ios"
+  },
+  {
+   "id": "cn-b09047c9",
+   "name": "Fm891线上音乐台",
+   "group": "华语电台",
+   "tag": "internet radio,music,pop music",
+   "codec": "MP3",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://lhttp.qtfm.cn/live/20500215/64k.mp3"
+   ],
+   "logo": "https://fm891.net/891logo.jpg"
+  },
+  {
+   "id": "cn-acf7c318",
+   "name": "CRI英语资讯广播 China Plus Radio",
+   "group": "华语电台",
+   "tag": "news",
+   "codec": "UNKNOWN",
+   "bitrateKbps": 0,
+   "urls": [
+    "http://sk.cri.cn/am846.m3u8"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "cn-f3638a83",
+   "name": "AsiaFM 亚洲粤语台",
+   "group": "华语电台",
+   "tag": "地方台,粤语,音乐",
+   "codec": "MP3",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://lhttp.qtfm.cn/live/15318569/64k.mp3"
+   ],
+   "logo": ""
+  },
+  {
+   "id": "cn-274fd83d",
+   "name": "CNR-4 经典音乐广播",
+   "group": "华语电台",
+   "tag": "classical,music,oldies",
+   "codec": "UNKNOWN",
+   "bitrateKbps": 0,
+   "urls": [
+    "http://satellitepull.cnr.cn/live/wxdszs/playlist.m3u8?wsSession=d8a4b41c6557ba30cfeebcdb-174709298057895&wsIPSercert=29f90b67755e3a4646651f7aa8eb5fd6"
+   ],
+   "logo": "https://ytmedia.radio.cn/CCYT/202302/09/17/HRdlznt8YcKTRJdZsE8SXJRsFzZaVJlJJ2023020917172.png"
+  },
+  {
+   "id": "jazz-d1a54d2e",
+   "name": "Classic Vinyl HD",
+   "group": "国际音乐",
+   "tag": "jazz",
+   "codec": "MP3",
+   "bitrateKbps": 320,
+   "urls": [
+    "https://icecast.walmradio.com:8443/classic"
+   ],
+   "logo": "https://icecast.walmradio.com:8443/classic.jpg"
+  },
+  {
+   "id": "jazz-ea8059be",
+   "name": "Adroit Jazz Underground",
+   "group": "国际音乐",
+   "tag": "jazz",
+   "codec": "MP3",
+   "bitrateKbps": 320,
+   "urls": [
+    "https://icecast.walmradio.com:8443/jazz"
+   ],
+   "logo": "https://icecast.walmradio.com:8443/jazz.jpg"
+  },
+  {
+   "id": "chillout-dd98c499",
+   "name": "# TOP 100 CLUB CHARTS - DANCE & DJ MIX R",
+   "group": "国际音乐",
+   "tag": "chillout",
+   "codec": "MP3",
+   "bitrateKbps": 192,
+   "urls": [
+    "https://breakz-2012-high.rautemusik.fm/?ref=radiobrowser-top100-clubcharts"
+   ],
+   "logo": "https://i.ibb.co/T1gH75m/rb-top100clubcharts.png"
+  },
+  {
+   "id": "chillout-3d9dcff7",
+   "name": "- DJ & CLUB CHARTS ---> Club Classics, F",
+   "group": "国际音乐",
+   "tag": "chillout",
+   "codec": "MP3",
+   "bitrateKbps": 192,
+   "urls": [
+    "https://breakz-2012-high.rautemusik.fm/?ref=rb-djclubcharts"
+   ],
+   "logo": "https://i.ibb.co/P7QHpGB/DJ-CLUB-CHARTS-LOGO.png"
+  },
+  {
+   "id": "jazz-d28420a4",
+   "name": "101 SMOOTH JAZZ",
+   "group": "国际音乐",
+   "tag": "jazz",
+   "codec": "MP3",
+   "bitrateKbps": 192,
+   "urls": [
+    "http://jking.cdnstream1.com/b22139_128mp3"
+   ],
+   "logo": "http://101smoothjazz.com/favicon.ico"
+  },
+  {
+   "id": "chillout-960cf833",
+   "name": "SomaFM Groove Salad (128k MP3)",
+   "group": "国际音乐",
+   "tag": "chillout",
+   "codec": "MP3",
+   "bitrateKbps": 128,
+   "urls": [
+    "https://ice5.somafm.com/groovesalad-128-mp3"
+   ],
+   "logo": "https://somafm.com/img3/groovesalad-400.jpg"
+  },
+  {
+   "id": "chillout-95eff2f9",
+   "name": "Relax FM Chillout",
+   "group": "国际音乐",
+   "tag": "chillout",
+   "codec": "MP3",
+   "bitrateKbps": 0,
+   "urls": [
+    "https://pub0201.101.ru/stream/trust/mp3/128/24?"
+   ],
+   "logo": "https://www.radiobells.com/stations/relaxfmchillout.webp"
+  }
+ ]
+}

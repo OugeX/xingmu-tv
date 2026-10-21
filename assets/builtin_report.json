@@ -1,0 +1,175 @@
+[
+ {
+  "id": "bfzy1",
+  "name": "暴风资源(主)",
+  "baseUrl": "https://macapi1.com/maccms/json/baofeng/",
+  "classCount": 49,
+  "categories": {
+   "MOVIE": [
+    "电影片"
+   ],
+   "TV": [
+    "连续剧"
+   ],
+   "ANIME": [
+    "动漫片"
+   ],
+   "VARIETY": [
+    "综艺片"
+   ]
+  },
+  "overseas": [
+   "香港剧",
+   "日本剧",
+   "泰国剧",
+   "韩国剧",
+   "欧美剧",
+   "海外剧",
+   "台湾剧"
+  ]
+ },
+ {
+  "id": "ffzy",
+  "name": "非凡资源",
+  "baseUrl": "https://api.ffzyapi.com/api.php/provide/vod/",
+  "classCount": 31,
+  "categories": {
+   "MOVIE": [
+    "电影片"
+   ],
+   "TV": [
+    "连续剧"
+   ],
+   "ANIME": [
+    "动漫片"
+   ],
+   "VARIETY": [
+    "综艺片"
+   ]
+  },
+  "overseas": [
+   "香港剧",
+   "韩国剧",
+   "欧美剧",
+   "台湾剧",
+   "日本剧",
+   "海外剧",
+   "泰国剧"
+  ]
+ },
+ {
+  "id": "dytt",
+  "name": "电影天堂资源",
+  "baseUrl": "https://caiji.dyttzyapi.com/api.php/provide/vod/",
+  "classCount": 32,
+  "categories": {
+   "MOVIE": [
+    "电影片"
+   ],
+   "TV": [
+    "连续剧"
+   ],
+   "ANIME": [
+    "动漫片"
+   ],
+   "VARIETY": [
+    "综艺片"
+   ]
+  },
+  "overseas": [
+   "香港剧",
+   "韩国剧",
+   "欧美剧",
+   "台湾剧",
+   "日本剧",
+   "海外剧",
+   "泰国剧"
+  ]
+ },
+ {
+  "id": "lziapi",
+  "name": "量子资源",
+  "baseUrl": "https://cj.lziapi.com/api.php/provide/vod/",
+  "classCount": 44,
+  "categories": {
+   "MOVIE": [
+    "电影片"
+   ],
+   "TV": [
+    "连续剧"
+   ],
+   "ANIME": [
+    "动漫片"
+   ],
+   "VARIETY": [
+    "综艺片"
+   ]
+  },
+  "overseas": [
+   "香港剧",
+   "韩国剧",
+   "欧美剧",
+   "台湾剧",
+   "日本剧",
+   "海外剧",
+   "泰国剧"
+  ]
+ },
+ {
+  "id": "apibdzy",
+  "name": "百度资源",
+  "baseUrl": "https://api.apibdzy.com/api.php/provide/vod/",
+  "classCount": 54,
+  "categories": {},
+  "overseas": [
+   "欧美剧",
+   "韩剧",
+   "日剧",
+   "港澳剧",
+   "台湾剧",
+   "泰剧"
+  ]
+ },
+ {
+  "id": "guangsu",
+  "name": "光速资源",
+  "baseUrl": "https://api.guangsuapi.com/api.php/provide/vod/",
+  "classCount": 44,
+  "categories": {
+   "MOVIE": [
+    "电影"
+   ],
+   "TV": [
+    "电视剧"
+   ],
+   "ANIME": [
+    "动漫"
+   ],
+   "VARIETY": [
+    "综艺"
+   ]
+  },
+  "overseas": [
+   "欧美剧",
+   "港澳剧",
+   "韩剧",
+   "日剧",
+   "台湾剧",
+   "泰剧"
+  ]
+ },
+ {
+  "id": "zuidapi",
+  "name": "最大资源",
+  "baseUrl": "https://api.zuidapi.com/api.php/provide/vod/",
+  "classCount": 59,
+  "categories": {},
+  "overseas": [
+   "欧美剧",
+   "韩剧",
+   "日剧",
+   "泰剧",
+   "海外剧"
+  ]
+ }
+]

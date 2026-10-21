@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1920px;height:1080px;overflow:hidden;background:#0A0A0C;font-family:"Microsoft YaHei",sans-serif;color:#fff}
+.hero{position:relative;height:520px;overflow:hidden}
+.hero img{position:absolute;right:0;top:-90px;height:700px;width:1100px;object-fit:cover;opacity:.55}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0A0A0C 18%,rgba(10,10,12,.86) 46%,rgba(10,10,12,.55) 70%,#0A0A0C 100%),linear-gradient(180deg,rgba(10,10,12,.4),rgba(10,10,12,0) 40%,#0A0A0C 92%)}
+.badge{position:absolute;left:170px;top:54px;font-size:15px;letter-spacing:4px;color:#E8B872;border:1px solid rgba(232,184,114,.55);padding:7px 14px;border-radius:4px}
+.htxt{position:absolute;left:170px;top:118px;z-index:2}
+.htxt h1{font-size:80px;font-weight:800;letter-spacing:2px}
+.meta{margin-top:18px;display:flex;gap:14px;align-items:center;font-size:18px;color:#a89f95}
+.tag{border:1px solid #3a3430;padding:4px 10px;border-radius:3px;color:#c9bfb3}
+.desc{margin-top:18px;font-size:18px;line-height:1.7;color:#b3a99e;width:760px}
+.btns{margin-top:26px;display:flex;gap:16px}
+.btn{padding:15px 40px;border-radius:6px;font-size:21px;font-weight:700}
+.btn.p{background:#E8B872;color:#1a1206;box-shadow:0 8px 30px rgba(232,184,114,.35)}
+.btn.s{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22)}
+.rail{position:fixed;left:0;top:0;width:130px;height:1080px;background:rgba(12,12,14,.94);border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;align-items:center;padding-top:40px;gap:26px;z-index:9}
+.logo{width:52px;height:52px;border-radius:14px;background:linear-gradient(140deg,#E8B872,#8a5a1e);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#1a1206;margin-bottom:8px}
+.nav{display:flex;flex-direction:column;align-items:center;gap:8px;opacity:.5}
+.nav.on{opacity:1}
+.nav .ico{width:44px;height:44px;border:2px solid currentColor;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.nav.on .ico{border-color:#E8B872;color:#E8B872;background:rgba(232,184,114,.12)}
+.nav span{font-size:13px;color:#cfc7bd}
+.rows{position:absolute;left:170px;top:470px;width:1680px}
+.rowhead{display:flex;align-items:baseline;gap:14px;margin:10px 0 12px}
+.rowhead h2{font-size:26px}
+.rowhead em{font-size:14px;color:#8d857c;font-style:normal}
+.rowhead .more{margin-left:auto;font-size:15px;color:#8d857c}
+.posters{display:flex;gap:18px}
+.p{width:262px}
+.p .im{width:262px;height:368px;border-radius:8px;object-fit:cover;display:block;background:#151515}
+.p .nm{margin-top:9px;font-size:18px;color:#d8d0c7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p .ep{font-size:13px;color:#847c73;margin-top:4px}
+.focus{outline:3px solid #E8B872;outline-offset:4px;border-radius:8px}
+.ep2{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.66);color:#E8B872;font-size:13px;padding:3px 7px;border-radius:4px}
+</style></head><body>
+<div class="rail">
+  <div class="logo">影</div>
+  <div class="nav on"><div class="ico">首</div><span>推荐</span></div>
+  <div class="nav"><div class="ico">影</div><span>电影</span></div>
+  <div class="nav"><div class="ico">剧</div><span>剧集</span></div>
+  <div class="nav"><div class="ico">漫</div><span>动漫</span></div>
+  <div class="nav"><div class="ico">综</div><span>综艺</span></div>
+  <div class="nav"><div class="ico">外</div><span>海外</span></div>
+  <div class="nav"><div class="ico">直</div><span>直播</span></div>
+  <div class="nav"><div class="ico">搜</div><span>搜索</span></div>
+</div>
+<div class="hero">
+  <img src="posters/p5.webp" alt="">
+  <div class="badge">正在热播</div>
+  <div class="htxt">
+    <h1>新斯坦福监狱实验</h1>
+    <div class="meta"><span>2026</span><span class="tag">欧美剧</span><span class="tag">悬疑</span><span class="tag">更新至08集</span><span style="color:#E8B872;font-weight:700">8.9</span></div>
+    <div class="desc">一个数字创作者发现了一卷被封存半个世纪的诅咒胶片，当他把它上传给观众，猎杀就开始了。</div>
+    <div class="btns"><div class="btn p">▶ 立即播放</div><div class="btn s">＋ 收藏</div><div class="btn s">选集</div></div>
+  </div>
+</div>
+<div class="rows">
+  <div class="rowhead"><h2>最新更新</h2><em>暴风源 · 实时封面</em><div class="more">更多 ›</div></div>
+  <div class="posters">
+    <div class="p focus"><div style="position:relative"><img class="im" src="posters/p1.webp"><div class="ep2">10-21</div></div><div class="nm">小城良方</div><div class="ep">国产剧 · 剧情</div></div>
+    <div class="p"><div style="position:relative"><img class="im" src="posters/p2.jpg"><div class="ep2">10-21</div></div><div class="nm">暖暖的味道</div><div class="ep">大陆综艺 · 美食</div></div>
+    <div class="p"><div style="position:relative"><img class="im" src="posters/p3.jpg"><div class="ep2">2009</div></div><div class="nm">欢乐集结号</div><div class="ep">大陆综艺 · 娱乐</div></div>
+    <div class="p"><div style="position:relative"><img class="im" src="posters/p4.webp"><div class="ep2">HD</div></div><div class="nm">恐惧回响</div><div class="ep">恐怖片 · 2026</div></div>
+    <div class="p"><div style="position:relative"><img class="im" src="posters/p5.webp"><div class="ep2">更新08</div></div><div class="nm">新斯坦福监狱实验</div><div class="ep">欧美剧 · 悬疑</div></div>
+    <div class="p"><div style="position:relative"><img class="im" src="posters/p6.webp"><div class="ep2">全10期</div></div><div class="nm">爱情盲选：荷兰篇</div><div class="ep">欧美综艺 · 真人秀</div></div>
+  </div>
+</div>
+</body></html>
+

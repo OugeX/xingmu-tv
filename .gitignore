@@ -1,0 +1,24 @@
+# Android / Gradle
+.gradle/
+build/
+app/build/
+local.properties
+*.apk
+*.aab
+*.iml
+.idea/
+captures/
+.cxx/
+
+# 本地产物与临时目录
+.artifacts/
+_probe/
+*.log
+*.bak
+
+# AgentTeams 运行态
+.agent-teams/
+
+# 系统
+Thumbs.db
+.DS_Store

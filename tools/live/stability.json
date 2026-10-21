@@ -1,0 +1,7392 @@
+[
+ {
+  "url": "http://101.35.240.114:88/live.php?id=CCTV1",
+  "channel": "CCTV-1 综合",
+  "group": "cctv",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:08+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=CCTV10",
+  "channel": "CCTV-10 科教",
+  "group": "cctv",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:08+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=CCTV12",
+  "channel": "CCTV-12 社会与法",
+  "group": "cctv",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:08+0800"
+ },
+ {
+  "url": "https://cd-live-stream.news.cctvplus.com/live/smil:CHANNEL2.smil/playlist.m3u8",
+  "channel": "CCTV+ 2",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.04,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.106,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:09+0800"
+ },
+ {
+  "url": "https://event.pull.hebtv.com/jishi/cp1.m3u8",
+  "channel": "CCTV-13 新闻",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.354,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.176,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:09+0800"
+ },
+ {
+  "url": "https://cd-live-stream.news.cctvplus.com/live/smil:CHANNEL1.smil/playlist.m3u8",
+  "channel": "CCTV+ 1",
+  "group": "cctv",
+  "ok1": false,
+  "ok2": true,
+  "passes": 1,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.087,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": null,
+   "ttfb": 0.106,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:09+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=CCTV14",
+  "channel": "CCTV-14 少儿",
+  "group": "cctv",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:10+0800"
+ },
+ {
+  "url": "http://124.165.251.82:85/tsfile/live/0012_1.m3u8?key=txiptv&playlive=1&authid=0",
+  "channel": "CCTV-12 社会与法",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.098,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.091,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:11+0800"
+ },
+ {
+  "url": "https://event.pull.hebtv.com/jishi/cp2.m3u8",
+  "channel": "CCTV-14 少儿",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.305,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.137,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:11+0800"
+ },
+ {
+  "url": "http://74.91.26.218:82/live/cctv10hd.m3u8",
+  "channel": "CCTV-10 科教",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.913,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.877,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:13+0800"
+ },
+ {
+  "url": "http://74.91.26.218:82/live/cctv11hd.m3u8",
+  "channel": "CCTV-11 戏曲",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.909,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.896,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:13+0800"
+ },
+ {
+  "url": "http://74.91.26.218:82/live/cctv12hd.m3u8",
+  "channel": "CCTV-12 社会与法",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.915,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.941,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:13+0800"
+ },
+ {
+  "url": "http://74.91.26.218:82/live/cctv14hd.m3u8",
+  "channel": "CCTV-14 少儿",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.908,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.874,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:15+0800"
+ },
+ {
+  "url": "http://74.91.26.218:82/live/cctv13hd.m3u8",
+  "channel": "CCTV-13 新闻",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.952,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.949,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:16+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000133.m3u8",
+  "channel": "CCTV-15 音乐",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.019,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.019,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:16+0800"
+ },
+ {
+  "url": "http://74.91.26.218:82/live/cctv1hd.m3u8",
+  "channel": "CCTV-1 综合",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.918,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.986,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:16+0800"
+ },
+ {
+  "url": "http://74.91.26.218:82/live/cctv15hd.m3u8",
+  "channel": "CCTV-15 音乐",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.894,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.946,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:16+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=CCTV3",
+  "channel": "CCTV-3 综艺",
+  "group": "cctv",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:16+0800"
+ },
+ {
+  "url": "http://gmxw.7766.org:808/hls/102/index.m3u8",
+  "channel": "CCTV-15 音乐",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.073,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.104,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:17+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=CCTV5",
+  "channel": "CCTV-5 体育",
+  "group": "cctv",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:18+0800"
+ },
+ {
+  "url": "http://gmxw.7766.org:808/hls/169/index.m3u8",
+  "channel": "CCTV-16 奥林匹克",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.089,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.078,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:18+0800"
+ },
+ {
+  "url": "http://74.91.26.218:82/live/cctv16hd.m3u8",
+  "channel": "CCTV-16 奥林匹克",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.89,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.93,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:20+0800"
+ },
+ {
+  "url": "http://74.91.26.218:82/live/cctv17hd.m3u8",
+  "channel": "CCTV-17 农业农村",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.89,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.914,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:20+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=CCTV6",
+  "channel": "CCTV-6 电影",
+  "group": "cctv",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:20+0800"
+ },
+ {
+  "url": "http://74.91.26.218:82/live/cctv3hd.m3u8",
+  "channel": "CCTV-3 综艺",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.894,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.898,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:21+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000204.m3u8",
+  "channel": "CCTV-17 农业农村",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.018,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.147,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:21+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000246.m3u8",
+  "channel": "CCTV-5+ 体育赛事",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.019,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.024,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:22+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=CCTV8",
+  "channel": "CCTV-8 电视剧",
+  "group": "cctv",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:22+0800"
+ },
+ {
+  "url": "http://74.91.26.218:82/live/cctv4hd.m3u8",
+  "channel": "CCTV-4 中文国际",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.918,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.588,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:24+0800"
+ },
+ {
+  "url": "https://liveplay-srs.voc.com.cn/hls/tv/134_180adf.m3u8",
+  "channel": "CCTV-1 综合",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 81425,
+   "ttfb": 0.351,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 81425,
+   "ttfb": 0.152,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:24+0800"
+ },
+ {
+  "url": "http://124.165.251.82:85/tsfile/live/0008_1.m3u8?key=txiptv&playlive=1&authid=0",
+  "channel": "CCTV-8 电视剧",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.086,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.082,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:24+0800"
+ },
+ {
+  "url": "https://dash2.antik.sk/live/test_cctv_tizen/playlist.m3u8",
+  "channel": "CCTV-4 中文国际",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.032,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.009,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:25+0800"
+ },
+ {
+  "url": "http://74.91.26.218:82/live/cctv2hd.m3u8",
+  "channel": "CCTV-2 财经",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.944,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 2.913,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:25+0800"
+ },
+ {
+  "url": "http://gmxw.7766.org:808/hls/93/index.m3u8",
+  "channel": "CCTV-5 体育",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.07,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.063,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:26+0800"
+ },
+ {
+  "url": "https://xykt-fix.github.io/Y77.m3u8",
+  "channel": "CCTV-9 纪录",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 166568,
+   "ttfb": 0.514,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 166568,
+   "ttfb": 0.523,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:26+0800"
+ },
+ {
+  "url": "http://74.91.26.218:82/live/cctv7hd.m3u8",
+  "channel": "CCTV-7 国防军事",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.923,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.941,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:27+0800"
+ },
+ {
+  "url": "https://english-livebkali.cgtn.com/live/doccgtn.m3u8",
+  "channel": "CGTN 纪录",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.16,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.299,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:27+0800"
+ },
+ {
+  "url": "http://gmxw.7766.org:808/hls/96/index.m3u8",
+  "channel": "CCTV-8 电视剧",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.061,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.083,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:27+0800"
+ },
+ {
+  "url": "http://192.151.150.154/live/cctv8k.m3u8",
+  "channel": "CCTV-8K 超高清",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.923,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.937,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:28+0800"
+ },
+ {
+  "url": "https://english-livetx.cgtn.com/hls/yypdjlctzb_hd.m3u8",
+  "channel": "CGTN 纪录",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.285,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.263,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:29+0800"
+ },
+ {
+  "url": "http://74.91.26.218:82/live/cctv8hd.m3u8",
+  "channel": "CCTV-8 电视剧",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.615,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.92,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:30+0800"
+ },
+ {
+  "url": "https://english-livebkali.cgtn.com/live/encgtn.m3u8",
+  "channel": "CGTN 英语",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.161,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.126,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:31+0800"
+ },
+ {
+  "url": "https://amg01314-cgtn-amg01314c2-rakuten-us-1319.playouts.now.amagi.tv/cgtn-fr-rakuten/playlist.m3u8",
+  "channel": "CGTN 法语",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.692,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.699,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:31+0800"
+ },
+ {
+  "url": "https://0472.org/hls/cgtnd.m3u8",
+  "channel": "CGTN 纪录",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.997,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.909,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:31+0800"
+ },
+ {
+  "url": "https://dash3.antik.sk/live/test_cgtn_rus_tizen/playlist.m3u8",
+  "channel": "CGTN 俄语",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.08,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.079,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:32+0800"
+ },
+ {
+  "url": "https://amg00405-rakutentv-cgtndocumentary-rakuten-0ql8j.amagi.tv/master.m3u8",
+  "channel": "CGTN 纪录",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.926,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.263,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:32+0800"
+ },
+ {
+  "url": "http://english-livetx.cgtn.com/hls/yypdyyctzb_hd.m3u8",
+  "channel": "CGTN 英语",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.35,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.284,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:33+0800"
+ },
+ {
+  "url": "https://amg00405-rakutentv-cgtn-rakuten-i9tar.amagi.tv/master.m3u8",
+  "channel": "CGTN 英语",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.26,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.216,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:34+0800"
+ },
+ {
+  "url": "https://dash3.antik.sk/live/test_cgtn_doc/playlist.m3u8",
+  "channel": "CGTN 纪录",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.1,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.003,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:35+0800"
+ },
+ {
+  "url": "https://0472.org/hls/cgtnx.m3u8",
+  "channel": "CGTN 西语",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.999,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.964,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:36+0800"
+ },
+ {
+  "url": "https://0472.org/hls/cgtn.m3u8",
+  "channel": "CGTN 英语",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.946,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 3.578,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:37+0800"
+ },
+ {
+  "url": "http://145.239.5.177/214/index.m3u8",
+  "channel": "CGTN 法语",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.378,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 183683,
+   "ttfb": 0.515,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:38+0800"
+ },
+ {
+  "url": "https://amg01314-cgtn-amg01314c3-rakuten-uk-1318.playouts.now.amagi.tv/cgtn-es-rakuten/playlist.m3u8",
+  "channel": "CGTN 西语",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.579,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.597,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:38+0800"
+ },
+ {
+  "url": "https://dash4.antik.sk/live/test_cgtn_fra_tizen/playlist.m3u8",
+  "channel": "CGTN 法语",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.263,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.225,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:40+0800"
+ },
+ {
+  "url": "https://amg01314-amg01314c6-distrotv-us-10220.playouts.now.amagi.tv/playlist/amg01314-cgtn-cgtnglobalbiz-distrotvus/playlist.m3u8",
+  "channel": "CGTN 财经",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.591,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.546,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:40+0800"
+ },
+ {
+  "url": "https://0472.org/hls/cgtna.m3u8",
+  "channel": "CGTN 阿语",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 1.011,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 1.101,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:41+0800"
+ },
+ {
+  "url": "https://fastlive.cctvplus.com/out/v1/2b3d8a0c805d437f9dc85b764c2ac599/index.m3u8",
+  "channel": "CGTN 财经",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.519,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.529,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:41+0800"
+ },
+ {
+  "url": "http://nn.7x9d.cn/地方台8563/海南.php?id=ssws",
+  "channel": "三沙卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.305,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.438,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:42+0800"
+ },
+ {
+  "url": "http://bp-resource-dfl.bestv.cn/148/3/video.m3u8",
+  "channel": "东方卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.089,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.191,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:42+0800"
+ },
+ {
+  "url": "https://bp-resource-dfl.bestv.cn/148/3/video.m3u8",
+  "channel": "东方卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.12,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.164,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:43+0800"
+ },
+ {
+  "url": "https://hlspackager.akamaized.net/live/DB/CGTN_ENGLISH/HLS/CGTN_ENGLISH.m3u8",
+  "channel": "CGTN 英语",
+  "group": "cctv",
+  "ok1": false,
+  "ok2": true,
+  "passes": 1,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 2.21,
+   "http": 200
+  },
+  "detail1": {
+   "http": 0,
+   "err": "curl: (28) Connection timed out after 5004 milliseconds"
+  },
+  "checked_at": "2026-10-21T19:03:43+0800"
+ },
+ {
+  "url": "http://bp-resource-dfl.bestv.cn/155/3/video.m3u8",
+  "channel": "东方卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.17,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.091,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:43+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000483.m3u8",
+  "channel": "东南卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.019,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.02,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:43+0800"
+ },
+ {
+  "url": "http://45.186.106.147:8880/play/a06f/index.m3u8",
+  "channel": "CGTN 西语",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.574,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.694,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:44+0800"
+ },
+ {
+  "url": "http://play1-qk.nmtv.cn/live/1769652018126032.m3u8",
+  "channel": "内蒙古卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.178,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.141,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:45+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000122.m3u8",
+  "channel": "农林卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.042,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.02,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:45+0800"
+ },
+ {
+  "url": "https://dash4.antik.sk/live/test_cgtn_esp_tizen/playlist.m3u8",
+  "channel": "CGTN 西语",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.323,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.369,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:46+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000118.m3u8",
+  "channel": "宁夏卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.023,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.154,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:46+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000110.m3u8",
+  "channel": "内蒙古卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.02,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.02,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:46+0800"
+ },
+ {
+  "url": "https://dash3.antik.sk/live/test_cgtn_arb_tizen/playlist.m3u8",
+  "channel": "CGTN 阿语",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.939,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.088,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:47+0800"
+ },
+ {
+  "url": "http://119.39.9.8:9901/tsfile/live/0118_1.m3u8",
+  "channel": "山西卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.035,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.037,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:47+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=广东卫视",
+  "channel": "广东卫视",
+  "group": "satellite",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:47+0800"
+ },
+ {
+  "url": "https://srs.iyb983.cn:443/video/CYS/index.m3u8",
+  "channel": "延边卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.069,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.08,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:48+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000099.m3u8",
+  "channel": "山东卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.019,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.019,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:49+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000117.m3u8",
+  "channel": "延边卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.127,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.02,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:49+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=江苏卫视",
+  "channel": "江苏卫视",
+  "group": "satellite",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:49+0800"
+ },
+ {
+  "url": "http://8.138.7.223/tv/jsws4k.php",
+  "channel": "江苏卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.188,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.233,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:49+0800"
+ },
+ {
+  "url": "http://218.84.12.186:8001/hls/main/playlist.m3u8?zxinjd",
+  "channel": "新疆卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.196,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.172,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:49+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=江西卫视",
+  "channel": "江西卫视",
+  "group": "satellite",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:50+0800"
+ },
+ {
+  "url": "http://event.pull.hebtv.com/jishi/weishi_tingyun.m3u8",
+  "channel": "河北卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.08,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.078,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:50+0800"
+ },
+ {
+  "url": "https://restream.pdtvhd.com/memfs/c1cd2ed0-3b2b-4c25-af98-a7fb0b1eb130.m3u8",
+  "channel": "安徽卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.681,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.545,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:50+0800"
+ },
+ {
+  "url": "http://gmxw.7766.org:808/hls/40/index.m3u8",
+  "channel": "安徽卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.052,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.076,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:50+0800"
+ },
+ {
+  "url": "https://event.pull.hebtv.com/live/live101.m3u8",
+  "channel": "河北卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.106,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.122,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:51+0800"
+ },
+ {
+  "url": "https://dash4.antik.sk/live/test_cgtn/playlist.m3u8",
+  "channel": "CGTN 英语",
+  "group": "cctv",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.368,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 245760,
+   "ttfb": 1.389,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:51+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=浙江卫视4K",
+  "channel": "浙江卫视",
+  "group": "satellite",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:52+0800"
+ },
+ {
+  "url": "http://112.27.5.218:9901/tsfile/live/faacts/0138_1.m3u8",
+  "channel": "江西卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.078,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.069,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:52+0800"
+ },
+ {
+  "url": "http://ali-xwl.cztv.com/live/channel011080Plxw.m3u8",
+  "channel": "浙江卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.066,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.115,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:52+0800"
+ },
+ {
+  "url": "http://ali-m-l.cztv.com/channels/lantian/channel001/1080p.m3u8",
+  "channel": "浙江卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.045,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.493,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:52+0800"
+ },
+ {
+  "url": "http://ali-m-l.cztv.com:80/channels/lantian/channel001/1080p.m3u8",
+  "channel": "浙江卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.079,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.915,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:52+0800"
+ },
+ {
+  "url": "http://ali-m-l.cztv.com/channels/lantian/channel01/1080p.m3u8",
+  "channel": "浙江卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.057,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.075,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:53+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=浙江卫视",
+  "channel": "浙江卫视",
+  "group": "satellite",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:54+0800"
+ },
+ {
+  "url": "https://hlspackager.akamaized.net/live/DB/CGTN_DOCUMENTARY/HLS/CGTN_DOCUMENTARY.m3u8",
+  "channel": "CGTN 纪录",
+  "group": "cctv",
+  "ok1": false,
+  "ok2": true,
+  "passes": 1,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.897,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": null,
+   "ttfb": 1.788,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:54+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000108.m3u8",
+  "channel": "河北卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.021,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.046,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:55+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=深圳卫视",
+  "channel": "深圳卫视",
+  "group": "satellite",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:55+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=湖北卫视",
+  "channel": "湖北卫视",
+  "group": "satellite",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:55+0800"
+ },
+ {
+  "url": "http://hlsal-ldvt.qing.mgtv.com/nn_live/nn_x64/dWlwPTEyNy4wLjAuMSZ1aWQ9cWluZy1jbXMmbm5fdGltZXpvbmU9OCZjZG5leF9pZD1hbF9obHNfbGR2dCZ1dWlkPTliODY4NmU5ZTM2YzYwMmMmZT02OTE0NjA0JnY9MSZpZD1ITldTWkdTVCZzPTcwN2RiYTc2YzJjNmJmMTQ4MmUyZGYzOWU2NWM3YWFi/HNWSZGST.m3u8",
+  "channel": "湖南卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.062,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.066,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:55+0800"
+ },
+ {
+  "url": "http://hlsal-ldvt.qing.mgtv.com/nn_live/nn_x64/Y2RuZXhfaWQ9YWxfaGxzX2xkdnQmZT02OTE0NjA0JnY9MSZpZD1ITldTWkdTVCZzPTcwN2RiYTc2YzJjNmJmMTQ4MmUyZGYzOWU2NWM3YWFi/HNWSZGST.m3u8",
+  "channel": "湖南卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.06,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.05,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:55+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000473.m3u8",
+  "channel": "海南卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.023,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.021,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:56+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=湖南卫视",
+  "channel": "湖南卫视",
+  "group": "satellite",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:56+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=西藏卫视",
+  "channel": "西藏卫视",
+  "group": "satellite",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:56+0800"
+ },
+ {
+  "url": "http://101.35.240.114:88/live.php?id=陕西卫视",
+  "channel": "陕西卫视",
+  "group": "satellite",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 404,
+   "err": ""
+  },
+  "detail1": {
+   "http": 404,
+   "err": ""
+  },
+  "checked_at": "2026-10-21T19:03:56+0800"
+ },
+ {
+  "url": "https://cdn4.skygo.mn/live/disk1/NeigMGL/HLSv3-FTA/NeigMGL.m3u8",
+  "channel": "内蒙古卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 196608,
+   "ttfb": 1.772,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.707,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:57+0800"
+ },
+ {
+  "url": "https://restream.pdtvhd.com/memfs/1db8c005-9365-4b32-94a4-3736987b5646.m3u8",
+  "channel": "河北卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 268464,
+   "ttfb": 1.497,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.515,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:57+0800"
+ },
+ {
+  "url": "http://satellitepull.cnr.cn/live/wx32dycjgb/playlist.m3u8",
+  "channel": "第一财经",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 86480,
+   "ttfb": 0.048,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 85916,
+   "ttfb": 0.043,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:58+0800"
+ },
+ {
+  "url": "http://112.27.5.218:9901/tsfile/live/0111_1.m3u8",
+  "channel": "西藏卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.073,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.068,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:58+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000111.m3u8",
+  "channel": "青海卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.02,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.018,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:03:59+0800"
+ },
+ {
+  "url": "http://r.jdshipin.com/WtYt3",
+  "channel": "海峡卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 184428,
+   "ttfb": 4.062,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 184428,
+   "ttfb": 2.707,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:00+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000095.m3u8",
+  "channel": "黑龙江卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.023,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.019,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:00+0800"
+ },
+ {
+  "url": "https://ali-m-l.cztv.com/channels/lantian/channel001/1080p.m3u8",
+  "channel": "浙江卫视",
+  "group": "satellite",
+  "ok1": false,
+  "ok2": true,
+  "passes": 1,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.554,
+   "http": 200
+  },
+  "detail1": {
+   "http": 0,
+   "err": "curl: (28) Connection timed out after 5003 milliseconds"
+  },
+  "checked_at": "2026-10-21T19:04:01+0800"
+ },
+ {
+  "url": "https://idclive.hljtv.com:4430/live/hljws_own.m3u8",
+  "channel": "黑龙江卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.483,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.455,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:01+0800"
+ },
+ {
+  "url": "http://ali-m-l.cztv.com/channels/lantian/channel009/1080p.m3u8",
+  "channel": "中国蓝新闻",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.078,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.1,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:02+0800"
+ },
+ {
+  "url": "http://hwapi.yntv.net/ew265l/848y54.m3u8",
+  "channel": "楚雄新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.209,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.14,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:02+0800"
+ },
+ {
+  "url": "http://gmxw.7766.org:808/hls/45/index.m3u8",
+  "channel": "深圳卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": false,
+  "passes": 1,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 564,
+   "ttfb": 0.059,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 4.362,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:02+0800"
+ },
+ {
+  "url": "http://liveout.btzx.com.cn/62ds9e/4nxdih.m3u8?fbl=",
+  "channel": "兵团五师双河新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.064,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.092,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:02+0800"
+ },
+ {
+  "url": "http://live-play.zxstv.com.cn/zhongxuesheng/zhongxuesheng.m3u8",
+  "channel": "中国教育电视台三套",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.149,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.138,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:03+0800"
+ },
+ {
+  "url": "http://222.169.85.8:9901/tsfile/live/0125_1.m3u8?key=txiptv&playlive=1&authid=0",
+  "channel": "广东卫视",
+  "group": "satellite",
+  "ok1": false,
+  "ok2": false,
+  "passes": 0,
+  "last_ok": false,
+  "detail2": {
+   "http": 0,
+   "err": "curl: (28) Operation timed out after 8008 milliseconds with 0 bytes received"
+  },
+  "detail1": {
+   "http": 0,
+   "err": "curl: (28) Operation timed out after 8005 milliseconds with 0 bytes received"
+  },
+  "checked_at": "2026-10-21T19:04:03+0800"
+ },
+ {
+  "url": "http://play1-qk.nmtv.cn/live/1769652109096027.m3u8",
+  "channel": "内蒙古蒙语文化频道",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.146,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.143,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:03+0800"
+ },
+ {
+  "url": "http://play1-qk.nmtv.cn/live/1735546697341033.m3u8",
+  "channel": "赤峰新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.141,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.18,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:04+0800"
+ },
+ {
+  "url": "https://zb-live.ynurl.com/yimen/3b75a2f9-7941-46b7-992d-a9796fbca5fe.m3u8",
+  "channel": "易门综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.103,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.195,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:04+0800"
+ },
+ {
+  "url": "https://m3u8channel.yunxya.com/nmip-media/channellive/channel100028/playlist.m3u8",
+  "channel": "新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.11,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.308,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:04+0800"
+ },
+ {
+  "url": "http://live.daningtv.com/aac_dngb/playlist.m3u8",
+  "channel": "大宁综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 76178,
+   "ttfb": 0.265,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 76178,
+   "ttfb": 0.184,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:05+0800"
+ },
+ {
+  "url": "http://stream3.jlntv.cn:80/aac_dfgb/playlist.m3u8",
+  "channel": "东丰综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 33452,
+   "ttfb": 0.251,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 33452,
+   "ttfb": 0.233,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:05+0800"
+ },
+ {
+  "url": "http://60.222.246.220:19433/hls1.m3u8",
+  "channel": "万荣综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.122,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.115,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:06+0800"
+ },
+ {
+  "url": "https://stream2.jlntv.cn/sptv/sd/live.m3u8",
+  "channel": "四平新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.222,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.872,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:06+0800"
+ },
+ {
+  "url": "http://stream10.jlntv.cn/jiutaitv/sd/live.m3u8",
+  "channel": "九台综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.119,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.227,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:07+0800"
+ },
+ {
+  "url": "http://61.136.172.236:9901/tsfile/live/0121_1.m3u8",
+  "channel": "辽宁卫视",
+  "group": "satellite",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.051,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.06,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:07+0800"
+ },
+ {
+  "url": "http://stream2.jlntv.cn/sptv/sd/live.m3u8?_upt=f27750421743154598",
+  "channel": "四平电视台",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.126,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.822,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:07+0800"
+ },
+ {
+  "url": "http://124.88.144.73:1935/live/xwzh/playlist.m3u8?zxinjd",
+  "channel": "兵团八师石河子新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 1.144,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.137,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:08+0800"
+ },
+ {
+  "url": "https://stream2.jlntv.cn/jilin1/sd/live.m3u8",
+  "channel": "吉林市新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.248,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.423,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:09+0800"
+ },
+ {
+  "url": "http://stream11.jlntv.cn/dehuitv/sd/live.m3u8",
+  "channel": "德惠综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 214508,
+   "ttfb": 0.203,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 214508,
+   "ttfb": 2.7,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:10+0800"
+ },
+ {
+  "url": "https://stream2.jlntv.cn/sytv/sd/live.m3u8",
+  "channel": "松原新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.228,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.276,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:10+0800"
+ },
+ {
+  "url": "http://stream3.jlntv.cn:80/aac_slgb/playlist.m3u8",
+  "channel": "双辽综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 33340,
+   "ttfb": 1.133,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 33434,
+   "ttfb": 0.328,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:11+0800"
+ },
+ {
+  "url": "http://stream5.jlntv.cn/wq/playlist.m3u8",
+  "channel": "延边2",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 79148,
+   "ttfb": 0.139,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 79148,
+   "ttfb": 0.203,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:11+0800"
+ },
+ {
+  "url": "http://stream8.jlntv.cn/dhtv/playlist.m3u8",
+  "channel": "敦化一套",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 79148,
+   "ttfb": 0.19,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 79148,
+   "ttfb": 0.172,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:11+0800"
+ },
+ {
+  "url": "https://stream2.jlntv.cn/jlyb/sd/live.m3u8",
+  "channel": "延边新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.217,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.219,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:11+0800"
+ },
+ {
+  "url": "http://stream9.jlntv.cn:80/aac_huadiangb/playlist.m3u8",
+  "channel": "桦甸综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 33408,
+   "ttfb": 0.237,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 33410,
+   "ttfb": 2.77,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:13+0800"
+ },
+ {
+  "url": "http://stream5.jlntv.cn/hn/sd/live.m3u8",
+  "channel": "辉南新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.191,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.153,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:13+0800"
+ },
+ {
+  "url": "http://stream8.jlntv.cn/shulan/sd/live.m3u8?_upt=332db6421699196585",
+  "channel": "舒兰新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.21,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.129,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:13+0800"
+ },
+ {
+  "url": "https://stream2.jlntv.cn/baicheng1/sd/live.m3u8",
+  "channel": "白城电视台",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.207,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.212,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:13+0800"
+ },
+ {
+  "url": "http://stream3.jlntv.cn:80/aac_lhgb/sd/live.m3u8",
+  "channel": "柳河综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 33495,
+   "ttfb": 2.751,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 33382,
+   "ttfb": 2.681,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:13+0800"
+ },
+ {
+  "url": "https://stream2.jlntv.cn/liaoyuan1/sd/live.m3u8",
+  "channel": "辽源新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.231,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.205,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:14+0800"
+ },
+ {
+  "url": "http://stream3.jlntv.cn:80/aac_psgb/sd/live.m3u8",
+  "channel": "磐石综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 33667,
+   "ttfb": 1.167,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 33667,
+   "ttfb": 0.155,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:14+0800"
+ },
+ {
+  "url": "http://stream5.jlntv.cn/wq/sd/live.m3u8",
+  "channel": "汪清综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 79148,
+   "ttfb": 3.715,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 79148,
+   "ttfb": 1.146,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:15+0800"
+ },
+ {
+  "url": "https://stream2.jlntv.cn/jlcc/sd/live.m3u8",
+  "channel": "长春综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.205,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.257,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:16+0800"
+ },
+ {
+  "url": "http://stream3.jlntv.cn:80/aac_mhkgb/playlist.m3u8",
+  "channel": "梅河口综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 33377,
+   "ttfb": 3.761,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 33458,
+   "ttfb": 1.187,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:16+0800"
+ },
+ {
+  "url": "http://175.155.106.72:89/live1/live1.m3u8?zsicd",
+  "channel": "乐至综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.084,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.084,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:16+0800"
+ },
+ {
+  "url": "http://stream3.jlntv.cn:80/aac_thxgb/playlist.m3u8",
+  "channel": "通化县综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 25386,
+   "ttfb": 0.259,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 25386,
+   "ttfb": 0.14,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:16+0800"
+ },
+ {
+  "url": "https://stream2.jlntv.cn/tonghua1/sd/live.m3u8",
+  "channel": "通化新闻",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.202,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.201,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:16+0800"
+ },
+ {
+  "url": "http://stream8.jlntv.cn/cbstv/sd/live.m3u8?zjild",
+  "channel": "长白山电视台",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 79148,
+   "ttfb": 1.189,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 79148,
+   "ttfb": 1.158,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:16+0800"
+ },
+ {
+  "url": "https://stream2.jlntv.cn/baishan1/sd/live.m3u8",
+  "channel": "白山新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.204,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 2.897,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:17+0800"
+ },
+ {
+  "url": "http://hplayer1.juyun.tv:80/camera/11344136.m3u8",
+  "channel": "长白朝语",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 206424,
+   "ttfb": 0.039,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 206424,
+   "ttfb": 0.07,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:18+0800"
+ },
+ {
+  "url": "http://stream9.jlntv.cn:80/aac_longjinggb/playlist.m3u8",
+  "channel": "龙井综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 33293,
+   "ttfb": 1.202,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 33510,
+   "ttfb": 0.149,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:18+0800"
+ },
+ {
+  "url": "https://m3u8.channel.dzsm.com/nmip-media/channellive/channel101257/playlist.m3u8",
+  "channel": "广元公共",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.188,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.196,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:19+0800"
+ },
+ {
+  "url": "https://m3u8.channel.dzsm.com/nmip-media/channellive/channel100999/playlist.m3u8",
+  "channel": "广元综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.206,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.162,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:19+0800"
+ },
+ {
+  "url": "https://m3u8.channel.dzsm.com/nmip-media/channellive/channel105549/playlist.m3u8",
+  "channel": "剑阁综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.205,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.178,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:20+0800"
+ },
+ {
+  "url": "http://stream9.jlntv.cn:80/aac_jygb/playlist.m3u8",
+  "channel": "靖宇综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 33253,
+   "ttfb": 0.149,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 33505,
+   "ttfb": 0.253,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:20+0800"
+ },
+ {
+  "url": "https://play.scrstv.com.cn/DT/live.m3u8?auth_key=60001724663204-0-0-c1cc4ded9841ac34f63cdbd3aec647ef",
+  "channel": "仁寿综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 45684,
+   "ttfb": 1.179,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 43992,
+   "ttfb": 1.009,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:20+0800"
+ },
+ {
+  "url": "http://tvfile.jjrm.org.cn/nmip-media/channellive/channel106282/playlist.m3u8?zsicd",
+  "channel": "夹江新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.101,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.122,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:20+0800"
+ },
+ {
+  "url": "https://m3u8channel-bx.yunxya.com/nmip-media/channellive/channel104666/playlist.m3u8",
+  "channel": "名山综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.2,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.234,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:20+0800"
+ },
+ {
+  "url": "http://182.150.115.21:8030/pcgacg/pcgacg_0.m3u8",
+  "channel": "四川科教",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 3.088,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.085,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:21+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXlongquan1/720p.m3u8",
+  "channel": "龙泉新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.112,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.076,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:21+0800"
+ },
+ {
+  "url": "http://live1.gatv.com.cn:85/live/GGPD_ggpdzm.m3u8",
+  "channel": "广安公共",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.309,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.321,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:21+0800"
+ },
+ {
+  "url": "http://lxfile.lxxcb.cn/nmip-media/channellive/channel103799/playlist.m3u8",
+  "channel": "泸县新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.144,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.108,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:21+0800"
+ },
+ {
+  "url": "http://play.jinnantv.top/live/JNTV1.m3u8?ztianjd",
+  "channel": "津南一套",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 239136,
+   "ttfb": 0.05,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 239136,
+   "ttfb": 0.026,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:21+0800"
+ },
+ {
+  "url": "http://file.ysxtv.cn/cms/videos/nmip-media/channellive/channel4/playlist.m3u8?zsicd",
+  "channel": "沐川综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.192,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.208,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:22+0800"
+ },
+ {
+  "url": "http://file.ysxtv.cn/cms/videos/nmip-media/channellive/channel4/playlist.m3u8?zsicd#http://file.ysxtv.cn/cms/videos/nmip-media/channellive/channel4/playlist.m3u8",
+  "channel": "营山电视台",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.169,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.198,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:22+0800"
+ },
+ {
+  "url": "http://live.iwcmt.cn:90/live/zhxw.m3u8",
+  "channel": "汶川新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 250980,
+   "ttfb": 0.296,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 250980,
+   "ttfb": 0.336,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:22+0800"
+ },
+ {
+  "url": "http://139.203.180.9:90/live/zhxw.m3u8",
+  "channel": "金川新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.104,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.111,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:22+0800"
+ },
+ {
+  "url": "http://www.guzhenm.com:7001/hls/hd-live.m3u8",
+  "channel": "固镇新闻",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.431,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.136,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:23+0800"
+ },
+ {
+  "url": "http://dspdhls.appcoo.com:8888/live/dspd/index.m3u8",
+  "channel": "安徽导视",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.088,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.073,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:23+0800"
+ },
+ {
+  "url": "http://live.spccmc.com:90/live/spxwzh.m3u8",
+  "channel": "松潘新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.13,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.124,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:24+0800"
+ },
+ {
+  "url": "http://zbbf2.ahbztv.com/live/418.m3u8",
+  "channel": "亳州农村",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.025,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.525,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:24+0800"
+ },
+ {
+  "url": "https://l2fpdktp.live.sxmty.com/live/hls/e4c3b363cc4549788e2d983f403e07db/d99ce1eb686e41b9afc888110bd95aa7.m3u8?zshanxd",
+  "channel": "古县综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.226,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.249,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:24+0800"
+ },
+ {
+  "url": "https://p2.vzan.com/slowlive/596867413819827251/live.m3u8?zbid=1725814272&amp;amp;tpid=1516989100&amp;amp;type=0",
+  "channel": "太谷新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.07,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.058,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:24+0800"
+ },
+ {
+  "url": "http://traffic.jbh.tjbh.com/live/bhtv10/playlist.m3u8",
+  "channel": "滨海新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.128,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.131,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:25+0800"
+ },
+ {
+  "url": "https://1yp7hc5p.live.sxmty.com/live/hls/bff8529922344209985b6e49baa9555a/efa2543628fc4a7ea93d3d6c975f77dc-1.m3u8",
+  "channel": "怀仁综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.286,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.219,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:25+0800"
+ },
+ {
+  "url": "https://stream.sun0769.com/dgrtv1/mp4tv1_800/index.m3u8",
+  "channel": "东莞新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.113,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.327,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:25+0800"
+ },
+ {
+  "url": "http://lbyzztfe.live.sxmty.com/live/hls/645ff4c60e0a49f0a203abbd73dd8be9/0720e665f10f48e98c9639f4f492fb4a-1.m3u8?zshanxd",
+  "channel": "定襄综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.261,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 260568,
+   "ttfb": 0.282,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:25+0800"
+ },
+ {
+  "url": "http://tencentplay.gztv.com/live/nanguodushi.m3u8?txSecret=140110ae3d6c936a77f94c4f4d85b0d3&txTime=18d57929bd4",
+  "channel": "南国都市",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.059,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.076,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:25+0800"
+ },
+ {
+  "url": "https://tencentplay.gztv.com/live/nanguodushi.m3u8?txSecret=550af55c0ea34ce492748481415b6dfa&txTime=1903e7b17de",
+  "channel": "南国都市4K",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.106,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.076,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:26+0800"
+ },
+ {
+  "url": "http://tencentplay.gztv.com/live/xinwen.m3u8?txSecret=d2c2db0b598c02ec1b5623728434d367&txTime=18d57929bd3",
+  "channel": "广州新闻",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.101,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.133,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:26+0800"
+ },
+ {
+  "url": "https://www.sgmsw.cn/videos/tv/201805/1308/SB05RIYZOU8JR418AUQOF62CAJQ08D0E/hls/live.m3u8",
+  "channel": "广东 Ⅰ 韶关综合台 (720p)",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.15,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.247,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:27+0800"
+ },
+ {
+  "url": "http://zbbf2.ahbztv.com/live/416.m3u8?zanhd",
+  "channel": "祁门综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.537,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 1.016,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:27+0800"
+ },
+ {
+  "url": "http://tencentplay.gztv.com/live/zonghes.m3u8?txSecret=c8dbe86d6f86eb1a21999ab479fd5667&txTime=18d3c4690e8",
+  "channel": "广州综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.047,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.057,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:27+0800"
+ },
+ {
+  "url": "http://live.yantaitv.cn/live/27f84144e95a4652ae9e5c211b2a6b55/405f3e33ba384aa0a16014d0becd1261-1.m3u8",
+  "channel": "烟台经济科技",
+  "group": "local",
+  "ok1": false,
+  "ok2": true,
+  "passes": 1,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.3,
+   "http": 200
+  },
+  "detail1": {
+   "http": 0,
+   "err": "curl: (28) Resolving timed out after 5001 milliseconds"
+  },
+  "checked_at": "2026-10-21T19:04:28+0800"
+ },
+ {
+  "url": "https://tencentplay.gztv.com/live/zonghes.m3u8?txSecret=f0147ae6453a80f5989f382368b72aad&txTime=18d00acf487",
+  "channel": "广州综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 523580,
+   "ttfb": 1.163,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.071,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:29+0800"
+ },
+ {
+  "url": "http://live.yantaitv.cn/live/e50f104a4ffe4a41b2217cbda534146f/d86092e69df94668b33390278b061700-1.m3u8",
+  "channel": "烟台公共",
+  "group": "local",
+  "ok1": false,
+  "ok2": true,
+  "passes": 1,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.512,
+   "http": 200
+  },
+  "detail1": {
+   "http": 0,
+   "err": "curl: (28) Resolving timed out after 5007 milliseconds"
+  },
+  "checked_at": "2026-10-21T19:04:29+0800"
+ },
+ {
+  "url": "http://live.yantaitv.cn/live/3e81a8879da44c5dadf3bd9c10468e1c/9b776d420ee4438199b7657c8eb88f07-1.m3u8",
+  "channel": "烟台新闻综合",
+  "group": "local",
+  "ok1": false,
+  "ok2": true,
+  "passes": 1,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.33,
+   "http": 200
+  },
+  "detail1": {
+   "http": 0,
+   "err": "curl: (28) Resolving timed out after 5006 milliseconds"
+  },
+  "checked_at": "2026-10-21T19:04:29+0800"
+ },
+ {
+  "url": "http://r.jdshipin.com/nWaZO",
+  "channel": "南国都市",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 2.271,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 2.417,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:29+0800"
+ },
+ {
+  "url": "http://tmpstream.hyrtv.cn/hygg/sd/live.m3u8",
+  "channel": "河源公共",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.068,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.056,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:30+0800"
+ },
+ {
+  "url": "http://r.jdshipin.com/iR6Gq",
+  "channel": "广州综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 523580,
+   "ttfb": 1.845,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.551,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:30+0800"
+ },
+ {
+  "url": "http://183.11.239.36:808/hls/18/index.m3u8",
+  "channel": "广东民生",
+  "group": "local",
+  "ok1": false,
+  "ok2": true,
+  "passes": 1,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.038,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 564,
+   "ttfb": 0.045,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:30+0800"
+ },
+ {
+  "url": "http://615bbf179ba53515dccad7b1da5d1ad9.livehwc3.cn/hls.nntv.cn/nnlive/WLSH_24.m3u8?sub_m3u8=true&edge_slice=true&user_session_id=2598844eaee8a4265e706fc14b3fc11d",
+  "channel": "南宁都市生活",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.272,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.265,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:31+0800"
+ },
+ {
+  "url": "https://hlscdn.liangtv.cn/live/0234c48e0bc24fe1b41b9999a253e581/1075ee38e04f490690f6a36a16e09c79.m3u8",
+  "channel": "广西国际",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.074,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.204,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:31+0800"
+ },
+ {
+  "url": "https://tmpstream.hyrtv.cn/xwzh/sd/live.m3u8",
+  "channel": "河源综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.118,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.123,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:31+0800"
+ },
+ {
+  "url": "http://r.jdshipin.com/snhya",
+  "channel": "广州综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 523580,
+   "ttfb": 1.67,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 523580,
+   "ttfb": 3.369,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:32+0800"
+ },
+ {
+  "url": "http://zb.gxlbamc.com:1935/live/lbzh.stream/playlist.m3u8",
+  "channel": "来宾综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.052,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.065,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:32+0800"
+ },
+ {
+  "url": "http://tmpstream.hyrtv.cn/xwzh/sd/live.m3u8",
+  "channel": "河源综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.075,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.067,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:32+0800"
+ },
+ {
+  "url": "http://hls.nntv.cn/nnlive/YSYL_244.m3u8",
+  "channel": "南宁影视娱乐",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 465864,
+   "ttfb": 0.029,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 435972,
+   "ttfb": 0.029,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:32+0800"
+ },
+ {
+  "url": "http://110.153.180.106:55555/out_4/index.m3u8",
+  "channel": "伊犁经济法制",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.168,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.201,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:32+0800"
+ },
+ {
+  "url": "http://file.loulannews.cn/nmip-media/channellive/channel103824/playlist.m3u8",
+  "channel": "可克达拉综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.179,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.172,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:33+0800"
+ },
+ {
+  "url": "http://110.153.180.106:55555/out_4/index.m3u8?zxinjd",
+  "channel": "伊犁经济法制",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.159,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 1.164,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:33+0800"
+ },
+ {
+  "url": "http://218.84.12.186:8002/hls/main/playlist.m3u8?zxinjd",
+  "channel": "奎屯哈萨克语",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.163,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.168,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:33+0800"
+ },
+ {
+  "url": "https://st-video.xjmty.com/fs/livedit/e55abfa37af26e19/8ce9971c2177b3dd.m3u8",
+  "channel": "新疆电视台三套",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.308,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.312,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:34+0800"
+ },
+ {
+  "url": "http://120.70.60.179:9901/tsfile/live/1006_1.m3u8",
+  "channel": "新疆电视台三套",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.198,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.176,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:34+0800"
+ },
+ {
+  "url": "http://120.70.60.179:9901/tsfile/live/1006_1.m3u8?authid=0&key=txiptv&playlive=1",
+  "channel": "新疆电视台三套",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.178,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.189,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:34+0800"
+ },
+ {
+  "url": "https://infolive.hongshannet.cn/RedHillEye/1781077833267957853648adb1cc9957853648adb1cc9.m3u8?auth_key=1812613833-0-0-4dabcc60fbe41e40712b37dbf24dc877",
+  "channel": "新疆电视台二套",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 199844,
+   "ttfb": 0.203,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 96820,
+   "ttfb": 0.295,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:34+0800"
+ },
+ {
+  "url": "http://110.153.180.106:55555/out_3/index.m3u8",
+  "channel": "新疆电视台二套",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.172,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.172,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:35+0800"
+ },
+ {
+  "url": "http://110.153.180.106:55555/out_2/index.m3u8",
+  "channel": "新疆电视台三套",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.201,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.156,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:35+0800"
+ },
+ {
+  "url": "http://nklive.nbs.cn/hls/d511bc9d-a694-4453-b3a2-4fc842cc97a1/index.m3u8",
+  "channel": "南京新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.069,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.369,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:36+0800"
+ },
+ {
+  "url": "http://218.84.127.245:1026/hls/main1/playlist.m3u8?zxinjd,",
+  "channel": "玛纳斯综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.159,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.161,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:36+0800"
+ },
+ {
+  "url": "http://120.70.60.179:9901/tsfile/live/1002_1.m3u8",
+  "channel": "新疆电视台五套",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.199,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.179,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:36+0800"
+ },
+ {
+  "url": "http://nklive.nbs.cn/hls/75b3c462-b831-4de7-a34b-5d3221db2069/index.m3u8",
+  "channel": "南京教科",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.068,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.518,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:36+0800"
+ },
+ {
+  "url": "http://live.xysrmt.cn/xwzh/sd/live.m3u8?zjiangsd\"",
+  "channel": "新沂新闻",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 24628,
+   "ttfb": 0.128,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 24628,
+   "ttfb": 0.359,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:36+0800"
+ },
+ {
+  "url": "https://live-auth.51kandianshi.com/szgd/csztv1.m3u8",
+  "channel": "苏州新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.123,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.053,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:37+0800"
+ },
+ {
+  "url": "http://120.70.60.179:9901/tsfile/live/1002_1.m3u8?authid=0&key=txiptv&playlive=1",
+  "channel": "新疆电视台八套",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.191,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.186,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:37+0800"
+ },
+ {
+  "url": "http://jrlive.jrntv.com/live/_definst_/yingshis/chunklist_w1994429382.m3u8?zjiangsd",
+  "channel": "句容影院",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 116372,
+   "ttfb": 0.034,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 116372,
+   "ttfb": 1.195,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:37+0800"
+ },
+ {
+  "url": "http://live.xysrmt.cn/shpd/sd/live.m3u8?zjiangsd",
+  "channel": "新沂生活",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 24628,
+   "ttfb": 0.144,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 24628,
+   "ttfb": 0.121,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:38+0800"
+ },
+ {
+  "url": "http://3gvod.zjgonline.com.cn:1935/live/_definst_/shehuishenghuo_app/chunklist.m3u8",
+  "channel": "常熟民生",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.095,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.089,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:38+0800"
+ },
+ {
+  "url": "https://live-auth.51kandianshi.com/szgd/csztv3.m3u8",
+  "channel": "苏州文化生活",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 317532,
+   "ttfb": 1.092,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 309636,
+   "ttfb": 0.08,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:38+0800"
+ },
+ {
+  "url": "https://jiangning-tv-playing-t.cm.jstv.com/jiangning-tv/jnxwzh.m3u8",
+  "channel": "江苏公共·新闻",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.167,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.186,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:38+0800"
+ },
+ {
+  "url": "http://218.84.35.38:3000/m3u8/live/tctv-2/index.m3u8",
+  "channel": "新疆电视台三套",
+  "group": "local",
+  "ok1": true,
+  "ok2": false,
+  "passes": 1,
+  "last_ok": true,
+  "detail2": {
+   "http": 0,
+   "err": "curl: (28) Connection timed out after 5009 milliseconds"
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.161,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:38+0800"
+ },
+ {
+  "url": "http://zjtv-wshls.homecdn.com/live/2aa16.m3u8",
+  "channel": "镇江二套社会民生",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.057,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.098,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:38+0800"
+ },
+ {
+  "url": "https://live-auth.51kandianshi.com/szgd/csztv5.m3u8",
+  "channel": "苏州生活资讯",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 298356,
+   "ttfb": 0.107,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 302304,
+   "ttfb": 1.12,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:38+0800"
+ },
+ {
+  "url": "https://live-auth.51kandianshi.com/szgd/csztv2.m3u8",
+  "channel": "苏州社会经济",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.121,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.122,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:39+0800"
+ },
+ {
+  "url": "http://cm-wshls.homecdn.com/live/2aa50.m3u8",
+  "channel": "镇江新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.086,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.23,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:39+0800"
+ },
+ {
+  "url": "https://jwcdnqx.hebyun.com.cn/live/pqzh/1500k/tzwj_video.m3u8",
+  "channel": "平泉综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.171,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.159,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:39+0800"
+ },
+ {
+  "url": "https://jwcdnqx.hebyun.com.cn/live/xlzh/1500k/tzwj_video.m3u8",
+  "channel": "兴隆综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.172,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.304,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:40+0800"
+ },
+ {
+  "url": "https://jwcdnqx.hebyun.com.cn/live/rqtv1/1500k/tzwj_video.m3u8",
+  "channel": "任丘综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.162,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.272,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:40+0800"
+ },
+ {
+  "url": "https://jwcdnqx.hebyun.com.cn/live/clzhpd/1500k/tzwj_video.m3u8",
+  "channel": "昌黎综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.179,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.38,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:40+0800"
+ },
+ {
+  "url": "http://1.94.31.214/php/hebei.php?id=sekj",
+  "channel": "河北少儿",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.408,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.365,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:40+0800"
+ },
+ {
+  "url": "http://1.94.31.214/php/hebei.php?id=nmpd",
+  "channel": "河北农民",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.454,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.368,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:40+0800"
+ },
+ {
+  "url": "http://1.94.31.214/php/hebei.php?id=jjsh",
+  "channel": "河北经济",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.361,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.363,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:40+0800"
+ },
+ {
+  "url": "http://1.94.31.214/php/hebei.php?id=hbys",
+  "channel": "河北影视",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.369,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.404,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:40+0800"
+ },
+ {
+  "url": "http://1.94.31.214/php/hebei.php?id=hbgg",
+  "channel": "河北公共",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.457,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.447,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:41+0800"
+ },
+ {
+  "url": "http://1.94.31.214/php/hebei.php?id=hbds",
+  "channel": "河北都市",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.376,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.394,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:41+0800"
+ },
+ {
+  "url": "http://tvpull.dxhmt.cn:9081/tv/11481-1.m3u8",
+  "channel": "永城综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.02,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.101,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:41+0800"
+ },
+ {
+  "url": "http://tvpull.dxhmt.cn:9081/tv/11329-1.m3u8",
+  "channel": "新野综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.019,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.102,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:41+0800"
+ },
+ {
+  "url": "https://jwcdnqx.hebyun.com.cn/live/xtcsshpd/1500k/tzwj_video.m3u8",
+  "channel": "邢台生活",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.171,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.241,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:41+0800"
+ },
+ {
+  "url": "https://jwcdnqx.hebyun.com.cn/live/hdgg/1500k/tzwj_video.m3u8",
+  "channel": "邯郸公共频道",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.164,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.158,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:42+0800"
+ },
+ {
+  "url": "http://tvpull.dxhmt.cn:9081/tv/10182-1.m3u8",
+  "channel": "荥阳综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.153,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.117,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:42+0800"
+ },
+ {
+  "url": "https://jwcdnqx.hebyun.com.cn/live/hdkj/1500k/tzwj_video.m3u8",
+  "channel": "邯郸科技教育",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.154,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.303,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:42+0800"
+ },
+ {
+  "url": "http://jwplay.hebyun.com.cn/live/LPTV001/1500k/tzwj_video.m3u8",
+  "channel": "滦平新闻",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.189,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.198,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:42+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXshangyu2/720p.m3u8",
+  "channel": "上虞文化影院",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.083,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.222,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:42+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXshangyu1/720p.m3u8?zzhed",
+  "channel": "上虞新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.068,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.15,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:42+0800"
+ },
+ {
+  "url": "http://222.128.55.152:9080/live/dwq.m3u8",
+  "channel": "广东大湾区",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.074,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.08,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:42+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXshangyu3/720p.m3u8",
+  "channel": "上虞新商都",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.068,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.253,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:42+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXyunhe1/720p.m3u8",
+  "channel": "云和新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.067,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.129,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:43+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXyuhang3/720p.m3u8?zzhed",
+  "channel": "余杭未来E",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.065,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.13,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:43+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXyuyao1/720p.m3u8",
+  "channel": "余姚新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.071,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.144,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:43+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXyuhang1/720p.m3u8",
+  "channel": "余杭综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.049,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.091,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:43+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXlanxi1/720p.m3u8",
+  "channel": "兰溪新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.071,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.107,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:43+0800"
+ },
+ {
+  "url": "https://l.cztvcloud.com/channels/lantian/SXshangyu2/720p.m3u8",
+  "channel": "上虞經濟文化 (720p)",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.678,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.356,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:44+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXshengzhou1/720p.m3u8?zzhed#http://l.cztvcloud.com/channels/lantian/SXshengzhou1/720p.m3u8",
+  "channel": "嵊州新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.074,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.095,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:44+0800"
+ },
+ {
+  "url": "https://l.cztvcloud.com/channels/lantian/SXyuyao3/720p.m3u8",
+  "channel": "余姚姚江文化",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.323,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.632,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:44+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXshengsi1/720p.m3u8",
+  "channel": "嵊泗综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.062,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.14,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:44+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXpinghu1/720p.m3u8?zzhed",
+  "channel": "平湖新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.076,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.14,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:44+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXpinghu2/720p.m3u8",
+  "channel": "平湖民生休闲",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 217704,
+   "ttfb": 0.074,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 217704,
+   "ttfb": 0.104,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:44+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXqingyuan1/720p.m3u8?fbl=",
+  "channel": "庆元新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.066,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.1,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:45+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXqingyuan1/720p.m3u8",
+  "channel": "庆元综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.056,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.069,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:45+0800"
+ },
+ {
+  "url": "http://jwplay.hebyun.com.cn/live/xtsrmtzs/1500k/tzwj_video.m3u8",
+  "channel": "邢台综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.175,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.209,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:45+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXkaihua2/720p.m3u8",
+  "channel": "开化国家公园",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.055,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.086,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:45+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXkaihua1/720p.m3u8?zzhed",
+  "channel": "开化新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.061,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.105,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:45+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXwencheng1/720p.m3u8",
+  "channel": "文成新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.066,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.076,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:45+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXwencheng1/720p.m3u8?zzhed",
+  "channel": "文成综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.057,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.059,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:45+0800"
+ },
+ {
+  "url": "https://l.cztvcloud.com/channels/lantian/SXshangyu1/720p.m3u8",
+  "channel": "上虞1新闻综合 (720p)",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.689,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 2.225,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:46+0800"
+ },
+ {
+  "url": "https://l.cztvcloud.com/channels/lantian/SXshengzhou1/720p.m3u8",
+  "channel": "嵊州综合 (720p)",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.113,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.112,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:46+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXxinchang2/720p.m3u8",
+  "channel": "新昌生活",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.067,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.103,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:46+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXsongyang1/720p.m3u8",
+  "channel": "松阳综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.073,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.07,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:46+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXwuyi1/720p.m3u8",
+  "channel": "武义新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.069,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.138,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:46+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXdongtou1/720p.m3u8",
+  "channel": "洞头综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.055,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.097,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:46+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXyongjia1/720p.m3u8",
+  "channel": "永嘉新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.067,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.149,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:47+0800"
+ },
+ {
+  "url": "http://ali-m-l.cztv.com/channels/lantian/channel006/720p.m3u8",
+  "channel": "浙江休闲台",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.149,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.15,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:47+0800"
+ },
+ {
+  "url": "https://l.cztvcloud.com/channels/lantian/SXputuo1/720p.m3u8",
+  "channel": "普陀电视台",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.617,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.752,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:47+0800"
+ },
+ {
+  "url": "http://ali-m-l.cztv.com/channels/lantian/channel004/1080p.m3u8",
+  "channel": "浙江教科",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.092,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.068,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:48+0800"
+ },
+ {
+  "url": "http://ali-m-l.cztv.com/channels/lantian/channel008/1080p.m3u8",
+  "channel": "浙江少儿",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.161,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.062,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:48+0800"
+ },
+ {
+  "url": "https://ali-m-l.cztv.com/channels/lantian/channel012/1080p.m3u8",
+  "channel": "之江纪录",
+  "group": "local",
+  "ok1": false,
+  "ok2": true,
+  "passes": 1,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.352,
+   "http": 200
+  },
+  "detail1": {
+   "http": 0,
+   "err": "curl: (28) Connection timed out after 5001 milliseconds"
+  },
+  "checked_at": "2026-10-21T19:04:48+0800"
+ },
+ {
+  "url": "http://ali-m-l.cztv.com/channels/lantian/channel007/720p.m3u8",
+  "channel": "浙江新闻",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.07,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.121,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:49+0800"
+ },
+ {
+  "url": "http://ali-vl.cztv.com/channels/lantian/channel009/360p.m3u8",
+  "channel": "浙江留学",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 224096,
+   "ttfb": 0.079,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 224096,
+   "ttfb": 0.134,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:49+0800"
+ },
+ {
+  "url": "http://ali-m-l.cztv.com/channels/lantian/channel003/1080p.m3u8",
+  "channel": "浙江经济",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.09,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.055,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:49+0800"
+ },
+ {
+  "url": "https://ali-m-l.cztv.com/channels/lantian/channel010/1080p.m3u8",
+  "channel": "浙江国际",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.114,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.268,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:49+0800"
+ },
+ {
+  "url": "https://l.cztvcloud.com/channels/lantian/SXxinchang2/720p.m3u8",
+  "channel": "新昌休闲影视 (1080p)",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.194,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.703,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:49+0800"
+ },
+ {
+  "url": "https://ali-m-l.cztv.com/channels/lantian/channel007/1080p.m3u8",
+  "channel": "浙江新闻",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.663,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.126,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:50+0800"
+ },
+ {
+  "url": "http://ali-m-l.cztv.com/channels/lantian/channel03/1080p.m3u8",
+  "channel": "浙江经济生活",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.091,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.112,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:50+0800"
+ },
+ {
+  "url": "http://ali-m-l.cztv.com/channels/lantian/channel02/1080p.m3u8",
+  "channel": "浙江钱江频道",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.088,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.069,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:50+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXsuichang1/720p.m3u8",
+  "channel": "浙江遂昌",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.059,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.109,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:50+0800"
+ },
+ {
+  "url": "http://hzcm-live.media.hugd.com/1e6b554b9ab74513958c0e1ffe664d22/9acaa7634309494cb29a85eb12136607.m3u8?auth_key=2272900830-9a2389b8bf4e49d580d4ad807423d326-0-ea78a5c7a678c436263582d368f5009e",
+  "channel": "湖州公共民生",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.08,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.064,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:50+0800"
+ },
+ {
+  "url": "http://hzcm-live.media.hugd.com/613c47f0ab0d4eaa98b21378d0db6ded/0051d31c9dd543a7825eea4e49675b2a.m3u8?auth_key=2277598059-0a5ebfa1c0dc4671b42a60810fc37039-0-fa625b7d1feab612062453c12e3c8887",
+  "channel": "湖州文化娱乐",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.054,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.077,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:50+0800"
+ },
+ {
+  "url": "http://hzcm-live.media.hugd.com/3f5fa7d64c7c46a38c6bd8ad35e836cc/65128273761b4731ae53729ea6dcf932.m3u8?auth_key=2277598215-9d21c15111244bea8d298c361d31a72e-0-d031198f58d44b0e91ba2e3f3b188865",
+  "channel": "湖州新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.073,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.095,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:51+0800"
+ },
+ {
+  "url": "http://live.shaoxing.com.cn/video/s10001-sxtv3/index.m3u8",
+  "channel": "浙江 Ⅰ 绍兴影视",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.149,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.159,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:51+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXjinyun1/720p.m3u8?zzhed",
+  "channel": "缙云综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.067,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.097,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:51+0800"
+ },
+ {
+  "url": "https://ali-m-l.cztv.com/channels/lantian/channel003/1080p.m3u8",
+  "channel": "浙江经济",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.603,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.171,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:51+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXjinyun1/720p.m3u8",
+  "channel": "缙云新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.061,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.11,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:51+0800"
+ },
+ {
+  "url": "http://live.shaoxing.com.cn/video/s10001-sxtv1/index.m3u8",
+  "channel": "浙江 Ⅰ 绍兴综合 (576p)",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.146,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.155,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:51+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXxiaoshan1/720p.m3u8",
+  "channel": "萧山综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.057,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.066,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:51+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXqujiang1/720p.m3u8?zzhed",
+  "channel": "衢江新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.069,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.112,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:51+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXsuichang1/720p.m3u8?zzhed",
+  "channel": "遂昌综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.071,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.067,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:52+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXxiangshan1/720p.m3u8",
+  "channel": "象山新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.061,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.122,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:52+0800"
+ },
+ {
+  "url": "http://play-sh13.quklive.com/live/1702360350551252.m3u8?auth_key=2037107484-800189c57a5a44d3b823b60cf84f6756-0-a6f6828a62d5c167cff5e68735fa0d39",
+  "channel": "象山综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.167,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.095,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:52+0800"
+ },
+ {
+  "url": "http://l.cztvcloud.com/channels/lantian/SXqingtian1/720p.m3u8",
+  "channel": "青田电视台",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.068,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.063,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:52+0800"
+ },
+ {
+  "url": "http://nn.7x9d.cn/地方台8563/海南.php?id=ggpd",
+  "channel": "海南公共",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.336,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.401,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:53+0800"
+ },
+ {
+  "url": "http://nn.7x9d.cn/地方台8563/海南.php?id=sepd",
+  "channel": "海南少儿",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.521,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.483,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:53+0800"
+ },
+ {
+  "url": "https://p8.vzan.com/slowlive/415983998730568937/live.m3u8",
+  "channel": "湖南经视",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.097,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.111,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:53+0800"
+ },
+ {
+  "url": "https://ls.qingting.fm/live/20198/64k.m3u8",
+  "channel": "武汉一台新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 78208,
+   "ttfb": 0.123,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 78208,
+   "ttfb": 0.15,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:53+0800"
+ },
+ {
+  "url": "http://nn.7x9d.cn/地方台8563/海南.php?id=xwpd",
+  "channel": "海南新闻",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.645,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.371,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:53+0800"
+ },
+ {
+  "url": "http://nn.7x9d.cn/地方台8563/海南.php?id=wlpd",
+  "channel": "海南文旅",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.841,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.352,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:53+0800"
+ },
+ {
+  "url": "http://nn.7x9d.cn/地方台8563/海南.php?id=jjpd",
+  "channel": "海南自贸",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.314,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.485,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:54+0800"
+ },
+ {
+  "url": "https://liveplus.lzr.com.cn/wlpd/HD/live.m3u8",
+  "channel": "兰州文旅",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.205,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.225,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:54+0800"
+ },
+ {
+  "url": "https://liveplus.lzr.com.cn/xwzh/HD/live.m3u8",
+  "channel": "兰州新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.203,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.198,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:55+0800"
+ },
+ {
+  "url": "http://live.shaoxing.com.cn/video/s10001-sxtv2/index.m3u8",
+  "channel": "绍兴公共",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.15,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.149,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:55+0800"
+ },
+ {
+  "url": "https://ls.qingting.fm/live/5022100/64k.m3u8",
+  "channel": "三明新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 68432,
+   "ttfb": 0.149,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 68432,
+   "ttfb": 0.174,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:55+0800"
+ },
+ {
+  "url": "http://play.kankanlive.com/live/1720408280309109.m3u8",
+  "channel": "渭源新闻",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.042,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.025,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:55+0800"
+ },
+ {
+  "url": "http://59.175.226.142:280/gb28181/xwzh.m3u8?zhubd",
+  "channel": "江夏新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.053,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.056,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:55+0800"
+ },
+ {
+  "url": "http://play.kankanlive.com/live/1720583434627241.m3u8",
+  "channel": "嘉峪关综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.04,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.067,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:55+0800"
+ },
+ {
+  "url": "https://play.kankanlive.com/live/1656487214793905.m3u8",
+  "channel": "天祝综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.059,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.062,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:56+0800"
+ },
+ {
+  "url": "http://satellitepull.cnr.cn/live/wx32fjxwgb/playlist.m3u8",
+  "channel": "福建新闻",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 82532,
+   "ttfb": 1.026,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 82156,
+   "ttfb": 0.024,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:56+0800"
+ },
+ {
+  "url": "http://stream.jinjiang.tv/1/sd/live.m3u8?zfud",
+  "channel": "晋江电视台",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.059,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.084,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:57+0800"
+ },
+ {
+  "url": "https://ali-m-l.cztv.com/channels/lantian/channel004/1080p.m3u8",
+  "channel": "浙江教科",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.161,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 4.663,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:57+0800"
+ },
+ {
+  "url": "http://satellitepull.cnr.cn/live/wx32fjdnjjgb/playlist.m3u8",
+  "channel": "福建经济",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 86104,
+   "ttfb": 0.044,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 86104,
+   "ttfb": 0.521,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:58+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000077.m3u8",
+  "channel": "辽宁公共",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.018,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.147,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:58+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000076.m3u8",
+  "channel": "辽宁经济",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.019,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.023,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:59+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000070.m3u8",
+  "channel": "辽宁影视剧",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.019,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.021,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:59+0800"
+ },
+ {
+  "url": "http://123.146.162.24:8017/c2F0hmi/1000/live.m3u8",
+  "channel": "万州三峡移民",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.103,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.081,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:59+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000068.m3u8",
+  "channel": "辽宁都市",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.02,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.019,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:04:59+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000480.m3u8",
+  "channel": "辽宁经济",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.021,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.147,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:00+0800"
+ },
+ {
+  "url": "http://stream.hrbtv.net/ylpd/sd/live.m3u8?zheild",
+  "channel": "哈尔滨娱乐",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 23876,
+   "ttfb": 0.119,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 23876,
+   "ttfb": 0.125,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:00+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000610.m3u8",
+  "channel": "辽宁都市",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.02,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.02,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:00+0800"
+ },
+ {
+  "url": "http://120.76.248.139/live/bfgd/4200000073.m3u8",
+  "channel": "辽宁生活",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.023,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.134,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:01+0800"
+ },
+ {
+  "url": "http://183.64.174.171:40123/ch1.m3u8?zzhongqd",
+  "channel": "铜梁综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.107,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.115,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:01+0800"
+ },
+ {
+  "url": "http://live.qthnews.org.cn:1935/live/live1/800k/tzwj_video.m3u8",
+  "channel": "七台河新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.189,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.155,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:02+0800"
+ },
+ {
+  "url": "http://stream.hrbtv.net/yspd/sd/live.m3u8?zheild",
+  "channel": "哈尔滨影视",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.134,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 1.149,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:02+0800"
+ },
+ {
+  "url": "http://stream.hrbtv.net/xwzh/sd/live.m3u8?zheild",
+  "channel": "哈尔滨新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.121,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.12,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:02+0800"
+ },
+ {
+  "url": "http://stream.hrbtv.net/zxpd/sd/live.m3u8?zheild",
+  "channel": "哈尔滨都市咨询",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 23876,
+   "ttfb": 0.126,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 23876,
+   "ttfb": 0.144,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:02+0800"
+ },
+ {
+  "url": "https://stream.hrbtv.net/yspd/playlist.m3u8",
+  "channel": "哈尔滨影视",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.279,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.306,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:02+0800"
+ },
+ {
+  "url": "http://play.kankanlive.com/live/1720408089419110.m3u8",
+  "channel": "白银综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 0.031,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 524288,
+   "ttfb": 1.036,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:02+0800"
+ },
+ {
+  "url": "http://stream.hrbtv.net/shpd/sd/live.m3u8?zheild",
+  "channel": "哈尔滨生活",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.124,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 262144,
+   "ttfb": 0.137,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:02+0800"
+ },
+ {
+  "url": "https://ls.qingting.fm/live/4972/64k.m3u8",
+  "channel": "黑龙江少儿",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 81780,
+   "ttfb": 0.298,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 81780,
+   "ttfb": 0.148,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:03+0800"
+ },
+ {
+  "url": "http://222.179.42.129:8181/hls1.m3u8",
+  "channel": "璧山综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 0.09,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 524288,
+   "ttfb": 1.08,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:03+0800"
+ },
+ {
+  "url": "https://stream.hrbtv.net/xwzh/playlist.m3u8?_upt=ef41dd531755913594",
+  "channel": "哈尔滨新闻综合",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.294,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "master",
+   "seg_bytes": 262144,
+   "ttfb": 0.286,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:04+0800"
+ },
+ {
+  "url": "http://tpc.x3322.net:9901/tsfile/live/1010_1.m3u8",
+  "channel": "长影频道",
+  "group": "local",
+  "ok1": true,
+  "ok2": true,
+  "passes": 2,
+  "last_ok": true,
+  "detail2": {
+   "kind": "media",
+   "seg_bytes": 24921,
+   "ttfb": 0.404,
+   "http": 200
+  },
+  "detail1": {
+   "kind": "media",
+   "seg_bytes": 17921,
+   "ttfb": 0.143,
+   "http": 200
+  },
+  "checked_at": "2026-10-21T19:05:16+0800"
+ }
+]

@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#0f1115">
+<title>TV 影视 · 导入播放源</title>
+<style>
+  :root{--bg:#0f1115;--card:#181c22;--line:#2a3038;--fg:#e8eaed;--dim:#9aa3ad;--accent:#4f8cff;--ok:#3ecf8e;--warn:#f5b942;--err:#ff6b6b}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:16px}
+  header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#4f8cff,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:18px}
+  h1{font-size:19px;margin:0;font-weight:600}
+  .sub{color:var(--dim);font-size:13px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+  .meta{display:flex;justify-content:space-between;font-size:13px;color:var(--dim);gap:8px}
+  .meta b{color:var(--fg);font-weight:600}
+  .tabs{display:flex;gap:8px;margin-bottom:12px}
+  .tab{flex:1;text-align:center;padding:10px 6px;border-radius:10px;background:#141820;border:1px solid var(--line);color:var(--dim);font-size:14px;cursor:pointer}
+  .tab.active{background:#1d2a44;border-color:#3a5b96;color:#cfe0ff}
+  textarea,input[type=text],input[type=url],input[type=file]{width:100%;background:#0f131a;color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:11px;font-size:15px}
+  textarea{min-height:150px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+  button{width:100%;margin-top:10px;padding:13px;border:0;border-radius:11px;background:var(--accent);color:#fff;font-size:16px;font-weight:600}
+  button:disabled{opacity:.5}
+  .hint{color:var(--dim);font-size:12.5px;margin-top:8px}
+  .codebox{display:flex;gap:10px}
+  .codebox input{flex:1;font-size:26px;letter-spacing:8px;text-align:center;padding:10px}
+  .codebox button{width:110px;margin-top:0}
+  #result{display:none}
+  .ok{color:var(--ok)}.warn{color:var(--warn)}.err{color:var(--err)}
+  .line{display:flex;gap:8px;padding:7px 0;border-top:1px dashed #262c34;font-size:13.5px}
+  .line:first-child{border-top:0}
+  .tag{flex:0 0 auto;font-family:ui-monospace,monospace;font-size:12px;color:var(--warn)}
+  .big{font-size:20px;font-weight:700;margin:2px 0 8px}
+  .channel{color:var(--dim);font-size:13px}
+  footer{color:#5f6873;font-size:12px;text-align:center;margin-top:18px}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">▶</div>
+  <div>
+    <h1>导入播放源</h1>
+    <div class="sub">手机与电视连同一个 WiFi · 页面关闭后立即失效</div>
+  </div>
+</header>
+
+<div class="card">
+  <div class="meta"><span>服务地址</span><b id="service">__SERVICE__</b></div>
+  <div class="meta" style="margin-top:6px"><span>有效期</span><b>__EXPIRE_MIN__ 分钟 · 仅可成功导入一次</b></div>
+</div>
+
+<!-- 配对码（用 http://ip:port 直接打开时显示） -->
+<div class="card" id="pairCard">
+  <div style="margin-bottom:10px">输入电视上显示的 <b>6 位配对码</b></div>
+  <div class="codebox">
+    <input id="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000">
+    <button id="pairBtn" onclick="pair()">配对</button>
+  </div>
+  <div class="hint">也可以直接扫描电视上的二维码，免配对码。</div>
+</div>
+
+<!-- 已配对 / 扫码进入 -->
+<div id="importArea" class="hidden">
+  <div class="tabs">
+    <div class="tab active" data-mode="json" onclick="setMode('json')">粘贴 JSON</div>
+    <div class="tab" data-mode="file" onclick="setMode('file')">上传文件</div>
+    <div class="tab" data-mode="url" onclick="setMode('url')">填地址</div>
+  </div>
+
+  <div class="card" id="paneJson">
+    <textarea id="jsonText" placeholder='粘贴 tvapp.source.v1 / v1.1 的 JSON，或直接粘贴一个 MacCMS 地址'></textarea>
+    <div class="hint">支持单源或 bundle 合集；未知字段会按严格模式拒绝。</div>
+  </div>
+
+  <div class="card hidden" id="paneFile">
+    <input type="file" id="fileInput" accept=".json,.m3u,.txt,application/json,text/plain">
+    <div class="hint">支持 .json / .m3u / .txt，最大 __MAX_MB__ MB。m3u 会作为直播源导入。</div>
+  </div>
+
+  <div class="card hidden" id="paneUrl">
+    <input type="url" id="urlInput" placeholder="https://example.com/api.php/provide/vod/ 或 https://example.com/iptv.m3u">
+    <div class="hint">自动识别 MacCMS / m3u / bundle（.json）；MacCMS 会自动补 <code>ac=list</code> 探测。</div>
+  </div>
+
+  <button id="submitBtn" onclick="submit()">提交导入</button>
+  <div class="hint">当前方式：<span id="modeLabel">粘贴 JSON</span></div>
+</div>
+
+<div class="card" id="result">
+  <div id="summary" class="big"></div>
+  <div id="detail"></div>
+</div>
+
+<footer>TV 影视客户端 · 局域网导入 · 不经过任何外部服务器</footer>
+
+<script>
+var TOKEN = __TOKEN_JSON__;
+var PAIRING = "__PAIRING__";
+var MODE = 'json';
+var busy = false;
+var done = false;
+
+function $(id){ return document.getElementById(id); }
+
+function setMode(m){
+  MODE = m;
+  var tabs = document.querySelectorAll('.tab');
+  for (var i=0;i<tabs.length;i++){ tabs[i].classList.toggle('active', tabs[i].getAttribute('data-mode')===m); }
+  $('paneJson').classList.toggle('hidden', m!=='json');
+  $('paneFile').classList.toggle('hidden', m!=='file');
+  $('paneUrl').classList.toggle('hidden', m!=='url');
+  $('modeLabel').textContent = m==='json' ? '粘贴 JSON' : (m==='file' ? '上传文件' : '填地址');
+}
+
+function showImport(){
+  $('pairCard').classList.add('hidden');
+  $('importArea').classList.remove('hidden');
+}
+
+function pair(){
+  var code = ($('code').value||'').replace(/\D/g,'');
+  if (code.length !== 6){ alert('请输入电视上显示的 6 位数字'); return; }
+  $('pairBtn').disabled = true;
+  fetch('/api/pair', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({code: code})
+  }).then(function(r){ return r.json(); }).then(function(j){
+    if (j && j.ok){
+      TOKEN = j.token;
+      showImport();
+    } else {
+      alert((j && j.error && j.error.message) || '配对失败');
+    }
+  }).catch(function(e){ alert('网络错误：' + e); })
+   .finally(function(){ $('pairBtn').disabled = false; });
+}
+
+function submit(){
+  if (busy) return;
+  if (!TOKEN){ alert('尚未配对，请先输入配对码'); return; }
+  busy = true;
+  $('submitBtn').disabled = true;
+  $('submitBtn').textContent = '正在校验…';
+  $('result').style.display = 'none';
+
+  var req;
+  if (MODE === 'file'){
+    var f = $('fileInput').files[0];
+    if (!f){ alert('请选择文件'); reset(); return; }
+    if (f.size > __MAX_MB__ * 1024 * 1024){ alert('文件超过 __MAX_MB__ MB'); reset(); return; }
+    var fd = new FormData();
+    fd.append('token', TOKEN);
+    fd.append('file', f, f.name);
+    req = fetch('/api/import', {method:'POST', body: fd});
+  } else if (MODE === 'url'){
+    var u = ($('urlInput').value||'').trim();
+    if (!u){ alert('请填写地址'); reset(); return; }
+    req = fetch('/api/import', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({token: TOKEN, url: u})
+    });
+  } else {
+    var text = ($('jsonText').value||'').trim();
+    if (!text){ alert('请粘贴内容'); reset(); return; }
+    req = fetch('/api/import', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({token: TOKEN, payload: text})
+    });
+  }
+
+  req.then(function(r){ return r.json(); }).then(function(j){
+    render(j);
+  }).catch(function(e){
+    render({ok:false, summary:'网络错误：' + e, rejected:[]});
+  }).finally(reset);
+}
+
+function reset(){
+  if (done) return;
+  busy = false;
+  $('submitBtn').disabled = false;
+  $('submitBtn').textContent = '提交导入';
+}
+
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+  });
+}
+
+function render(j){
+  var box = $('result');
+  box.style.display = 'block';
+  var ok = !!(j && j.ok);
+  $('summary').className = 'big ' + (ok ? 'ok' : 'err');
+  $('summary').textContent = (j && j.summary) || (ok ? '导入成功' : '导入失败');
+
+  var html = '';
+  if (j && j.channels > 0){
+    html += '<div class="channel">共 ' + j.channels + ' 个直播频道</div>';
+  }
+  if (j && j.rejected && j.rejected.length){
+    html += '<div style="margin-top:10px" class="warn">未导入的条目（' + j.rejected.length + '）：</div>';
+    j.rejected.forEach(function(it){
+      html += '<div class="line"><span class="tag">' + esc(it.code) + '</span><span>' + esc(it.message) + '</span></div>';
+    });
+  }
+  if (j && j.error){
+    html += '<div class="line"><span class="tag">' + esc(j.error.code) + '</span><span>' + esc(j.error.message) + '</span></div>';
+  }
+  if (j && j.warnings && j.warnings.length){
+    html += '<div style="margin-top:10px" class="warn">提示：</div>';
+    j.warnings.forEach(function(it){
+      html += '<div class="line"><span class="tag">' + esc(it.code) + '</span><span>' + esc(it.message) + '</span></div>';
+    });
+  }
+  if (j && j.probes && j.probes.length){
+    html += '<div style="margin-top:10px" class="channel">连通性：' + j.probes.map(function(p){
+      return esc(p.sourceId) + ' ' + esc(p.state) + (p.latencyMs != null ? '（' + p.latencyMs + 'ms）' : '');
+    }).join('，') + '</div>';
+  }
+  if (ok){
+    html += '<div class="hint ok" style="margin-top:10px">可以回到电视继续操作了，本页面随后失效。</div>';
+  }
+  $('detail').innerHTML = html;
+
+  if (ok){
+    // 成功时 TV 端会关闭服务：禁用提交，避免用户误解
+    done = true;
+    busy = true;
+    $('submitBtn').disabled = true;
+    $('submitBtn').textContent = '已导入';
+  }
+}
+
+if (TOKEN){ showImport(); }
+</script>
+</body>
+</html>
