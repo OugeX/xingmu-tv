@@ -80,3 +80,13 @@ python spotcheck.py               # -> spotcheck.json
 | `apply_safe.py` | 合并 safe 源进 `assets/live_seed.json`，生成 `assets/live_safe.json`，保证 ≤4 源/频道且 safe 在列 |
 
 判定：播放列表 `#EXTM3U` + 首分片 200/206 且可读 + **PyAV 实测 180 ≤ height ≤ 720**；不采用 manifest 自报。
+
+## t21 追加：CDN 分档与切台提速
+
+| 文件 | 说明 |
+| --- | --- |
+| `probe_ttfb.py` | 测首分片 TTFB（连续 3 次中位数）+ PyAV 高度 + `cdn_class`（<1200ms fast）；支持 `--url` / `--file` |
+| `apply_ttfb.py` | 把 12 个 74.91 慢源替换为快 CDN，并给全部源测 TTFB、打 cdn_class，写回 seed/live_safe |
+| `finalize_ttfb.py` | 补 CGTN 西语/浙江/新疆等快源，刷新 safe 源 TTFB、重排 safe 首位 |
+
+策略：`74.91.26.218:82` 即使暖缓存 TTFB 偶然 <1200ms 也统一标 `slow`（真机 2–3s），不再占 safe 首位。

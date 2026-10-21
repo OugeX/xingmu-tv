@@ -6,7 +6,7 @@
 | 触发 | LeTV X4-50（MStar 6A938 / API 23）实测 **>720p 解码/纹理路径整机不可用**；1080p 直播、1024p B站短视频黑屏，720p/240p 正常 |
 | 产物 | `assets/live_seed.json`（新增 `safe_tier_urls` / `has_safe_tier` / `safe_tier_height`，每个源 `safe_tier`）<br>`assets/live_safe.json`（每频道一条 ≤720p 兜底源，与 seed 266 频道对齐）<br>`docs/LIVE_SAFE.md`（本文件） |
 | 统计口径 | 以 **PyAV 首分片实测高度 180–720** 且播放列表 + 首分片可读为准；不采用 manifest 自报清晰度 |
-| 结果 | **低端档可用 163/266**；缺口 103 已由 UI 过滤并给出原因，不阻塞发布。原「<10」指标标注为**公开网络不可达，已用 UX 过滤替代**（详见 §5）；发布门槛改为「safeMode 默认过滤 + has_safe 正确」 |
+| 结果 | **低端档可用 163/266**；缺口 103 已由 UI 过滤并给出原因，不阻塞发布。原「<10」指标标注为**公开网络不可达，已用 UX 过滤替代**（详见 §5）；发布门槛改为「safeMode 默认过滤 + has_safe 正确」。**v0.2.2 CDN 分档**：safe 首位 slow 频道 **2**（≤3），`cdn_class=fast` 频道 **249**（详见 §3.7） |
 | 时间 | 2026-10-21 20:31–21:01（Asia/Shanghai） |
 
 ---
@@ -156,6 +156,67 @@
 
 ---
 
+### 3.7 CDN 分档（v0.2.2）
+
+切台慢的主因是 `74.91.26.218:82` 分片 TTFB 2–3s（真机 warm_zap P90 2317ms 全部来自该 host）。t21 对 **safe 首位落在 74.91 的 12 个 CCTV 频道**逐个替换，并给所有源打 `cdn_class`。
+
+**判定**：`tools/live/probe_ttfb.py` 连续 3 次测首分片 TTFB 取中位数（抖动时重测 5 次）；`<1200ms` 为 `fast`，否则 `slow`；同时要求 playlist `#EXTM3U` + 首分片可读 + PyAV 实测高度（safe 位 ≤720，HD 位 1080）。
+
+**12 个慢源频道替换结果（safe 首位）**：
+
+| 频道 | 新 safe 首位 | 实测高度 | 分片 TTFB 中位数 |
+| --- | --- | --- | --- |
+| CCTV-1 综合 | `36.136.38.87:9901/tsfile/live/0001_1.m3u8` | 576p | 86ms |
+| CCTV-2 财经 | `36.136.38.87:9901/tsfile/live/0002_1.m3u8` | 576p | 1085ms |
+| CCTV-4 中文国际 | `36.136.38.87:9901/tsfile/live/0004_1.m3u8` | 576p | 89ms |
+| CCTV-7 国防军事 | `36.136.38.87:9901/tsfile/live/0007_1.m3u8` | 576p | 1071ms |
+| CCTV-8 电视剧 | `124.228.160.112:9901/tsfile/live/0008_1.m3u8` | 576p | 85ms |
+| CCTV-10 科教 | `36.136.38.87:9901/tsfile/live/0010_1.m3u8` | 576p | 72ms |
+| CCTV-11 戏曲 | `124.228.160.112:9901/tsfile/live/0011_1.m3u8` | 576p | 92ms |
+| CCTV-12 社会与法 | `124.228.160.112:9901/tsfile/live/0012_1.m3u8` | 576p | 96ms |
+| CCTV-13 新闻 | `36.136.38.87:9901/tsfile/live/0013_1.m3u8` | 576p | 70ms |
+| CCTV-14 少儿 | `36.136.38.87:9901/tsfile/live/0014_1.m3u8` | 576p | 78ms |
+| CCTV-15 音乐 | `36.136.38.87:9901/tsfile/live/0015_1.m3u8` | 576p | 80ms |
+| CCTV-17 农业农村 | `124.228.160.112:9901/tsfile/live/0017_1.m3u8` | 576p | 90ms |
+
+同时修复：CGTN 西语 → `amag...cgtn-es-rakuten`（360p，154ms）；浙江卫视 → `ali-m-l.cztv.com/.../channel001/720p.m3u8`（720p，168ms）；新疆卫视 → `120.198.95.220:9901/tsfile/live/1064_1.m3u8`（576p，57ms）。
+
+**host 分档（按本次全量 TTFB 中位数；n=源数）**：
+
+| 分档 | host | n | 中位 TTFB |
+| --- | --- | --- | --- |
+| fast | `l.cztvcloud.com` | 39 | 80ms |
+| fast | `ali-m-l.cztv.com` | 25 | 163ms |
+| fast | `stream5.jlntv.cn` | 13 | 195ms |
+| fast | `124.228.160.112:9901` | 12 | 92ms |
+| fast | `36.136.38.87:9901` | 10 | 84ms |
+| fast | `120.198.95.220:9901` | 4 | 304ms |
+| fast | `english-livetx.cgtn.com` / `english-livebkali.cgtn.com` | — | 实测 <1200ms |
+| **slow（策略）** | `74.91.26.218:82` | 14 | 暖缓存中位 617ms，但真机 2–3s、波动大，**统一标 slow** |
+| slow | `live.yantaitv.cn` | 2 | 2394ms（当前 404） |
+| slow | `dash4.antik.sk` | 2 | 2015ms |
+| slow | `dash3.antik.sk` | 1 | 1937ms |
+| slow | `192.151.150.154` | 1 | 2052ms |
+| slow | `112.27.5.218:9901` | 1 | 3093ms |
+| slow | `45.186.106.147:8880` | 1 | 1536ms |
+
+> 74.91 仍保留为后备源（14 条，`cdn_class=slow`），但不再占任何频道的 safe 首位。
+
+**数据字段**（seed / live_safe）：
+- 每源：`cdn_class`（fast/slow）、`segment_ttfb_ms`（中位数）、`cdn_host`。
+- 每频道：`safe_tier_cdn_class`、`primary_cdn_class`、`cdn_class`（safe 首位优先）。
+- `live_safe.json` 每条：`cdn_class` + `segment_ttfb_ms`；无 safe 的频道为 null。
+
+**v0.2.2 验收统计**（可复现）：
+
+| 指标 | 结果 |
+| --- | --- |
+| safe 首位为 slow CDN 的频道数 | **2**（目标 ≤3）——烟台公共、烟台经济科技（`live.yantaitv.cn` 当前 404/2.4s，无更快的 ≤720 替代） |
+| safe 首位为 74.91 的频道数 | **0**（原 12） |
+| `cdn_class=fast` 的频道数 | **249** / 266（safe 频道 161/163；另 2 个 safe 频道 slow） |
+| `cdn_class=slow` 的频道数 | 17 |
+| 数据文件 | seed 412 源；live_safe 163 has_safe |
+
 ## 4. 仍缺 ≤720p 的 103 个频道
 
 ### 4.1 央视/卫视（13）
@@ -287,4 +348,4 @@ python tools/live/apply_safe.py           # 合并 seed + 生成 live_safe
 | `assets/live_safe.json` | **新增**；266 频道对齐；163 条 URL，103 条 null+原因 |
 | `docs/LIVE_SAFE.md` | 本文件 |
 | `assets/live_hd.json` | **未改动** |
-| `tools/live/*.py` | 新增 `remeasure_segments.py`、`find_safe*.py`、`validate_safe.py`、`apply_safe.py` |
+| `tools/live/*.py` | t16：`remeasure_segments.py`、`find_safe*.py`、`validate_safe.py`、`apply_safe.py`；t21：`probe_ttfb.py`、`apply_ttfb.py`、`finalize_ttfb.py` |
