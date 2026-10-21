@@ -104,6 +104,7 @@ fun CasualVideoScreen(
 
     LaunchedEffect(Unit) {
         runCatching { rootFocus.requestFocus() }
+        com.tvbox.app.data.casual.CasualGraph.radioSessionOrNull()?.stopForExternal()
         controller.setLiveMode(false)
         playIndex(index)
     }

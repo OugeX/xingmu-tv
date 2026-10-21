@@ -18,6 +18,8 @@ object CasualGraph {
         }
     }
 
+    fun radioSessionOrNull(): RadioSession? = radioSession
+
     fun radioSession(context: Context): RadioSession {
         radioSession?.let { return it }
         return synchronized(this) {

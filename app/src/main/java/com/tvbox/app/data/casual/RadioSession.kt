@@ -61,6 +61,7 @@ class RadioSession(
     private var urlIndex: Int = 0
     private var started = false
     private var hasPlayed = false
+    private var active = true
     private var failoverJob: Job? = null
     private var bufferingWatch: Job? = null
 
@@ -74,6 +75,7 @@ class RadioSession(
                         error = (playerState as? PlayerController.State.Error)?.message,
                     )
                 }
+                if (!active) return@collect
                 when (playerState) {
                     is PlayerController.State.Playing -> {
                         hasPlayed = true
@@ -95,30 +97,59 @@ class RadioSession(
     fun start() {
         if (started) return
         started = true
+        // 先用内置精选立即出声（<3s），在线列表在后台合并，不打断当前播放
         scope.launch {
             _state.update { it.copy(loading = true) }
             val seedStations = seed.load()
+            stations = seedStations
+            if (stations.isNotEmpty()) {
+                val lastId = prefs.getString(KEY_LAST_STATION, null)
+                index = stations.indexOfFirst { it.id == lastId }.takeIf { it >= 0 } ?: 0
+                _state.update {
+                    it.copy(
+                        loading = false,
+                        initialized = true,
+                        total = stations.size,
+                        source = "内置精选",
+                    )
+                }
+                playCurrent(source = "恢复上次电台")
+            }
             val online = when (val result = repository.radios(1)) {
                 is Result.Ok -> result.value
                 is Result.Err -> emptyList()
             }
-            stations = (seedStations + online).distinctBy { it.id }
-            if (stations.isEmpty()) {
+            if (online.isNotEmpty()) {
+                val currentId = stations.getOrNull(index)?.id
+                stations = (stations + online).distinctBy { it.id }
+                if (currentId != null) {
+                    index = stations.indexOfFirst { it.id == currentId }.takeIf { it >= 0 } ?: index
+                }
+                _state.update {
+                    it.copy(
+                        loading = false,
+                        total = stations.size,
+                        source = "Radio Browser + 内置精选",
+                    )
+                }
+            } else if (stations.isEmpty()) {
                 _state.update { it.copy(loading = false, initialized = true, error = "暂无可用电台") }
-                return@launch
             }
-            val lastId = prefs.getString(KEY_LAST_STATION, null)
-            index = stations.indexOfFirst { it.id == lastId }.takeIf { it >= 0 } ?: 0
-            _state.update {
-                it.copy(
-                    loading = false,
-                    initialized = true,
-                    total = stations.size,
-                    source = if (online.isEmpty()) "内置精选" else "Radio Browser + 内置精选",
-                )
-            }
-            playCurrent(source = "恢复上次电台")
         }
+    }
+
+    /** 离开听页 / 其它播放器接管时：停止自动换台逻辑（音频按需继续）。 */
+    fun setActive(value: Boolean) {
+        active = value
+        if (!value) bufferingWatch?.cancel()
+    }
+
+    /** 视频/直播开始前调用：主动让出播放器，避免音频与视频抢 codec。 */
+    fun stopForExternal() {
+        active = false
+        bufferingWatch?.cancel()
+        failoverJob?.cancel()
+        runCatching { controller.pause() }
     }
 
     fun togglePause() {

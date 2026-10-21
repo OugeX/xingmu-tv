@@ -92,10 +92,11 @@ private fun TextureVideoSurface(
             }
         },
         update = { view ->
-            if (view !== textureView) return@update
-            currentPlayer?.setVideoTextureView(view)
-            controller.bindTextureView(view)
-            applyAspectTransform(view, info.width, info.height, info.aspect)
+            if (view === textureView) {
+                currentPlayer?.setVideoTextureView(view)
+                controller.bindTextureView(view)
+                applyAspectTransform(view, info.width, info.height, info.aspect)
+            }
         },
         modifier = modifier,
     )

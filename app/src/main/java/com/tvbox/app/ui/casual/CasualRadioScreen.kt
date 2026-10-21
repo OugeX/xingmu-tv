@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -72,6 +73,11 @@ fun CasualRadioScreen(session: RadioSession, modifier: Modifier = Modifier, onOp
     var tick by remember { mutableIntStateOf(0) }
     val audioManager = remember(context) {
         context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    }
+
+    DisposableEffect(session) {
+        session.setActive(true)
+        onDispose { session.setActive(false) }
     }
 
     LaunchedEffect(Unit) {
