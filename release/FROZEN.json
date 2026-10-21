@@ -1,8 +1,8 @@
 {
-  "version": "v0.2.0",
-  "sha256": "c90af3a34aee356ad6459f1d56a4d78abfbde99a7d122c6e086a8e52ef1265d6",
-  "size": 12951505,
-  "file": "release\\xingmu-tv-v0.2.0-c90af3a3.apk",
-  "frozenAt": "2026-10-21T21:32:30+08:00",
-  "commit": "e2d3f483f7eb1076919631bdc5b9523d604d0458"
+  "version": "v0.2.1",
+  "sha256": "09fad209e8882ee60e2f70cad0531354da51d85938df6f3202989e68d2ccaea9",
+  "size": 12885704,
+  "file": "release\\xingmu-tv-v0.2.1-09fad209.apk",
+  "frozenAt": "2026-10-21T22:51:21+08:00",
+  "commit": "029dd6e3e20c4d360f28988cd532ca800636bb34"
 }
