@@ -67,6 +67,15 @@ app/
 - Media3 1.5.1（ExoPlayer + HLS）、OkHttp 4.12、Coil 2.7
 - minSdk 21 / targetSdk 34，真机验证：LeTV 超4 X50（Android 6 / 1080p / MStar 6A938）
 
+## 下载
+
+| 渠道 | 说明 |
+| --- | --- |
+| **Releases**（推荐） | 打开 [Releases](https://github.com/OugeX/xingmu-tv/releases) 下载最新 `app-debug.apk`，U 盘拷进电视或 `adb install -r` 安装 |
+| CI 产物 | 每次提交由 GitHub Actions 构建，可在 Actions → build → Artifacts 下载（保留 30 天） |
+
+> 当前为 debug 签名，仅供侧载测试；正式发布前会换 release 签名。Android 5.0+（minSdk 21）。
+
 ## 快速开始
 
 **环境**：JDK 17、Android SDK 34+、Gradle 8.7

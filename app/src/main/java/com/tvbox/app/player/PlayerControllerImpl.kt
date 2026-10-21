@@ -100,6 +100,8 @@ class PlayerControllerImpl(
 
     private var lastMedia: MediaUrl? = null
     private var surfaceView: android.view.SurfaceView? = null
+    private var textureView: android.view.TextureView? = null
+    private var lastTextureUpdateAt = 0L
     private var playStartedAt = 0L
     private var bufferingSince = 0L
     private var firstFrame = false
@@ -311,6 +313,44 @@ class PlayerControllerImpl(
                 }
             },
             300L,
+        )
+    }
+
+    /** API≤23 的 TextureView 路径：绑定后由 onSurfaceTextureUpdated 刷新时间戳。 */
+    fun bindTextureView(view: android.view.TextureView?) {
+        textureView = view
+        lastTextureUpdateAt = now()
+        onMain {
+            if (view != null && !released) player?.setVideoTextureView(view)
+        }
+    }
+
+    fun notifyTextureUpdated() {
+        lastTextureUpdateAt = now()
+    }
+
+    /**
+     * 黑屏检测：`onRenderedFirstFrame` 只代表解码器吐了帧，不代表 GL 合成可见。
+     * 1080p 在 MStar 上可能持续 GL 0x500：首帧后 3s 内没有一次 texture 更新 → 判黑屏并请求换源。
+     */
+    private fun scheduleBlackScreenCheck() {
+        if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.M) return
+        if (textureView == null) return
+        val checkAt = now()
+        mainHandler.postDelayed(
+            {
+                if (released || !firstFrame) return@postDelayed
+                val last = lastTextureUpdateAt
+                // checkAt 之后有过更新；或最近 2.5s 内更新过 → 正常
+                if (last >= checkAt || now() - last < 2_500L) return@postDelayed
+                TvLog.e(
+                    TAG,
+                    "BLACK_SCREEN detected: no texture update for ${now() - last}ms url=${lastMedia?.url}",
+                )
+                emit(PlayerEvent.Message("画面未渲染，正在切换备用线路"))
+                emit(PlayerEvent.NeedsFallback("E_BLACK_SCREEN", "1080p 黑屏（GL）", lastMedia?.url))
+            },
+            3_000L,
         )
     }
 
@@ -708,6 +748,7 @@ class PlayerControllerImpl(
                     "rebuffer=${_stats.value.rebufferCount}",
             )
             emit(PlayerEvent.FirstFrame)
+            scheduleBlackScreenCheck()
             TvLog.i(TAG, "first frame in ${elapsed}ms")
         }
 
