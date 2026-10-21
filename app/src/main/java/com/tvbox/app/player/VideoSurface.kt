@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.PlayerView
+import com.tvbox.app.core.TvLog
 
 /**
  * 视频输出（PLAYER_PERF §2：进程内只创建一次，切台/切集不重建）。
@@ -165,24 +166,51 @@ private class TvTextureView(context: android.content.Context) : TextureView(cont
         applyAspectTransform()
     }
 
+    /**
+     * 按「视频宽高比 vs 视图宽高比」计算变换，而不是用像素比。
+     *
+     * 旧实现的 bug：`scale = min(viewW/videoW, viewH/videoH)` 然后统一缩放，
+     * 在 4:3 内容 / 非 16:9 视图上会退化成 identity（画面被拉伸或截断），
+     * 真机表现为「左边一条黑、画面被裁」。
+     *
+     * 正确做法：先算目标显示尺寸 = video * k（FIT 取 contain，ZOOM 取 cover，FILL 直接铺满），
+     * 再换算成视图空间的 sx/sy（TextureView 的 texture 默认就被拉伸到整个视图）。
+     */
     private fun applyAspectTransform() {
         if (videoWidth <= 0 || videoHeight <= 0) return
         val viewWidth = width.toFloat().takeIf { it > 0f } ?: return
         val viewHeight = height.toFloat().takeIf { it > 0f } ?: return
-        val sx = viewWidth / videoWidth
-        val sy = viewHeight / videoHeight
-        val scale = when (aspectMode) {
-            AspectMode.FIT -> minOf(sx, sy)
-            AspectMode.FILL, AspectMode.ZOOM -> maxOf(sx, sy)
+        val vw = videoWidth.toFloat()
+        val vh = videoHeight.toFloat()
+
+        val k = when (aspectMode) {
+            AspectMode.FIT -> minOf(viewWidth / vw, viewHeight / vh)
+            AspectMode.FILL -> 0f                       // 拉伸铺满：不缩放，直接用默认拉伸
+            AspectMode.ZOOM -> maxOf(viewWidth / vw, viewHeight / vh)
+        }
+        val sx: Float
+        val sy: Float
+        val dx: Float
+        val dy: Float
+        if (aspectMode == AspectMode.FILL) {
+            sx = 1f; sy = 1f; dx = 0f; dy = 0f
+        } else {
+            val dispW = vw * k
+            val dispH = vh * k
+            sx = dispW / viewWidth
+            sy = dispH / viewHeight
+            dx = (viewWidth - dispW) / 2f
+            dy = (viewHeight - dispH) / 2f
         }
         val matrix = Matrix().apply {
-            setScale(scale, scale)
-            postTranslate(
-                (viewWidth - videoWidth * scale) / 2f,
-                (viewHeight - videoHeight * scale) / 2f,
-            )
+            setScale(sx, sy)
+            postTranslate(dx, dy)
         }
         setTransform(matrix)
+        TvLog.i(
+            "TextureView",
+            "transform mode=${aspectMode.label} video=${videoWidth}x$videoHeight view=${width}x$height sx=$sx sy=$sy dx=$dx dy=$dy",
+        )
     }
 }
 

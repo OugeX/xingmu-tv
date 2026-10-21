@@ -108,6 +108,7 @@ fun PlayerScreen(
     var hudVisible by remember { mutableStateOf(true) }
     var speed by remember { mutableFloatStateOf(1f) }
     var qualityIndex by remember { mutableIntStateOf(0) }
+    var aspectMode by remember { mutableStateOf(com.tvbox.app.player.AspectMode.FIT) }
     var audioDelay by remember { mutableIntStateOf(0) }
     var showEpisodes by remember { mutableStateOf(false) }
     var showSources by remember { mutableStateOf(false) }
@@ -388,6 +389,10 @@ fun PlayerScreen(
                         TvButton("画质 ${QUALITIES[qualityIndex].second}", onClick = {
                             qualityIndex = (qualityIndex + 1) % QUALITIES.size
                             controller.setQuality(QUALITIES[qualityIndex].first)
+                        }, enabled = true)
+                        TvButton("画面 ${aspectMode.label}", onClick = {
+                            aspectMode = aspectMode.next()
+                            controller.setAspectMode(aspectMode)
                         }, enabled = true)
                         TvButton("音画 ${audioDelay}ms", onClick = {
                             audioDelay = if (audioDelay >= 500) -500 else audioDelay + 50
