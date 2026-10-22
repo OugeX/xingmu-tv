@@ -34,11 +34,30 @@ class MacCmsClient(
         typeId: Int,
         page: Int,
         sort: SourceSort,
+        year: String? = null,
     ): Result<List<VodSummary>> {
         val order = if (sort == SourceSort.HOT) "hits" else "time"
-        val query = "?ac=detail&t=$typeId&pg=${page.coerceAtLeast(1)}&by=$order"
-        return when (val raw = fetch(source, "list|${source.id}|$typeId|$page|$order", query, LIST_TTL_MS)) {
+        val query = MacCmsQuery.list(typeId, page, order, year)
+        val key = MacCmsQuery.listCacheKey(source.id, typeId, page, order, year)
+        return when (val raw = fetch(source, key, query, LIST_TTL_MS)) {
             is Result.Ok -> MacCmsParser.parseList(raw.value, source.id)
+            is Result.Err -> raw
+        }
+    }
+
+    /** t31：服务端 total/pagecount（分类页「共 N 部」与真实分页）。 */
+    suspend fun listPage(
+        source: SourceConfig,
+        typeId: Int,
+        page: Int,
+        sort: SourceSort,
+        year: String? = null,
+    ): Result<VodPage> {
+        val order = if (sort == SourceSort.HOT) "hits" else "time"
+        val query = MacCmsQuery.list(typeId, page, order, year)
+        val key = MacCmsQuery.listCacheKey(source.id, typeId, page, order, year)
+        return when (val raw = fetch(source, key, query, LIST_TTL_MS)) {
+            is Result.Ok -> MacCmsParser.parseListPage(raw.value, source.id)
             is Result.Err -> raw
         }
     }

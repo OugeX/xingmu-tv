@@ -42,6 +42,16 @@ data class VodSummary(
     val picThumb: String = "",
     /** t29：地区（vod_area），分类页「地区」筛选用 */
     val area: String = "",
+    /** t31：更新时间（vod_time_add，epoch ms）；排序兜底用 */
+    val updatedAtMs: Long = 0L,
+)
+
+/** t31：一页列表 + 服务端 total（分页 UI 显示「共 N 部」） */
+@androidx.compose.runtime.Immutable
+data class VodPage(
+    val items: List<VodSummary>,
+    val total: Int = 0,
+    val pageCount: Int = 0,
 )
 
 /** 详情页作品 */

@@ -30,12 +30,27 @@ class FallbackSourceRepository(
         typeId: Int,
         page: Int,
         sort: SourceRepository.Sort,
+        year: String?,
     ): Result<List<VodSummary>> {
         val primaryResult = withTimeoutOrNull(PRIMARY_PROBE_MS) {
-            primary.list(typeId, page, sort)
+            primary.list(typeId, page, sort, year)
         }
         if (primaryResult is Result.Ok && primaryResult.value.isNotEmpty()) return primaryResult
-        return fallback.list(typeId, page, sort)
+        return fallback.list(typeId, page, sort, year)
+    }
+
+    /** t31：优先 primary 的 total；primary 不可用时用 fallback 的 total。 */
+    override suspend fun listPage(
+        typeId: Int,
+        page: Int,
+        sort: SourceRepository.Sort,
+        year: String?,
+    ): Result<VodPage> {
+        val primaryResult = withTimeoutOrNull(PRIMARY_PROBE_MS) {
+            primary.listPage(typeId, page, sort, year)
+        }
+        if (primaryResult is Result.Ok && primaryResult.value.items.isNotEmpty()) return primaryResult
+        return fallback.listPage(typeId, page, sort, year)
     }
 
     override suspend fun search(keyword: String, page: Int): Result<List<VodSummary>> {

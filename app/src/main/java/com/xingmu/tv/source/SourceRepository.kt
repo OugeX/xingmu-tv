@@ -4,6 +4,7 @@ import com.xingmu.tv.core.Result
 import com.xingmu.tv.data.Channel
 import com.xingmu.tv.data.SourceConfig
 import com.xingmu.tv.data.VodDetail
+import com.xingmu.tv.data.VodPage
 import com.xingmu.tv.data.VodSummary
 
 /**
@@ -17,7 +18,27 @@ interface SourceRepository {
     suspend fun listSources(): Result<List<SourceConfig>>
 
     /** 聚合列表：typeId 对应各源 categories 映射后的真实分类；page 从 1 开始 */
-    suspend fun list(typeId: Int, page: Int, sort: Sort = Sort.LATEST): Result<List<VodSummary>>
+    suspend fun list(
+        typeId: Int,
+        page: Int,
+        sort: Sort = Sort.LATEST,
+        /** t31：年份筛选（服务端 year=，空则不限） */
+        year: String? = null,
+    ): Result<List<VodSummary>>
+
+    /**
+     * t31：一页列表 + 服务端 total（分类页显示「共 N 部」并按真实页数分页）。
+     * 默认实现退化到 [list]，实现方可覆盖以返回 total。
+     */
+    suspend fun listPage(
+        typeId: Int,
+        page: Int,
+        sort: Sort = Sort.LATEST,
+        year: String? = null,
+    ): Result<VodPage> = when (val r = list(typeId, page, sort, year)) {
+        is Result.Ok -> Result.Ok(VodPage(items = r.value, total = 0, pageCount = 0))
+        is Result.Err -> r
+    }
 
     /** 跨源聚合搜索（并发 3、单源 3.5s、硬截止 4.5s） */
     suspend fun search(keyword: String, page: Int = 1): Result<List<VodSummary>>

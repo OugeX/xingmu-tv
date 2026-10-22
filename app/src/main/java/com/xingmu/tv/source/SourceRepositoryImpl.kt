@@ -13,6 +13,7 @@ import com.xingmu.tv.data.SourceConfig
 import com.xingmu.tv.data.SourceAdminDataSource
 import com.xingmu.tv.data.SourceKind
 import com.xingmu.tv.data.VodDetail
+import com.xingmu.tv.data.VodPage
 import com.xingmu.tv.data.VodSummary
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -165,23 +166,42 @@ class SourceRepositoryImpl(context: Context) : SourceRepository, SourceAdminData
         typeId: Int,
         page: Int,
         sort: SourceRepository.Sort,
+        year: String?,
     ): Result<List<VodSummary>> = withContext(AppDispatchers.Io) {
+        when (val r = listPage(typeId, page, sort, year)) {
+            is Result.Ok -> Result.Ok(r.value.items)
+            is Result.Err -> r
+        }
+    }
+
+    override suspend fun listPage(
+        typeId: Int,
+        page: Int,
+        sort: SourceRepository.Sort,
+        year: String?,
+    ): Result<VodPage> = withContext(AppDispatchers.Io) {
         ensureSeeded()
         val sources = maccmsSources()
         if (sources.isEmpty()) return@withContext Result.failure(ErrorCodes.NO_SOURCE, "没有启用的点播源")
         val overseasMap = if (CanonicalCategory.isOverseas(typeId)) overseas.load() else emptyMap()
-        val groups = aggregate(sources) { src ->
+        val pages = aggregate(sources) { src ->
             val real = realTypeId(src, typeId, overseasMap)
             if (real == null) {
                 Result.failure(ErrorCodes.NO_SOURCE, "源《${src.name}》没有该分类")
             } else {
-                MacCmsClient.fetchList(src, real, page, sort)
+                MacCmsClient.fetchList(src, real, page, sort, year)
             }
-        }.mapNotNull { it.second?.items }
-        if (groups.isEmpty()) {
+        }.mapNotNull { it.second }
+        if (pages.isEmpty()) {
             return@withContext Result.failure(ErrorCodes.SOURCE_OFFLINE, "所有源均请求失败，请检查网络或源状态")
         }
-        Result.Ok(mergeSummaries(groups))
+        Result.Ok(
+            VodPage(
+                items = mergeSummaries(pages.map { it.items }),
+                total = pages.sumOf { it.total },
+                pageCount = pages.maxOfOrNull { it.pageCount } ?: 0,
+            ),
+        )
     }
 
     override suspend fun search(keyword: String, page: Int): Result<List<VodSummary>> =

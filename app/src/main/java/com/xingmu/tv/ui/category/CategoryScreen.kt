@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.xingmu.tv.core.AppError
 import com.xingmu.tv.core.Result
 import com.xingmu.tv.data.CanonicalCategory
+import com.xingmu.tv.data.VodRanking
 import com.xingmu.tv.data.VodSummary
 import com.xingmu.tv.search.PinyinIndex
 import com.xingmu.tv.source.SourceRepository
@@ -60,18 +61,18 @@ import com.xingmu.tv.ui.tvWidthDp
 import kotlinx.coroutines.launch
 
 /**
- * 分类页（t29 三层结构，UI_TUNE §1）：
+ * 分类页（t29 三层结构 + t31 服务端筛选修正）。
  *
- *   一级 Tab（电影/剧集/动漫/综艺/海外/短剧）
- *   └ 二级子分类 chips（全部 / 动作 / 喜剧 …）
- *     └ 筛选（年份 / 地区 / 排序）：胶囊按钮 + OK 弹浮层（不做下拉框）
- *       └ 面包屑（电影 › 动作片 · 2026 · 大陆 · 最新）＋ 已加载 N 条
+ *   一级 Tab（电影/剧集/动漫/综艺/海外/短剧）→ 服务端 `t=<canonical type_id>`
+ *   └ 二级子分类 chips（全部 / 喜剧片 / 动作片 …）→ 服务端 `t=<子分类 type_id>`（喜剧片=22，total 7442）
+ *     └ 年份筛选 → 服务端 `year=YYYY`（t=22&year=2026 → total 165）
+ *       └ 面包屑「电影 › 喜剧片 · 2026」＋「共 N 部 / 已加载 M 条」
  *
- * 说明：
- *  - 年份/地区筛选对**已加载页**做客户端过滤（SourceRepository 契约暂无年份/地区参数），
- *    面包屑同时展示当前组合，加载更多后过滤结果自动扩展；
- *  - 「评分」排序同样是客户端排序，服务端只支持 最新/最热；
- *  - 滚动位置由外部传入的 [gridState] 持有（AppRoot 缓存），从详情返回时不跳回顶部。
+ * t31 关键修正（captain 实测）：
+ *  - 子分类**不再**对已加载页做客户端过滤（这正是「电影→喜剧只有 4 部」的根因）；
+ *  - `area=` 服务端忽略 → 地区筛选下线（实现保留在 [areaMatches]，等有源支持再接）；
+ *  - `by=` 服务端忽略 → 排序只在本页生效，按钮文案写明「排序·本页」；
+ *    本页热度按 [VodRanking]：sourceCount desc → 更新时间 desc → 评分（<1.0 假分归零）。
  */
 @Composable
 fun CategoryScreen(
@@ -91,16 +92,19 @@ fun CategoryScreen(
 
     var primaryTab by remember(typeId) { mutableIntStateOf(typeId) }
     var overseasSection by remember { mutableIntStateOf(CanonicalCategory.overseas.first().id) }
-    var selectedTypeName by remember(primaryTab) { mutableStateOf<String?>(null) }
+    // t31：二级子分类带服务端 type_id（从已加载项的 type_id/type_name 建映射）
+    var selectedSubName by remember(primaryTab) { mutableStateOf<String?>(null) }
+    var selectedSubTypeId by remember(primaryTab) { mutableStateOf<Int?>(null) }
     var yearFilter by remember(primaryTab) { mutableStateOf<String?>(null) }
-    var areaFilter by remember(primaryTab) { mutableStateOf<String?>(null) }
-    var sort by remember(primaryTab) { mutableStateOf(SourceRepository.Sort.LATEST) }
-    var sortByScore by remember(primaryTab) { mutableStateOf(false) }
+    var sortMode by remember(primaryTab) { mutableStateOf(SortMode.SERVER_LATEST) }
     var sheet by remember { mutableStateOf<FilterKind?>(null) }
 
-    val effectiveTypeId = if (primaryTab == CanonicalCategory.OVERSEAS_ROOT) overseasSection else primaryTab
+    val baseTypeId = if (primaryTab == CanonicalCategory.OVERSEAS_ROOT) overseasSection else primaryTab
+    // 服务端查询用的真实分类 id：选了子分类就用子分类 id
+    val queryTypeId = selectedSubTypeId ?: baseTypeId
 
     var items by remember { mutableStateOf<List<VodSummary>>(emptyList()) }
+    var serverTotal by remember { mutableIntStateOf(0) }
     var page by remember { mutableIntStateOf(1) }
     var loading by remember { mutableStateOf(false) }
     var hasMore by remember { mutableStateOf(true) }
@@ -108,20 +112,22 @@ fun CategoryScreen(
     var loadMoreFailed by remember { mutableStateOf(false) }
     var reloadToken by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(effectiveTypeId, sort, reloadToken) {
+    LaunchedEffect(queryTypeId, yearFilter, reloadToken) {
         loading = true
         error = null
         loadMoreFailed = false
         hasMore = true
         page = 1
-        when (val result = repo.list(effectiveTypeId, 1, sort)) {
+        when (val result = repo.listPage(queryTypeId, 1, sortMode.serverSort, yearFilter)) {
             is Result.Ok -> {
-                items = result.value
-                hasMore = result.value.size >= 10
-                pinyin.index(result.value)
+                items = result.value.items
+                serverTotal = result.value.total
+                hasMore = result.value.items.size >= PAGE_SIZE
+                pinyin.index(result.value.items)
             }
             is Result.Err -> {
                 items = emptyList()
+                serverTotal = 0
                 error = result.error
             }
         }
@@ -133,13 +139,14 @@ fun CategoryScreen(
         loading = true
         loadMoreFailed = false
         scope.launch {
-            when (val result = repo.list(effectiveTypeId, page + 1, sort)) {
+            when (val result = repo.listPage(queryTypeId, page + 1, sortMode.serverSort, yearFilter)) {
                 is Result.Ok -> {
                     val known = items.mapTo(HashSet()) { "${it.sourceId}|${it.vodId}" }
-                    val fresh = result.value.filter { "${it.sourceId}|${it.vodId}" !in known }
+                    val fresh = result.value.items.filter { "${it.sourceId}|${it.vodId}" !in known }
                     items = items + fresh
+                    if (result.value.total > 0) serverTotal = result.value.total
                     page += 1
-                    hasMore = result.value.size >= 10
+                    hasMore = result.value.items.size >= PAGE_SIZE
                     pinyin.index(fresh)
                 }
                 is Result.Err -> {
@@ -161,49 +168,62 @@ fun CategoryScreen(
         if (nearEnd) loadMore()
     }
 
+    // name → 服务端 type_id（同一子分类在不同页重复出现，取第一个）
     val subCategories = remember(items) {
-        items.mapNotNull { it.typeName.takeIf { name -> name.isNotBlank() } }.distinct().take(12)
+        val seen = LinkedHashMap<String, Int>()
+        items.forEach { vod ->
+            val name = vod.typeName.takeIf { it.isNotBlank() } ?: return@forEach
+            if (name == CanonicalCategory.labelOf(baseTypeId)) return@forEach
+            val id = vod.typeId.toIntOrNull() ?: return@forEach
+            if (!seen.containsKey(name)) seen[name] = id
+        }
+        seen.entries.take(12).map { it.key to it.value }
     }
 
-    val shown = remember(items, selectedTypeName, yearFilter, areaFilter, sortByScore) {
-        val filtered = items.filter { vod ->
-            (selectedTypeName == null || vod.typeName == selectedTypeName) &&
-                (yearFilter == null || vod.year == yearFilter) &&
-                (areaFilter == null || areaMatches(vod.area, areaFilter!!))
+    // t31：排序只作用于本页（服务端 by= 无效）
+    val shown = remember(items, sortMode) {
+        when (sortMode) {
+            SortMode.SERVER_LATEST -> items
+            SortMode.HOT_LOCAL -> VodRanking.rankHot(items)
+            SortMode.SCORE_LOCAL -> VodRanking.rankByScore(items)
         }
-        if (sortByScore) filtered.sortedByDescending { it.score.toDoubleOrNull() ?: 0.0 } else filtered
     }
 
     val rootLabel = CanonicalCategory.labelOf(primaryTab) ?: title
-    val breadcrumb = remember(rootLabel, effectiveTypeId, selectedTypeName, yearFilter, areaFilter, sort, sortByScore) {
+    val breadcrumb = remember(rootLabel, baseTypeId, selectedSubName, yearFilter, sortMode) {
         buildString {
             append(rootLabel)
             if (primaryTab == CanonicalCategory.OVERSEAS_ROOT) {
-                CanonicalCategory.overseas.firstOrNull { it.id == effectiveTypeId }?.let {
+                CanonicalCategory.overseas.firstOrNull { it.id == baseTypeId }?.let {
                     append(" › ")
                     append(it.label)
                 }
             }
-            if (selectedTypeName != null) {
+            if (selectedSubName != null) {
                 append(" › ")
-                append(selectedTypeName)
+                append(selectedSubName)
             }
-            val filters = listOfNotNull(yearFilter, areaFilter, sortLabel(sort, sortByScore))
+            val filters = listOfNotNull(yearFilter, sortMode.label.takeIf { sortMode != SortMode.SERVER_LATEST })
             if (filters.isNotEmpty()) append(" · ").append(filters.joinToString(" · "))
         }
     }
 
     Column(Modifier.fillMaxSize()) {
-        // ── 顶部：返回 + 面包屑 ──────────────────────────────────────────────
+        // ── 顶部：返回 + 面包屑 + 服务端总数 ────────────────────────────────
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             TvButton("‹ 返回", onClick = onBack)
             Spacer(Modifier.width(12.dp))
             TvLabel(breadcrumb, dimens.body, colors.text, weight = FontWeight.SemiBold, maxLines = 1)
             Spacer(Modifier.width(1.dp).weight(1f))
-            TvLabel("已加载 ${items.size} 条", dimens.caption, colors.textMuted, maxLines = 1)
+            TvLabel(
+                if (serverTotal > 0) "共 $serverTotal 部" else "已加载 ${items.size} 条",
+                dimens.caption,
+                colors.accent,
+                maxLines = 1,
+            )
         }
 
-        // ── 一级 Tab（第 1 层）──────────────────────────────────────────────
+        // ── 一级 Tab ────────────────────────────────────────────────────────
         Spacer(Modifier.height(10.dp))
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(vertical = 2.dp)) {
             items(CanonicalCategory.primaryTabs, key = { it.typeId }, contentType = { "primary-tab" }) { tab ->
@@ -211,19 +231,27 @@ fun CategoryScreen(
                     LitePill(
                         text = tab.label,
                         selected = primaryTab == tab.typeId,
-                        onClick = { primaryTab = tab.typeId },
+                        onClick = {
+                            primaryTab = tab.typeId
+                            selectedSubName = null
+                            selectedSubTypeId = null
+                        },
                     )
                 } else {
                     TvChip(
                         text = tab.label,
                         selected = primaryTab == tab.typeId,
-                        onClick = { primaryTab = tab.typeId },
+                        onClick = {
+                            primaryTab = tab.typeId
+                            selectedSubName = null
+                            selectedSubTypeId = null
+                        },
                     )
                 }
             }
         }
 
-        // 海外：二级分区（韩剧/美剧/日剧…）
+        // 海外二级分区
         if (primaryTab == CanonicalCategory.OVERSEAS_ROOT) {
             Spacer(Modifier.height(8.dp))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -231,26 +259,44 @@ fun CategoryScreen(
                     TvChip(
                         text = section.label,
                         selected = overseasSection == section.id,
-                        onClick = { overseasSection = section.id },
+                        onClick = {
+                            overseasSection = section.id
+                            selectedSubName = null
+                            selectedSubTypeId = null
+                        },
                     )
                 }
             }
         }
 
-        // ── 二级子分类（第 2 层）────────────────────────────────────────────
-        if (subCategories.isNotEmpty()) {
+        // ── 二级子分类（服务端 t=<子分类 id>）───────────────────────────────
+        if (subCategories.isNotEmpty() || selectedSubName != null) {
             Spacer(Modifier.height(8.dp))
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 item(key = "all") {
-                    TvChip("全部", selected = selectedTypeName == null, onClick = { selectedTypeName = null })
+                    TvChip(
+                        "全部",
+                        selected = selectedSubName == null,
+                        onClick = {
+                            selectedSubName = null
+                            selectedSubTypeId = null
+                        },
+                    )
                 }
-                items(subCategories, key = { it }, contentType = { "sub-category" }) { name ->
-                    TvChip(name, selected = selectedTypeName == name, onClick = { selectedTypeName = name })
+                items(subCategories, key = { it.first }, contentType = { "sub-category" }) { (name, subTypeId) ->
+                    TvChip(
+                        name,
+                        selected = selectedSubName == name,
+                        onClick = {
+                            selectedSubName = name
+                            selectedSubTypeId = subTypeId
+                        },
+                    )
                 }
             }
         }
 
-        // ── 筛选（第 3 层）：胶囊 + OK 浮层 ─────────────────────────────────
+        // ── 筛选：年份走服务端；排序只标「本页」；地区已下线 ────────────────
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             TvChip(
@@ -258,16 +304,15 @@ fun CategoryScreen(
                 selected = yearFilter != null,
                 onClick = { sheet = FilterKind.YEAR },
             )
+            // t31：地区筛选下线（bfzy1 忽略 area=，本地过滤会造成「只有几部」的错觉）
             TvChip(
-                text = "地区：${areaFilter ?: "全部"}",
-                selected = areaFilter != null,
-                onClick = { sheet = FilterKind.AREA },
-            )
-            TvChip(
-                text = "排序：${sortLabel(sort, sortByScore)}",
-                selected = true,
+                text = "排序·本页：${sortMode.label}",
+                selected = sortMode != SortMode.SERVER_LATEST,
                 onClick = { sheet = FilterKind.SORT },
             )
+            if (sortMode != SortMode.SERVER_LATEST) {
+                TvLabel("仅本页生效（服务端不排序）", dimens.caption, colors.textMuted, maxLines = 1)
+            }
         }
 
         // ── 网格 / C 模式两列列表 ───────────────────────────────────────────
@@ -285,9 +330,9 @@ fun CategoryScreen(
                         TvButton(
                             "换个子分类",
                             onClick = {
-                                selectedTypeName = null
+                                selectedSubName = null
+                                selectedSubTypeId = null
                                 yearFilter = null
-                                areaFilter = null
                             },
                         )
                     }
@@ -345,13 +390,10 @@ fun CategoryScreen(
             }
         }
 
-        // ── 页脚：三态互斥 ──────────────────────────────────────────────────
+        // ── 页脚：共 N 部 + 三态互斥 ────────────────────────────────────────
         Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             TvLabel(
-                text = buildString {
-                    append("已加载 ${items.size} 条")
-                    if (shown.size != items.size) append(" · 筛选后 ${shown.size} 条")
-                },
+                text = if (serverTotal > 0) "共 $serverTotal 部 · 已加载 ${items.size} 条" else "已加载 ${items.size} 条",
                 fontSize = dimens.caption,
                 color = colors.textMuted,
                 maxLines = 1,
@@ -367,7 +409,7 @@ fun CategoryScreen(
         DpadDownSink()
     }
 
-    // ── 筛选浮层（不用下拉框）──────────────────────────────────────────────
+    // ── 筛选浮层（胶囊 + OK，不用下拉框）──────────────────────────────────
     val currentSheet = sheet
     if (currentSheet != null) {
         val sheetTitle: String
@@ -375,19 +417,14 @@ fun CategoryScreen(
         val current: String
         when (currentSheet) {
             FilterKind.YEAR -> {
-                sheetTitle = "年份"
+                sheetTitle = "年份（服务端）"
                 options = listOf("全部") + YEAR_OPTIONS
                 current = yearFilter ?: "全部"
             }
-            FilterKind.AREA -> {
-                sheetTitle = "地区"
-                options = listOf("全部") + AREA_OPTIONS
-                current = areaFilter ?: "全部"
-            }
             FilterKind.SORT -> {
-                sheetTitle = "排序"
-                options = listOf("最新", "最热", "评分")
-                current = sortLabel(sort, sortByScore)
+                sheetTitle = "排序·本页（服务端 by= 无效）"
+                options = SortMode.entries.map { it.label }
+                current = sortMode.label
             }
         }
         OptionSheet(
@@ -395,24 +432,9 @@ fun CategoryScreen(
             options = options,
             selected = current,
             onPick = { picked ->
-                val value = picked?.takeIf { it != "全部" }
                 when (currentSheet) {
-                    FilterKind.YEAR -> yearFilter = value
-                    FilterKind.AREA -> areaFilter = value
-                    FilterKind.SORT -> when (picked) {
-                        "最热" -> {
-                            sort = SourceRepository.Sort.HOT
-                            sortByScore = false
-                        }
-                        "评分" -> {
-                            sort = SourceRepository.Sort.LATEST
-                            sortByScore = true
-                        }
-                        else -> {
-                            sort = SourceRepository.Sort.LATEST
-                            sortByScore = false
-                        }
-                    }
+                    FilterKind.YEAR -> yearFilter = picked?.takeIf { it != "全部" }
+                    FilterKind.SORT -> sortMode = SortMode.entries.firstOrNull { it.label == picked } ?: SortMode.SERVER_LATEST
                 }
             },
             onClose = { sheet = null },
@@ -420,18 +442,26 @@ fun CategoryScreen(
     }
 }
 
-private enum class FilterKind { YEAR, AREA, SORT }
+private const val PAGE_SIZE = 20
 
-private val YEAR_OPTIONS = listOf("2026", "2025", "2024", "2023", "2022")
-private val AREA_OPTIONS = listOf("大陆", "港台", "日韩", "欧美", "其他")
+private enum class FilterKind { YEAR, SORT }
 
-private fun sortLabel(sort: SourceRepository.Sort, byScore: Boolean): String = when {
-    byScore -> "评分"
-    sort == SourceRepository.Sort.HOT -> "最热"
-    else -> "最新"
+/** 排序模式：服务端只认最新（time），其余只作用于本页。 */
+private enum class SortMode(
+    val label: String,
+    val serverSort: SourceRepository.Sort,
+) {
+    SERVER_LATEST("最新（服务端）", SourceRepository.Sort.LATEST),
+    HOT_LOCAL("热度", SourceRepository.Sort.LATEST),
+    SCORE_LOCAL("评分", SourceRepository.Sort.LATEST),
 }
 
-/** 地区粗匹配：源返回的 vod_area 形如「中国大陆 / 日本 / 美国 / 中国香港」。 */
+private val YEAR_OPTIONS = listOf("2026", "2025", "2024", "2023", "2022")
+
+/**
+ * 地区粗匹配（t31 下线，保留实现）：
+ * bfzy1 忽略 `area=`，本地过滤已加载页会让人误以为「只有几部」；等有支持 area 的源再启用。
+ */
 private fun areaMatches(area: String, filter: String): Boolean {
     if (area.isBlank()) return false
     val mainland = area.contains("大陆") || (area.contains("中国") && !area.contains("香港") && !area.contains("台湾"))

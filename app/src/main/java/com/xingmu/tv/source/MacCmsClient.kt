@@ -97,12 +97,15 @@ object MacCmsClient {
         typeId: Int?,
         page: Int,
         sort: SourceRepository.Sort,
+        year: String? = null,
     ): Result<Page> {
         val params = ArrayList<Pair<String, String>>()
-        params.add("ac" to "list")
+        // t31：bfzy1 的 ac=list 会忽略 t=，必须用 ac=detail 才能按子分类/年份全量查询
+        params.add("ac" to "detail")
         if (typeId != null) params.add("t" to typeId.toString())
         params.add("pg" to page.coerceAtLeast(1).toString())
-        if (sort == SourceRepository.Sort.HOT) params.add("by" to "hits")
+        params.add("by" to if (sort == SourceRepository.Sort.HOT) "hits" else "time")
+        year?.trim()?.takeIf { it.isNotEmpty() }?.let { params.add("year" to it) }
         params.add("limit" to src.pageSize.toString())
         return fetchPage(src, apiUrl(src, params))
     }
@@ -249,6 +252,7 @@ object MacCmsClient {
             score = stringValue(o, "vod_score") ?: "",
             picThumb = stringValue(o, "vod_pic_thumb") ?: "",
             area = stringValue(o, "vod_area") ?: "",
+            updatedAtMs = (stringValue(o, "vod_time_add")?.toLongOrNull() ?: 0L) * 1000L,
         )
     }
 

@@ -17,6 +17,32 @@ import org.json.JSONObject
  */
 object MacCmsParser {
 
+    /** t31：列表 + 服务端 total/pagecount（分页 UI 用「共 N 部」而不是只数已加载）。 */
+    fun parseListPage(json: String, sourceId: String): Result<VodPage> = try {
+        val root = JSONObject(json)
+        val code = root.optInt("code", 1)
+        if (code != 1) {
+            Result.Err(AppError(ErrorCodes.SOURCE_OFFLINE, "源返回错误：" + root.optString("msg", "code=$code")))
+        } else {
+            val array = root.optJSONArray("list") ?: JSONArray()
+            val items = ArrayList<VodSummary>(array.length())
+            for (i in 0 until array.length()) {
+                val obj = array.optJSONObject(i) ?: continue
+                val summary = toSummary(obj, sourceId)
+                if (summary.vodId.isNotBlank() && summary.name.isNotBlank()) items.add(summary)
+            }
+            Result.Ok(
+                VodPage(
+                    items = items,
+                    total = root.optInt("total", items.size),
+                    pageCount = root.optInt("pagecount", 0),
+                ),
+            )
+        }
+    } catch (t: Throwable) {
+        Result.Err(AppError(ErrorCodes.PARSE, "列表解析失败：" + (t.message ?: ""), t))
+    }
+
     fun parseList(json: String, sourceId: String): Result<List<VodSummary>> = try {
         val root = JSONObject(json)
         val code = root.optInt("code", 1)
@@ -81,6 +107,7 @@ object MacCmsParser {
             score = o.optString("vod_score").trim(),
             picThumb = o.optString("vod_pic_thumb").trim(),
             area = o.optString("vod_area").trim(),
+            updatedAtMs = o.optLong("vod_time_add", 0L) * 1000L,
         )
     }
 

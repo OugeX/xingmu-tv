@@ -58,7 +58,20 @@ class LocalSourceRepository(context: Context) : SourceRepository, SourceAdminDat
         typeId: Int,
         page: Int,
         sort: SourceRepository.Sort,
+        year: String?,
     ): Result<List<VodSummary>> {
+        return when (val r = listPage(typeId, page, sort, year)) {
+            is Result.Ok -> Result.Ok(r.value.items)
+            is Result.Err -> r
+        }
+    }
+
+    override suspend fun listPage(
+        typeId: Int,
+        page: Int,
+        sort: SourceRepository.Sort,
+        year: String?,
+    ): Result<VodPage> {
         val sources = maccmsSources()
         if (sources.isEmpty()) {
             return Result.failure(ErrorCodes.NO_SOURCE, "没有启用的点播源")
@@ -70,12 +83,19 @@ class LocalSourceRepository(context: Context) : SourceRepository, SourceAdminDat
                     ErrorCodes.NO_SOURCE,
                     "源《${source.name}》没有该分类",
                 )
-            client.list(source, realTypeId, page, sort.toClientSort())
+            client.listPage(source, realTypeId, page, sort.toClientSort(), year)
         }
         if (groups.isEmpty()) {
             return Result.failure(ErrorCodes.SOURCE_OFFLINE, "所有源均请求失败，请检查网络或源状态")
         }
-        return Result.Ok(merge(groups.map { it.second }))
+        val pages = groups.mapNotNull { it.second }
+        return Result.Ok(
+            VodPage(
+                items = merge(pages.map { it.items }),
+                total = pages.sumOf { it.total },
+                pageCount = pages.maxOfOrNull { it.pageCount } ?: 0,
+            ),
+        )
     }
 
     override suspend fun search(keyword: String, page: Int): Result<List<VodSummary>> {
@@ -213,15 +233,19 @@ class LocalSourceRepository(context: Context) : SourceRepository, SourceAdminDat
         CanonicalCategory.VARIETY -> source.categories["VARIETY"]?.firstOrNull() ?: 3
         else -> {
             val section = CanonicalCategory.overseas.firstOrNull { it.id == canonicalTypeId }
-                ?: return null
-            overseas.typeIdFor(overseasTypes[source.id], section)
-                ?: source.categories[section.categoryKey]?.firstOrNull()
-                ?: when (section.categoryKey) {
-                    "TV" -> 2
-                    "ANIME" -> 4
-                    "VARIETY" -> 3
-                    else -> null
-                }
+            if (section == null) {
+                // t31：非规范分类（如子分类 喜剧片=22）直接当 MacCMS 原始 type_id 下传
+                canonicalTypeId
+            } else {
+                overseas.typeIdFor(overseasTypes[source.id], section)
+                    ?: source.categories[section.categoryKey]?.firstOrNull()
+                    ?: when (section.categoryKey) {
+                        "TV" -> 2
+                        "ANIME" -> 4
+                        "VARIETY" -> 3
+                        else -> null
+                    }
+            }
         }
     }
 
