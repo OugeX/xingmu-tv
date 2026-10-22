@@ -29,6 +29,20 @@ object MacCmsQuery {
         return "?" + params.joinToString("&") { "${it.first}=${it.second}" }
     }
 
+    /** 本类搜索（t34 §7）：服务端  +  组合，只在当前分类内搜。 */
+    fun searchInCategory(typeId: Int?, keyword: String, page: Int): String {
+        val params = ArrayList<Pair<String, String>>(5)
+        params.add("ac" to "detail")
+        params.add("wd" to java.net.URLEncoder.encode(keyword, "UTF-8"))
+        if (typeId != null && typeId > 0) params.add("t" to typeId.toString())
+        params.add("pg" to page.coerceAtLeast(1).toString())
+        return "?" + params.joinToString("&") { "${it.first}=${it.second}" }
+    }
+
+    /** 能力探测用：临时带上 area（正常路径不传；bfzy1 会忽略）。 */
+    fun listWithArea(typeId: Int?, page: Int, order: String, area: String): String =
+        list(typeId, page, order, null) + "&area=" + area
+
     /** 缓存键必须包含 year，否则切年份会命中上一年份的文件缓存。 */
     fun listCacheKey(sourceId: String, typeId: Int?, page: Int, order: String, year: String?): String =
         "list|$sourceId|${typeId ?: 0}|$page|$order|${year?.trim().orEmpty().ifEmpty { "-" }}"

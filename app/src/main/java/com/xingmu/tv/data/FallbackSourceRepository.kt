@@ -1,6 +1,7 @@
 package com.xingmu.tv.data
 
 import com.xingmu.tv.core.Result
+import com.xingmu.tv.data.FilterCapability
 import com.xingmu.tv.core.TvLog
 import com.xingmu.tv.source.SourceRepository
 import kotlinx.coroutines.withTimeoutOrNull
@@ -75,6 +76,21 @@ class FallbackSourceRepository(
         }
         return fallbackResult
     }
+
+    /** t34 §7：本类搜索优先 primary（内部走 wd= + t=），失败再 fallback。 */
+    override suspend fun searchInCategory(
+        typeId: Int,
+        keyword: String,
+        page: Int,
+    ): Result<List<VodSummary>> {
+        val primaryResult = withTimeoutOrNull(PRIMARY_PROBE_MS) { primary.searchInCategory(typeId, keyword, page) }
+        if (primaryResult is Result.Ok && primaryResult.value.isNotEmpty()) return primaryResult
+        return fallback.searchInCategory(typeId, keyword, page)
+    }
+
+    /** t34 §3：能力探测走 fallback（它持有 MacCmsClient，能发 area/by 探针）。 */
+    override suspend fun probeFilterCapability(typeId: Int): Result<FilterCapability> =
+        fallback.probeFilterCapability(typeId)
 
     override suspend fun findAlternateSources(
         vodId: String,

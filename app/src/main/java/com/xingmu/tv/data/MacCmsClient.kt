@@ -105,6 +105,34 @@ class MacCmsClient(
         }
     }
 
+    /** t34 §7：本类搜索（wd= + t=，服务端在分类内匹配）。 */
+    suspend fun searchInCategory(
+        source: SourceConfig,
+        typeId: Int,
+        keyword: String,
+        page: Int,
+    ): Result<List<VodSummary>> {
+        val query = MacCmsQuery.searchInCategory(typeId, keyword, page)
+        val key = "searchT|" + source.id + "|" + typeId + "|" + keyword + "|" + page
+        return when (val raw = fetch(source, key, query, LIST_TTL_MS)) {
+            is Result.Ok -> MacCmsParser.parseList(raw.value, source.id)
+            is Result.Err -> raw
+        }
+    }
+
+    /** t34 §3：探测服务端是否采纳 area（带 area 前后 total 是否变化）。 */
+    suspend fun totalWithArea(source: SourceConfig, typeId: Int, area: String): Result<Int> {
+        val query = MacCmsQuery.listWithArea(typeId, 1, "time", area)
+        val key = "probe|area|" + source.id + "|" + typeId
+        return when (val raw = fetch(source, key, query, 0L, forceNetwork = true)) {
+            is Result.Ok -> when (val page = MacCmsParser.parseListPage(raw.value, source.id)) {
+                is Result.Ok -> Result.Ok(page.value.total)
+                is Result.Err -> page
+            }
+            is Result.Err -> raw
+        }
+    }
+
     /** 源连通性测试：返回首字节到完整响应的耗时（ms）。 */
     suspend fun probe(source: SourceConfig): Result<Long> {
         val started = System.currentTimeMillis()

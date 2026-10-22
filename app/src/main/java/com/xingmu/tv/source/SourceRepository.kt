@@ -2,6 +2,7 @@ package com.xingmu.tv.source
 
 import com.xingmu.tv.core.Result
 import com.xingmu.tv.data.Channel
+import com.xingmu.tv.data.FilterCapability
 import com.xingmu.tv.data.SourceConfig
 import com.xingmu.tv.data.VodDetail
 import com.xingmu.tv.data.VodPage
@@ -39,6 +40,21 @@ interface SourceRepository {
         is Result.Ok -> Result.Ok(VodPage(items = r.value, total = 0, pageCount = 0))
         is Result.Err -> r
     }
+
+    /** t34 §2：某分类的服务端 total（用于子分类数量角标）。 */
+    suspend fun countOf(typeId: Int, year: String? = null): Result<Int> =
+        when (val r = listPage(typeId, 1, Sort.LATEST, year)) {
+            is Result.Ok -> Result.Ok(r.value.total)
+            is Result.Err -> r
+        }
+
+    /** t34 §7：本类搜索（服务端 wd= + t=）。默认退化到全局搜索。 */
+    suspend fun searchInCategory(typeId: Int, keyword: String, page: Int = 1): Result<List<VodSummary>> =
+        search(keyword, page)
+
+    /** t34 §3：筛选能力探测（默认未知 → UI 保守显示）。 */
+    suspend fun probeFilterCapability(typeId: Int): Result<FilterCapability> =
+        Result.Ok(FilterCapability())
 
     /** 跨源聚合搜索（并发 3、单源 3.5s、硬截止 4.5s） */
     suspend fun search(keyword: String, page: Int = 1): Result<List<VodSummary>>

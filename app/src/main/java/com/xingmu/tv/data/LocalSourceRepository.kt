@@ -98,6 +98,64 @@ class LocalSourceRepository(context: Context) : SourceRepository, SourceAdminDat
         )
     }
 
+    /** t34 §7：本类搜索（wd= + t=，只在当前分类内匹配）。 */
+    override suspend fun searchInCategory(
+        typeId: Int,
+        keyword: String,
+        page: Int,
+    ): Result<List<VodSummary>> {
+        val query = keyword.trim()
+        if (query.isEmpty()) return Result.Ok(emptyList())
+        val sources = maccmsSources()
+        if (sources.isEmpty()) return Result.failure(ErrorCodes.NO_SOURCE, "没有启用的点播源")
+        val overseasTypes = if (CanonicalCategory.isOverseas(typeId)) overseas.load() else emptyMap()
+        val groups = aggregateAcrossSources(sources) { source ->
+            val realTypeId = realTypeId(source, typeId, overseasTypes)
+                ?: return@aggregateAcrossSources Result.failure(ErrorCodes.NO_SOURCE, "源没有该分类")
+            client.searchInCategory(source, realTypeId, query, page)
+        }
+        if (groups.isEmpty()) return Result.failure(ErrorCodes.SOURCE_OFFLINE, "本类搜索失败")
+        return Result.Ok(merge(groups.map { it.second }))
+    }
+
+    /** t34 §3：能力探测（每源带 area / by 各请求一次，比较 total；多数决）。 */
+    override suspend fun probeFilterCapability(typeId: Int): Result<FilterCapability> {
+        val sources = maccmsSources()
+        if (sources.isEmpty()) return Result.Ok(FilterCapability())
+        val overseasTypes = if (CanonicalCategory.isOverseas(typeId)) overseas.load() else emptyMap()
+        var supportedArea = 0
+        var unsupportedArea = 0
+        var supportedSort = 0
+        var unsupportedSort = 0
+        sources.forEach { source ->
+            val realTypeId = realTypeId(source, typeId, overseasTypes) ?: return@forEach
+            val baseline = (client.listPage(source, realTypeId, 1, MacCmsClient.SourceSort.LATEST, null)
+                as? Result.Ok)?.value?.total ?: return@forEach
+            val withArea = when (val r = client.totalWithArea(source, realTypeId, "大陆")) {
+                is Result.Ok -> r.value
+                is Result.Err -> null
+            }
+            val withSort = (client.listPage(source, realTypeId, 1, MacCmsClient.SourceSort.HOT, null)
+                as? Result.Ok)?.value?.total
+            when (CapabilityDecider.decideOne(baseline, withArea)) {
+                FilterSupport.SUPPORTED -> supportedArea++
+                FilterSupport.UNSUPPORTED -> unsupportedArea++
+                else -> Unit
+            }
+            when (CapabilityDecider.decideOne(baseline, withSort)) {
+                FilterSupport.SUPPORTED -> supportedSort++
+                FilterSupport.UNSUPPORTED -> unsupportedSort++
+                else -> Unit
+            }
+        }
+        return Result.Ok(
+            FilterCapability(
+                area = CapabilityDecider.majority(supportedArea, unsupportedArea),
+                sort = CapabilityDecider.majority(supportedSort, unsupportedSort),
+            ),
+        )
+    }
+
     override suspend fun search(keyword: String, page: Int): Result<List<VodSummary>> {
         val query = keyword.trim()
         if (query.isEmpty()) return Result.Ok(emptyList())
