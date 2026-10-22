@@ -10,8 +10,23 @@ object TvLog {
 
     private const val TAG_PREFIX = "TVBox/"
 
+    /**
+     * 是否输出 debug 日志。
+     *
+     * R8 release 包里 [AppBuild.DEBUG] 为 false，真机排障时会拿不到 `pick mime` / `PLAYER_EVT` 这类关键行。
+     * 因此额外支持一个系统属性开关（issue #1 建议）：
+     *   adb shell setprop debug.xingmu.log 1   # 打开
+     *   adb shell setprop debug.xingmu.log 0   # 关闭（进程重启后生效）
+     */
     @PublishedApi
-    internal val verbose: Boolean = AppBuild.DEBUG
+    internal val verbose: Boolean = AppBuild.DEBUG || readProp("debug.xingmu.log") == "1"
+
+    private fun readProp(key: String): String = try {
+        val cls = Class.forName("android.os.SystemProperties")
+        (cls.getMethod("get", String::class.java).invoke(null, key) as? String).orEmpty()
+    } catch (t: Throwable) {
+        ""
+    }
 
     fun d(tag: String, msg: String) {
         if (verbose) Log.d(TAG_PREFIX + tag, msg)

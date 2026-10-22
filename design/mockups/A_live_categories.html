@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1920px;height:1080px;overflow:hidden;background:#000;font-family:"Microsoft YaHei",sans-serif;color:#fff}
+.video{position:absolute;inset:0;background:linear-gradient(135deg,#1b2b1b,#0a0f0a)}
+.panel{position:absolute;left:0;top:0;width:1180px;height:1080px;background:rgba(10,10,12,.93);border-right:1px solid rgba(255,255,255,.08);padding:32px 36px}
+.title{display:flex;align-items:baseline;gap:14px;font-size:26px;font-weight:800}
+.title span{font-size:15px;color:#8d857c;font-weight:400}
+.tabs{display:flex;gap:10px;margin:22px 0 18px;flex-wrap:wrap}
+.tab{padding:9px 18px;border-radius:6px;font-size:18px;color:#b8b0a6;border:1px solid #26262a;background:#141416}
+.tab.on{background:rgba(232,184,114,.16);border-color:#E8B872;color:#E8B872;font-weight:700}
+.tab i{font-style:normal;font-size:13px;color:#7d766e;margin-left:6px}
+.tab.on i{color:#c9a55f}
+.search{position:absolute;right:36px;top:32px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.ch{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:6px;background:#111113;border:1px solid #222}
+.ch.on{border-color:#E8B872;background:rgba(232,184,114,.14);outline:2px solid #E8B872}
+.num{width:44px;font-size:15px;color:#7d766e;text-align:right}
+.name{font-size:20px}
+.tags{margin-left:auto;display:flex;gap:6px}
+.tag{font-size:12px;padding:2px 7px;border-radius:3px;border:1px solid #2f2f33;color:#a89f95}
+.tag.gold{border-color:rgba(232,184,114,.5);color:#E8B872}
+.tag.warn{border-color:rgba(229,72,77,.5);color:#E5484D}
+.pager{display:flex;gap:8px;margin-top:14px}
+.pager div{padding:6px 14px;border-radius:4px;font-size:14px;background:#141416;border:1px solid #232327;color:#9d948a}
+.pager .on{background:#E8B872;color:#1a1206;border-color:#E8B872;font-weight:700}
+.hint{position:absolute;left:36px;bottom:26px;font-size:14px;color:#6f6960}
+</style></head><body>
+<div class="video"></div>
+<div class="panel">
+  <div class="title">频道 <span>266 个 · 安全模式 163 个 · 4 组</span></div>
+  <div class="search"><div class="tab">搜台 · 首拼/名称</div></div>
+  <div class="tabs">
+    <div class="tab on">高清专区<i>114</i></div>
+    <div class="tab">央视<i>24</i></div>
+    <div class="tab">卫视<i>17</i></div>
+    <div class="tab">地方<i>122</i></div>
+    <div class="tab">港澳台<i>6</i></div>
+    <div class="tab">收藏<i>8</i></div>
+    <div class="tab">最近<i>10</i></div>
+  </div>
+  <div class="grid">
+    <div class="ch on"><div class="num">003</div><div class="name">CCTV-1 综合</div><div class="tags"><span class="tag gold">720p</span><span class="tag">3 线</span></div></div>
+    <div class="ch"><div class="num">004</div><div class="name">CCTV-2 财经</div><div class="tags"><span class="tag gold">720p</span><span class="tag">3 线</span></div></div>
+    <div class="ch"><div class="num">006</div><div class="name">CCTV-12 社会与法</div><div class="tags"><span class="tag gold">1080p</span><span class="tag">3 线</span></div></div>
+    <div class="ch"><div class="num">007</div><div class="name">CCTV-13 新闻</div><div class="tags"><span class="tag gold">1080p</span><span class="tag">2 线</span></div></div>
+    <div class="ch"><div class="num">008</div><div class="name">CCTV-14 少儿</div><div class="tags"><span class="tag gold">1080p</span><span class="tag">3 线</span></div></div>
+    <div class="ch"><div class="num">009</div><div class="name">CCTV-15 音乐</div><div class="tags"><span class="tag gold">1080p</span><span class="tag">3 线</span></div></div>
+    <div class="ch"><div class="num">010</div><div class="name">CCTV-16 奥林匹克</div><div class="tags"><span class="tag gold">1080p</span><span class="tag">2 线</span></div></div>
+    <div class="ch"><div class="num">011</div><div class="name">CCTV-17 农业农村</div><div class="tags"><span class="tag warn">可能黑屏</span><span class="tag">2 线</span></div></div>
+    <div class="ch"><div class="num">013</div><div class="name">CCTV-3 综艺</div><div class="tags"><span class="tag gold">1080p</span><span class="tag">2 线</span></div></div>
+    <div class="ch"><div class="num">015</div><div class="name">CCTV-5 体育</div><div class="tags"><span class="tag gold">720p</span><span class="tag">2 线</span></div></div>
+    <div class="ch"><div class="num">019</div><div class="name">CCTV-8 电视剧</div><div class="tags"><span class="tag gold">1080p</span><span class="tag">4 线</span></div></div>
+    <div class="ch"><div class="num">020</div><div class="name">CCTV-8K 超高清</div><div class="tags"><span class="tag warn">可能黑屏</span><span class="tag">1 线</span></div></div>
+  </div>
+  <div class="pager"><div class="on">1-60</div><div>61-120</div></div>
+  <div class="hint">←/→ 换格 · ↑ 回分组 · 数字键直达台号 · 长按 OK 收藏 · BACK 收起</div>
+</div>
+</body></html>

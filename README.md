@@ -104,7 +104,7 @@ app/
 | 渠道 | 说明 |
 | --- | --- |
 | **Releases · 标准包**（推荐） | [v0.2.6](https://github.com/OugeX/xingmu-tv/releases/tag/v0.2.6) 的 `xingmu-tv-v0.2.6-*.apk`（12.2MB），已在真机 LeTV 上逐项验证 |
-| **Releases · 精简包** | 同页 `*-r8-*.apk`（**2.86MB**，R8 + 资源裁剪），体积小 76%，仅在 Android TV 模拟器验证过安装/启动/渲染，真机四链路待验 |
+| **Releases · 精简包** | 同页 `*-r8-*.apk`（**3.0MB**，R8 + 资源裁剪）。**存储 <4GB 或 /data 剩余 <300MB 的机型建议直接用它**：实测 1.4GB 的 /data，标准包装完只剩 ~17MB，R8 包还剩 130MB |
 | CI 产物 | 每次提交由 GitHub Actions 构建，可在 Actions → build → Artifacts 下载（保留 30 天） |
 | **不会装？** | 看 [老电视复活指南](docs/老电视复活指南.md)：开 ADB、连电视、装 APK、配源，一步一图 |
 
@@ -207,6 +207,17 @@ Windows MSI 目前不内置 libVLC（体积/许可证考虑），把 VLC 目录�
 - [ ] 详情无缓存首开（2.9–7.8s）：受源站 TLS 冷连接限制，考虑本地预置热门作品详情
 
 > 最新版本见 [Releases](https://github.com/OugeX/xingmu-tv/releases)。
+
+## 排障日志
+
+正式包（R8）默认不输出 debug 日志。需要现场排查时打开开关（进程重启后生效）：
+
+```bash
+adb shell setprop debug.xingmu.log 1
+adb logcat -s TVBox/Codec TVBox/PLAYER_EVT TVBox/Live
+```
+
+`TVBox/Codec` 会打印实际选中的解码器（例如 `pick mime=audio/mpeg-L2 ->` 表示该音轨被判定为不安全、已静音播放）。
 
 ## 反馈与已知问题
 
