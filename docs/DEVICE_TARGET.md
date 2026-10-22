@@ -34,3 +34,19 @@
    ```
 6. **过扫描**：该机型实测四边无裁切（EUI 默认无 overscan），overscan 设置默认 0%，仍保留三档可调。
 7. **摇控器**：该机为蓝牙语音遥控器，`KEYCODE_CHANNEL_UP/DOWN`、`KEYCODE_MENU`、数字键均可用；语音键走系统搜索 Intent（对应 SEARCH_SPEC P0 层，需实测系统是否响应 `RecognizerIntent`）。
+
+
+## Konka Android TV 828（issue #1 反馈机型，2026-10-22）
+
+| 项 | 值 |
+| --- | --- |
+| 型号 | Konka Android TV 828（`ro.product.device=konka828`，`aosp_konka828`） |
+| 系统 | **Android 5.0.1 / API 21**，`ro.board.platform=muji`（MStar），userdebug + dev-keys |
+| 屏幕 | 1920×1080 @240dpi（无覆盖值） |
+| ADB | `persist.adb.tcp.port=5555` 预设常开（但该机型当前不在我方局域网内，无法直连） |
+| **screencap** | **输出恒 0 字节**（muji 固件问题）→ 验证只能靠 `logcat` + `dumpsys window windows | grep SurfaceView` |
+| 存储 | `/data` 总 1.4GB：标准包装后剩 ~17MB；**R8 包剩 130MB** → 低存储机型默认推 R8 |
+| 解码器 | 注册了 3 个 `audio/mpeg` 解码器：`OMX.MS.MP3.Decoder`、**`OMX.google.mstmp3.decoder`（伪装成软解，会踩 ACodec.cpp:3533 abort）**、`OMX.google.mp3.decoder`（安全） |
+| 遥控器 | 康佳 KW-Y006，**无 INFO 键** → 换源/画质入口不能只绑 INFO |
+
+**踩坑记录**：`pm disable-user` 被该固件 PMS 拒绝（SecurityException），`pm hide` 可用（用户已用它清掉 16 个预装广告/商城包）。

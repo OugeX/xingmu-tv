@@ -66,6 +66,9 @@ class LiveController(
     private val _state = MutableStateFlow(LiveState())
     val state: StateFlow<LiveState> = _state.asStateFlow()
 
+    /** t30：收藏 / 最近（SharedPreferences + StateFlow，UI 直接 collect） */
+    val channelPrefs = LiveChannelPrefs(context.applicationContext)
+
     private val profile: PlayerProfileControl? = player as? PlayerProfileControl
     private val liveOps: PlayerLiveOps? = player as? PlayerLiveOps
 
@@ -869,6 +872,8 @@ class LiveController(
         hopCount = 0
         failedChannelIds.clear()
         prefs.edit().putString(KEY_LAST_CHANNEL, channel.id).apply()
+        // t30：「最近」按首帧成功记录（不是按焦点），避免划过一堆台把最近刷乱
+        channelPrefs.touchRecent(channel.id)
         prefetchNeighbors(channel)
         _state.update {
             it.copy(
@@ -1084,6 +1089,14 @@ class LiveController(
         _state.update { it.copy(overlay = LiveOverlay.NONE) }
         if (channel != null && state.switching) {
             playChannel(channel, resetHops = true)
+        }
+    }
+
+    /** t30：长按 OK 收藏 / 取消收藏（按频道 id，跨重启保留）。 */
+    fun toggleFavorite(channel: LiveChannel) {
+        val added = channelPrefs.toggleFavorite(channel.id)
+        _state.update {
+            it.copy(message = if (added) "已收藏：${channel.name}" else "已取消收藏：${channel.name}")
         }
     }
 
