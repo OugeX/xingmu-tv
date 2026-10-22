@@ -153,8 +153,18 @@ object SafeCodecSelector : androidx.media3.exoplayer.mediacodec.MediaCodecSelect
 
     private val delegate = androidx.media3.exoplayer.mediacodec.MediaCodecSelector.DEFAULT
 
-    /** 只在 MStar/MS 系固件上生效，其它平台保持默认（避免误伤硬件解码）。 */
-    private val blockedPrefixes = listOf("OMX.MS.MP3", "OMX.MS.AMR")
+    /** MStar 固件里这些"软解"其实还是走 MCU，会踩 ACodec.cpp:3533 断言（issue #1）。 */
+    private val blockedPrefixes = listOf(
+        "OMX.MS.MP3",
+        "OMX.MS.AMR",
+        "OMX.google.mstmp3",   // MStar 伪装成 google 软解的固件解码器（libstagefright_soft_mstmp3dec）
+    )
+
+    /** 已知安全的 AOSP 音频软解（MP3 只放行这些，避免选回固件解码器）。 */
+    private val safeAudioMpeg = setOf(
+        "OMX.google.mp3.decoder",
+        "c2.android.mp3.decoder",
+    )
 
     override fun getDecoderInfos(
         mimeType: String,
@@ -162,8 +172,18 @@ object SafeCodecSelector : androidx.media3.exoplayer.mediacodec.MediaCodecSelect
         requiresTunnelingDecoder: Boolean,
     ): List<androidx.media3.exoplayer.mediacodec.MediaCodecInfo> {
         val all = delegate.getDecoderInfos(mimeType, requiresSecureDecoder, requiresTunnelingDecoder)
-        val filtered = all.filterNot { info -> blockedPrefixes.any { info.name.startsWith(it) } }
-        if (filtered.isEmpty()) return all   // 唯一解码器被剔除时宁可试一次，也不让整条源直接失败
+        val filtered = if (mimeType.equals(androidx.media3.common.MimeTypes.AUDIO_MPEG, ignoreCase = true)) {
+            // audio/mpeg 精确放行：只有 AOSP 软解才安全；一个都没有时退回全部（宁可试一次也不让整条源不可播）
+            all.filter { it.name in safeAudioMpeg }.ifEmpty {
+                all.filterNot { info -> blockedPrefixes.any { info.name.startsWith(it) } }.ifEmpty { all }
+            }
+        } else {
+            all.filterNot { info -> blockedPrefixes.any { info.name.startsWith(it) } }.ifEmpty { all }
+        }
+        com.xingmu.tv.core.TvLog.i(
+            "Codec",
+            "pick mime=$mimeType -> ${filtered.joinToString(",") { it.name }}",
+        )
         return filtered
     }
 }

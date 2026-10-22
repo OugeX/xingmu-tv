@@ -109,6 +109,7 @@ fun PlayerScreen(
     var current by remember { mutableStateOf(request) }
     var episodeIndex by remember { mutableIntStateOf(request.episodeIndex) }
     var hudVisible by remember { mutableStateOf(true) }
+    val hudFocus = remember { androidx.compose.ui.focus.FocusRequester() }
     var speed by remember { mutableFloatStateOf(1f) }
     var qualityIndex by remember { mutableIntStateOf(0) }
     var aspectMode by remember { mutableStateOf(com.xingmu.tv.player.AspectMode.FIT) }
@@ -247,11 +248,11 @@ fun PlayerScreen(
             .focusRequester(focusRequester)
             .focusable()
             .onPreviewKeyEvent { event ->
-                hudVisible = true
                 if (event.type == KeyEventType.KeyDown &&
                     event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_MENU
                 ) {
-                    showEpisodes = true
+                    // 有「集」就开选集；没有集（直播/单片）就开线路/画质面板
+                    if (current.episodes.size > 1) showEpisodes = true else showSources = true
                     true
                 } else if (event.type == KeyEventType.KeyDown &&
                     event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_INFO
@@ -275,16 +276,18 @@ fun PlayerScreen(
                     (event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_DPAD_UP ||
                         event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_DPAD_DOWN)
                 ) {
-                    // ↑↓：唤出 HUD（交给 HUD 内按钮导航）
+                    // ↑↓：唤出 HUD，并把焦点送进按钮（否则看得见选不中）
                     hudVisible = true
-                    false
+                    hudFocus.requestFocus()
+                    true
                 } else if (event.type == KeyEventType.KeyDown &&
                     (event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER ||
                         event.key.nativeKeyCode == android.view.KeyEvent.KEYCODE_ENTER)
                 ) {
-                    // HUD 隐藏时 OK = 播放/暂停；HUD 显示时交给按钮焦点处理
+                    // HUD 隐藏：OK 唤出菜单并把焦点送到「播放/暂停」；HUD 可见：交给按钮自己处理
                     if (!hudVisible) {
-                        if (state is PlayerController.State.Playing) controller.pause() else controller.resume()
+                        hudVisible = true
+                        hudFocus.requestFocus()
                         true
                     } else {
                         false
@@ -379,6 +382,7 @@ fun PlayerScreen(
                             onClick = {
                                 if (state is PlayerController.State.Playing) controller.pause() else controller.resume()
                             },
+                            modifier = Modifier.focusRequester(hudFocus),
                             enabled = true,
                             primary = true,
                         )
@@ -407,7 +411,7 @@ fun PlayerScreen(
                         }, enabled = true)
                         }
                         TvButton("选集", onClick = { showEpisodes = true })
-                        TvButton("换源", onClick = { showSources = true })
+                        TvButton("线路/换源", onClick = { showSources = true })
                         TvButton("‹ 返回", onClick = onBack)
                     }
                 }
