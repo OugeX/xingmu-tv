@@ -124,6 +124,8 @@ class PlayerControllerImpl(
     private var firstFrame = false
     private var noDataFired = false
     private var decoderRebuilt = false
+    private var audioMuted = false        // 音轨不兼容时静音兜底
+    private var mutedRetryDone = false
     private var prepareMs = 0L
     private var hasPlayed = false
 
@@ -180,6 +182,8 @@ class PlayerControllerImpl(
             firstFrame = false
             noDataFired = false
             decoderRebuilt = false
+            audioMuted = false
+            mutedRetryDone = false
             prepareMs = 0L
             hasPlayed = false
             lastRebufferDowngradeAt = 0L
@@ -589,6 +593,7 @@ class PlayerControllerImpl(
             // 若画面黑，由 BLACK_SCREEN 检测触发换源/降 qn。
             .setExceedVideoConstraintsIfNecessary(true)
             .setTunnelingEnabled(false)
+            .apply { if (audioMuted) setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, true) }
             .build()
     }
 
@@ -1060,6 +1065,21 @@ class PlayerControllerImpl(
             error.errorCode == PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED
 
         val media = lastMedia
+        // issue #1 兜底：音频解码器不可用（例如 audio/mpeg-L2 唯一可用解码器被判为不安全）时，
+        // 禁用音轨继续播视频，而不是整条源播放失败。
+        if (decoderIssue && !mutedRetryDone && media != null &&
+            (error.errorCode == PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED ||
+                error.errorCode == PlaybackException.ERROR_CODE_DECODER_INIT_FAILED ||
+                error.errorCode == PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED)
+        ) {
+            mutedRetryDone = true
+            audioMuted = true
+            TvLog.w(TAG, "audio decoder unavailable, retry muted: ${error.errorCodeName}")
+            trackSelector?.setParameters(buildTrackParameters(qualityHeight))
+            emit(PlayerEvent.Message("该源音轨不兼容，已静音播放"))
+            onMain { player?.prepare() }
+            return
+        }
         if (decoderIssue && !decoderRebuilt && media != null) {
             // 解码器初始化失败：重建一次播放器（旧的 codec 状态已经不可信）
             decoderRebuilt = true

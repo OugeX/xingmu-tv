@@ -172,11 +172,12 @@ object SafeCodecSelector : androidx.media3.exoplayer.mediacodec.MediaCodecSelect
         requiresTunnelingDecoder: Boolean,
     ): List<androidx.media3.exoplayer.mediacodec.MediaCodecInfo> {
         val all = delegate.getDecoderInfos(mimeType, requiresSecureDecoder, requiresTunnelingDecoder)
-        val filtered = if (mimeType.equals(androidx.media3.common.MimeTypes.AUDIO_MPEG, ignoreCase = true)) {
+        // issue #1：IPTV 的 TS 音轨常声明成 audio/mpeg-L2（MP2），必须按前缀/族匹配，
+        // 否则会漏进 else 分支把 OMX.google.mstmp3 选回来 → ACodec.cpp:3533 abort。
+        val isMpegAudio = mimeType.startsWith("audio/mpeg", ignoreCase = true)
+        val filtered = if (isMpegAudio) {
             // audio/mpeg 精确放行：只有 AOSP 软解才安全；一个都没有时退回全部（宁可试一次也不让整条源不可播）
-            all.filter { it.name in safeAudioMpeg }.ifEmpty {
-                all.filterNot { info -> blockedPrefixes.any { info.name.startsWith(it) } }.ifEmpty { all }
-            }
+            all.filter { it.name in safeAudioMpeg }
         } else {
             all.filterNot { info -> blockedPrefixes.any { info.name.startsWith(it) } }.ifEmpty { all }
         }
