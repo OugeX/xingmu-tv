@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.xingmu.tv.core.AppDispatchers
@@ -39,6 +40,7 @@ import com.xingmu.tv.core.AppError
 import com.xingmu.tv.core.Result
 import com.xingmu.tv.data.CanonicalCategory
 import com.xingmu.tv.data.Channel
+import com.xingmu.tv.data.HomeFeedRepository
 import com.xingmu.tv.data.VodSummary
 import com.xingmu.tv.data.WatchProgress
 import com.xingmu.tv.data.WatchProgressStore
@@ -68,7 +70,9 @@ import androidx.compose.ui.draw.clip
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicBoolean
 
 private data class HomeRow(val title: String, val typeId: Int, val items: List<VodSummary>)
 
@@ -91,33 +95,54 @@ fun HomeScreen(
     var reload by remember { mutableIntStateOf(0) }
     var ui by remember { mutableStateOf<HomeUi>(HomeUi.Loading) }
     var channels by remember { mutableStateOf<List<Channel>>(emptyList()) }
+    val context = LocalContext.current
+    // t32：热度候选池 + 30 分钟文件缓存（比 t4 的 LocalSourceRepository 缓存更高一层，只服务首页）
+    val feedRepository = remember(context) { HomeFeedRepository(context) }
 
     LaunchedEffect(reload) {
         ui = HomeUi.Loading
-        val definitions = listOf(
-            CanonicalCategory.MOVIE to "热门电影",
-            CanonicalCategory.TV to "最新剧集",
-            CanonicalCategory.ANIME to "动漫热播",
-            CanonicalCategory.VARIETY to "综艺更新",
-        )
-        val results = coroutineScope {
-            definitions.map { (typeId, _) ->
-                async { typeId to repo.list(typeId, 1) }
-            }.awaitAll()
-        }
-        val rows = results.map { (typeId, result) ->
-            val title = definitions.first { it.first == typeId }.second
-            HomeRow(title, typeId, result.getOrNull().orEmpty())
-        }
-        val all = rows.flatMap { it.items }
-        pinyin.index(all)
         val progress = withContext(AppDispatchers.Io) { progressStore.list() }.take(12)
         channels = repo.listChannels().getOrNull().orEmpty()
-        val errors = results.mapNotNull { it.second.errorOrNull() }
-        ui = if (rows.all { it.items.isEmpty() } && errors.isNotEmpty()) {
-            HomeUi.Failed(errors.first())
-        } else {
-            HomeUi.Ready(rows, all.firstOrNull(), progress)
+
+        // 1) 冷启动先读热度缓存：命中立即渲染 hero/行，不等网络（首屏预算 ≤1.5s）
+        val cached = feedRepository.cached()
+        if (cached != null && cached.rows.isNotEmpty()) {
+            val cachedRows = cached.rows.map { HomeRow(it.title, it.typeId, it.items) }
+            pinyin.index(cachedRows.flatMap { it.items })
+            ui = HomeUi.Ready(cachedRows, cached.hero, progress)
+        }
+
+        // 2) 后台刷新候选池（不阻塞首屏）；无缓存时先用旧的 4 行逻辑兜底
+        val heatApplied = AtomicBoolean(false)
+        launch {
+            when (val feed = feedRepository.refresh(repo)) {
+                is Result.Ok -> {
+                    val rows = feed.value.rows.map { HomeRow(it.title, it.typeId, it.items) }
+                    if (rows.isNotEmpty()) {
+                        pinyin.index(rows.flatMap { it.items })
+                        val fallbackHero = (ui as? HomeUi.Ready)?.hero
+                        ui = HomeUi.Ready(
+                            rows = rows,
+                            hero = feed.value.hero ?: fallbackHero,
+                            progress = progress,
+                        )
+                        heatApplied.set(true)
+                    }
+                }
+                is Result.Err -> Unit // 候选池失败：保留缓存/兜底内容，不打扰用户
+            }
+        }
+        if (cached == null || cached.rows.isEmpty()) {
+            val (rows, errors) = loadFallbackRows(repo)
+            if (!heatApplied.get()) {
+                val all = rows.flatMap { it.items }
+                pinyin.index(all)
+                ui = if (rows.all { it.items.isEmpty() } && errors.isNotEmpty()) {
+                    HomeUi.Failed(errors.first())
+                } else {
+                    HomeUi.Ready(rows, all.firstOrNull(), progress)
+                }
+            }
         }
     }
 
@@ -139,6 +164,28 @@ fun HomeScreen(
         }
     }
 }
+
+/** 无热度缓存时的兜底：沿用旧逻辑（4 个分类 page1 并发），保证首屏不等候选池。 */
+private suspend fun loadFallbackRows(repo: SourceRepository): Pair<List<HomeRow>, List<AppError>> =
+    coroutineScope {
+        val definitions = listOf(
+            CanonicalCategory.MOVIE to "热门电影",
+            CanonicalCategory.TV to "最新剧集",
+            CanonicalCategory.ANIME to "动漫热播",
+            CanonicalCategory.VARIETY to "综艺更新",
+        )
+        val results = definitions.map { (typeId, _) ->
+            async { typeId to repo.list(typeId, 1) }
+        }.awaitAll()
+        val rows = results.map { (typeId, result) ->
+            HomeRow(
+                title = definitions.first { it.first == typeId }.second,
+                typeId = typeId,
+                items = result.getOrNull().orEmpty(),
+            )
+        }
+        rows to results.mapNotNull { it.second.errorOrNull() }
+    }
 
 @Composable
 private fun CinemaHome(
@@ -193,7 +240,7 @@ private fun CinemaHome(
                 title = row.title,
                 items = row.items,
                 onItemClick = onOpenDetail,
-                onMore = if (row.items.isNotEmpty()) {
+                onMore = if (row.items.isNotEmpty() && row.typeId > 0) {
                     { onOpenCategory(row.typeId, row.title) }
                 } else {
                     null
@@ -248,6 +295,23 @@ private fun HeroSection(hero: VodSummary, onOpenDetail: (VodSummary) -> Unit) {
                     ),
                 ),
         )
+        // t32：hero 右上角「🔥 N 源热播」角标（N = 跨源重合度）
+        if (hero.sourceCount >= 1) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(14.dp)
+                    .background(colors.accent.copy(alpha = 0.92f), RoundedCornerShape(50))
+                    .padding(horizontal = 12.dp, vertical = 5.dp),
+            ) {
+                TvLabel(
+                    "🔥 ${hero.sourceCount} 源热播",
+                    dimens.caption,
+                    colors.accentOn,
+                    weight = FontWeight.Bold,
+                )
+            }
+        }
         Column(
             modifier = Modifier
                 .align(Alignment.BottomStart)

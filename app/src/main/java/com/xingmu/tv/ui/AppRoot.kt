@@ -65,6 +65,8 @@ import com.xingmu.tv.ui.player.PlaybackRequest
 import com.xingmu.tv.ui.player.PlayerScreen
 import com.xingmu.tv.ui.search.SearchScreen
 import com.xingmu.tv.ui.source.SourceManageScreen
+import com.xingmu.tv.update.UpdateCenter
+import com.xingmu.tv.update.UpdateOverlay
 
 /** 页面路由（不用 navigation-compose：单一 Activity + 手写回退栈，见 PLAN_ARCHITECTURE §3.2）。 */
 sealed interface Dest {
@@ -108,6 +110,8 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
     val progressStore = remember(context) { WatchProgressStore(context) }
     val settingsStore = remember(context) { SettingsStore(context) }
     var settings by remember { mutableStateOf(settingsStore.read()) }
+    // v0.3.4：应用内更新中心（检查失败静默，见 docs/UPDATE_SPEC.md）
+    val updateCenter = remember(context) { UpdateCenter.get(context) }
 
     val stack = remember { mutableStateListOf<Dest>(initialDest ?: Dest.Home) }
     // t29：分类页滚动位置按 typeId 缓存，从详情返回时不跳回顶部
@@ -128,6 +132,15 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
     LaunchedEffect(pinyin) {
         kotlinx.coroutines.delay(2_000)
         runCatching { pinyin.benchmark() }
+    }
+
+    // 冷启动 8 秒后检查更新：仅 Wi-Fi + 24h 一次；任何失败只写日志，不弹窗。
+    LaunchedEffect(updateCenter) {
+        kotlinx.coroutines.delay(8_000)
+        val latest = settingsStore.read()
+        if (latest.autoCheckUpdate) {
+            updateCenter.autoCheckIfDue(includePrerelease = latest.includePrereleaseUpdate)
+        }
     }
 
     // 播放类设置改完立即下发常驻播放器（下一次起播也生效）
@@ -175,7 +188,9 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
         CompositionLocalProvider(LocalTvTier provides settings.fontTier) {
         CompositionLocalProvider(LocalTvDimens provides tvDimens()) {
         CompositionLocalProvider(LocalOverscan provides Overscan(overscanH.dp, overscanV.dp)) {
-            when (val current = stack.last()) {
+            val currentDest = stack.last()
+            Box(Modifier.fillMaxSize()) {
+            when (val current = currentDest) {
                 // 播放/直播：沉浸式全屏，左侧导航整体隐藏（UI_SPEC §3.5/§3.6 硬要求）
                 is Dest.Play -> {
                     Box(Modifier.fillMaxSize()) {
@@ -297,6 +312,7 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
                                 },
                                 repo = repo,
                                 casualRepo = casualRepo,
+                                updateCenter = updateCenter,
                                 onBack = { pop() },
                             )
 
@@ -311,6 +327,11 @@ fun TvBoxApp(initialMode: TvMode = TvMode.CINEMA, initialDest: Dest? = null, cas
                         com.xingmu.tv.ui.DpadDownSink(Modifier.align(Alignment.BottomCenter))
                     }
                 }
+            }
+            // 更新弹窗：只在非播放页出现（避免打断起播）；检查失败时状态为 Idle，无弹窗
+            if (currentDest !is Dest.Play && currentDest !is Dest.Live && currentDest !is Dest.CasualVideo) {
+                UpdateOverlay(updateCenter)
+            }
             }
         }
         }

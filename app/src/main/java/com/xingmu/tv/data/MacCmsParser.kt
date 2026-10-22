@@ -108,6 +108,7 @@ object MacCmsParser {
             picThumb = o.optString("vod_pic_thumb").trim(),
             area = o.optString("vod_area").trim(),
             updatedAtMs = o.optLong("vod_time_add", 0L) * 1000L,
+            hits = o.optLong("vod_hits", 0L),
         )
     }
 

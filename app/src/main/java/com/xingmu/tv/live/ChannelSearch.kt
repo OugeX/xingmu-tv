@@ -24,9 +24,6 @@ class ChannelSearch(context: Context) {
     private val initialsMap: Map<String, String> by lazy { readMap(ASSET_INITIALS) }
     private val fullMap: Map<String, String> by lazy { readMap(ASSET_FULL) }
 
-    /** 频道名 → (首拼, 全拼)，避免每次过滤重复拼。 */
-    private val variantCache = HashMap<String, Pair<String, String>>(320)
-
     fun filter(channels: List<LiveChannel>, rawQuery: String): List<LiveChannel> {
         val query = normalize(rawQuery)
         if (query.isEmpty()) return channels
@@ -45,42 +42,63 @@ class ChannelSearch(context: Context) {
         if (normName.contains(query)) {
             return if (normName.startsWith(query)) 0 else 1
         }
-        val (initials, full) = variantsOf(name)
-        if (initials.isEmpty() && full.isEmpty()) return -1
+        val initials = initialsOf(name)
+        if (initials.isEmpty()) return -1
         return when {
             initials == query -> 0
             initials.startsWith(query) -> 1
-            full.startsWith(query) -> 2
+            // 全拼要按「多音字任一读音」逐字消费：湖南卫视 = hu+n(an)+wei+shi，只拼 hu+na 会匹配不到 hunan
+            matchesFullPinyin(name, query) -> 2
             initials.contains(query) -> 3
-            full.contains(query) -> 4
             else -> -1
         }
     }
 
-    private fun variantsOf(name: String): Pair<String, String> {
-        synchronized(variantCache) { variantCache[name] }?.let { return it }
-        val initials = StringBuilder(name.length)
-        val full = StringBuilder(name.length * 4)
+    /** 首拼：每个汉字取第一个读音的首字母（湖南卫视 → hnws）。 */
+    private fun initialsOf(name: String): String {
+        val sb = StringBuilder(name.length)
         for (ch in name) {
-            val key = ch.toString()
-            if (isAsciiAlnum(ch)) {
-                initials.append(ch.lowercaseChar())
-                full.append(ch.lowercaseChar())
-            } else if (isCjk(ch)) {
-                val ini = initialsMap[key]
-                if (!ini.isNullOrEmpty()) initials.append(ini.first().lowercaseChar()) else initials.append(ch)
-                val f = fullMap[key]
-                if (!f.isNullOrEmpty()) {
-                    // 多音字形如 "chang|zhang"，取第一种（多数台名不涉及多音字）
-                    full.append(f.substringBefore('|'))
-                } else {
-                    full.append(ch)
+            when {
+                isAsciiAlnum(ch) -> sb.append(ch.lowercaseChar())
+                isCjk(ch) -> {
+                    val ini = initialsMap[ch.toString()]
+                    if (!ini.isNullOrEmpty()) sb.append(ini.first().lowercaseChar())
                 }
             }
         }
-        val pair = initials.toString() to full.toString()
-        synchronized(variantCache) { variantCache[name] = pair }
-        return pair
+        return sb.toString()
+    }
+
+    /**
+     * 全拼前缀匹配：从台名第 0 个字开始逐个「吃掉」query 的字符。
+     * 每个汉字可以吃掉它任一读音的前 k 个字母（多音字如 长 chang/zhang 都算），
+     * 只要能把 query 吃完就算命中（等价于 PinyinIndex 的多变体展开，但不用提前生成组合）。
+     */
+    private fun matchesFullPinyin(name: String, query: String): Boolean {
+        fun walk(nameIndex: Int, queryIndex: Int): Boolean {
+            if (queryIndex >= query.length) return true
+            if (nameIndex >= name.length) return false
+            val ch = name[nameIndex]
+            if (isAsciiAlnum(ch)) {
+                return query[queryIndex] == ch.lowercaseChar() && walk(nameIndex + 1, queryIndex + 1)
+            }
+            if (!isCjk(ch)) {
+                // 空格/标点跳过，不消费 query
+                return walk(nameIndex + 1, queryIndex)
+            }
+            val variants = fullMap[ch.toString()]?.split('|')?.filter { it.isNotEmpty() }
+                ?: return walk(nameIndex + 1, queryIndex + 1)
+            for (variant in variants) {
+                val max = minOf(variant.length, query.length - queryIndex)
+                for (len in max downTo 0) {
+                    if (query.regionMatches(queryIndex, variant, 0, len) && walk(nameIndex + 1, queryIndex + len)) {
+                        return true
+                    }
+                }
+            }
+            return false
+        }
+        return walk(0, 0)
     }
 
     private fun normalize(text: String): String {

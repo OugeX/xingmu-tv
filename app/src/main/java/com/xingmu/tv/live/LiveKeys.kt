@@ -29,8 +29,8 @@ object LiveKeys {
     const val NUM_0 = 7
     const val NUM_9 = 16
 
-    /** 数字键输入后 1.5s 自动确认（PLAYBACK_SPEC §2） */
-    const val NUMBER_TIMEOUT_MS = 1_500L
+    /** 数字键输入后 3s 自动确认/清空（t30 docs/LIVE_CATEGORY.md §3；原为 1.5s） */
+    const val NUMBER_TIMEOUT_MS = 3_000L
     const val NUMBER_MAX_LENGTH = 3
 
     fun digitOf(keyCode: Int): Int? = if (keyCode in NUM_0..NUM_9) keyCode - NUM_0 else null

@@ -1217,7 +1217,12 @@ class LiveController(
         numberJob?.cancel()
         numberJob = scope.launch {
             delay(LiveKeys.NUMBER_TIMEOUT_MS)
-            resolveNumber(entry)
+            // t30（docs/LIVE_CATEGORY.md §3）：3s 无输入只清空，不自动切台；
+            // 播放必须由 OK 确认，避免多打一位数字就把台切走。
+            val pending = _state.value.numberEntry
+            if (pending.isNotEmpty()) {
+                _state.update { it.copy(numberEntry = "", message = "台号输入已清空：$pending") }
+            }
         }
     }
 

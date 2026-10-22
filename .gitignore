@@ -25,3 +25,4 @@ Thumbs.db
 
 # 冻结产物（APK 不入库，FROZEN.json 入库）
 release/*.apk
+nul

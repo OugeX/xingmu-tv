@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- v0.3.4 应用内更新：API 26+ 安装 APK 需要；更低版本忽略该权限 -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!-- TV 必需：不要求 leanback 硬件（手机/模拟器也能装），不要求触摸屏 -->
     <uses-feature
@@ -52,5 +54,16 @@
             android:name=".casual.CasualRadioService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
+
+        <!-- v0.3.4 应用内更新：把 cacheDir/update/*.apk 以 content:// 交给系统安装器 -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/update_file_paths" />
+        </provider>
     </application>
 </manifest>

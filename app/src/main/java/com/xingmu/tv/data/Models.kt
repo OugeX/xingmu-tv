@@ -44,6 +44,8 @@ data class VodSummary(
     val area: String = "",
     /** t31：更新时间（vod_time_add，epoch ms）；排序兜底用 */
     val updatedAtMs: Long = 0L,
+    /** t32：站内热度（vod_hits）；多数镜像站恒 0，仅作次级热度信号 */
+    val hits: Long = 0L,
 )
 
 /** t31：一页列表 + 服务端 total（分页 UI 显示「共 N 部」） */

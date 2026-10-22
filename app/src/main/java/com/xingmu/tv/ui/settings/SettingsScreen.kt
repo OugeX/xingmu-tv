@@ -42,6 +42,8 @@ import com.xingmu.tv.data.SeedSyncState
 import com.xingmu.tv.data.SourceAdminDataSource
 import com.xingmu.tv.data.casual.CasualRepository
 import com.xingmu.tv.source.SourceRepository
+import com.xingmu.tv.update.UpdateAboutRows
+import com.xingmu.tv.update.UpdateCenter
 import com.xingmu.tv.ui.FontTier
 import com.xingmu.tv.ui.DpadDownSink
 import com.xingmu.tv.ui.LocalTvColors
@@ -62,6 +64,7 @@ fun SettingsScreen(
     onChange: (AppSettingsValues) -> Unit,
     repo: SourceRepository,
     casualRepo: CasualRepository,
+    updateCenter: UpdateCenter,
     onBack: () -> Unit,
 ) {
     val colors = LocalTvColors.current
@@ -242,12 +245,8 @@ fun SettingsScreen(
         }
 
         Section("关于") {
-            val version = remember(context) {
-                runCatching {
-                    context.packageManager.getPackageInfo(context.packageName, 0).versionName
-                }.getOrNull() ?: "0.1.0"
-            }
-            TvLabel("星幕 · v$version", dimens.body, colors.text, weight = FontWeight.SemiBold)
+            // v0.3.4：当前版本 / 检查更新 / 自动检查 / 包含测试版 / 上次检查（UPDATE_SPEC §4）
+            UpdateAboutRows(values = values, onChange = onChange, center = updateCenter)
             TvLabel(
                 "内置源 ${if (sourceCount >= 0) sourceCount else "…"} 个 · 直播频道 ${if (channelCount >= 0) channelCount else "…"} 个",
                 dimens.caption,

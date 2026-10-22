@@ -24,8 +24,8 @@ android {
         applicationId = "com.xingmu.tv"
         minSdk = 21
         targetSdk = 34
-        versionCode = 30
-        versionName = "0.3.0"
+        versionCode = 31
+        versionName = "0.3.4"
 
         // 只保留 zh/en，减小包体；与 docs/PLAN_ARCHITECTURE.md §包体控制一致。
         resourceConfigurations += listOf("zh", "en")
