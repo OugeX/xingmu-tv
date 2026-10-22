@@ -103,8 +103,9 @@ app/
 
 | 渠道 | 说明 |
 | --- | --- |
-| **Releases · 标准包**（推荐） | [v0.2.6](https://github.com/OugeX/xingmu-tv/releases/tag/v0.2.6) 的 `xingmu-tv-v0.2.6-*.apk`（12.2MB），已在真机 LeTV 上逐项验证 |
-| **Releases · 精简包** | 同页 `*-r8-*.apk`（**3.0MB**，R8 + 资源裁剪）。**存储 <4GB 或 /data 剩余 <300MB 的机型建议直接用它**：实测 1.4GB 的 /data，标准包装完只剩 ~17MB，R8 包还剩 130MB |
+| **Releases · 标准包**（推荐） | [最新版](https://github.com/OugeX/xingmu-tv/releases/latest) 的 `xingmu-tv-v*-<sha8>.apk`（12.3MB），已在真机 LeTV 上逐项验证 |
+| **Releases · 精简包** | 同页 `*-r8-*.apk`（**2.9MB**，R8 + 资源裁剪）。**存储 <4GB 或 /data 剩余 <300MB 的机型建议直接用它**：实测 1.4GB 的 /data，标准包装完只剩 ~17MB，R8 包还剩 130MB |
+| **应用内更新（v0.3.4+）** | 装一次就够了：设置 → 关于 → 检查更新。会自动挑精简包下载安装；连不上 GitHub 时静默不打扰 |
 | CI 产物 | 每次提交由 GitHub Actions 构建，可在 Actions → build → Artifacts 下载（保留 30 天） |
 | **不会装？** | 看 [老电视复活指南](docs/老电视复活指南.md)：开 ADB、连电视、装 APK、配源，一步一图 |
 
