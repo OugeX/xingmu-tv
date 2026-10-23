@@ -118,7 +118,7 @@ private fun ControlBar(vm: AppViewModel, fullscreen: Boolean, onToggleFullscreen
                 modifier = Modifier
                     .size(34.dp)
                     .background(AppColors.accent, CircleShape)
-                    .clickable { vm.player.togglePause() },
+                    .clickable { vm.togglePause() },
                 contentAlignment = Alignment.Center,
             ) {
                 Text(if (state.paused) "▶" else "❚❚", style = AppText.bodyStrong.copy(color = AppColors.accentOn, fontSize = 13.sp))

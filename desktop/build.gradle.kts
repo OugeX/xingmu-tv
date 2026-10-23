@@ -1,4 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import java.security.MessageDigest
 
 plugins {
     kotlin("jvm") version "2.0.21"
@@ -7,7 +8,8 @@ plugins {
 }
 
 group = "com.tvbox.desktop"
-version = "0.1.0"
+version = "0.2.0"
+val appVersion = version.toString()
 
 kotlin {
     jvmToolchain(17)
@@ -52,8 +54,59 @@ sourceSets.main {
     resources.srcDir(stageBuiltinAssets)
 }
 
+/*
+ * 版本号不硬编码在 UI：构建时生成 version.properties，BuildInfo 从 classpath 读取。
+ */
+val generatedVersionDir = layout.buildDirectory.dir("generated/version-resources")
+val generateVersionResource by tasks.registering {
+    val outputDir = generatedVersionDir
+    val buildVersion = appVersion
+    inputs.property("version", buildVersion)
+    outputs.dir(outputDir)
+    doLast {
+        val file = outputDir.get().file("XingmuTV-version.properties").asFile
+        file.parentFile.mkdirs()
+        file.writeText("version=$buildVersion\n")
+    }
+}
+
+sourceSets.main {
+    resources.srcDir(generatedVersionDir)
+}
+
 tasks.processResources {
-    dependsOn(stageBuiltinAssets)
+    dependsOn(stageBuiltinAssets, generateVersionResource)
+}
+
+/*
+ * 把 Windows 安装包按版本号复制到仓库根 release/，并打印 size + sha256。
+ * 用法：./gradlew stageRelease
+ */
+val releaseDir = rootProject.projectDir.parentFile.resolve("release")
+val stageRelease by tasks.registering(Copy::class) {
+    group = "distribution"
+    description = "复制 MSI/EXE 到仓库 release/（XingmuTV-<version>.*）并打印校验值"
+    dependsOn("packageMsi", "packageExe")
+    from(layout.buildDirectory.dir("compose/binaries/main/msi")) {
+        include("*.msi")
+        rename { "XingmuTV-$appVersion.msi" }
+    }
+    from(layout.buildDirectory.dir("compose/binaries/main/exe")) {
+        include("*.exe")
+        rename { "XingmuTV-$appVersion.exe" }
+    }
+    into(releaseDir)
+    doLast {
+        releaseDir.listFiles { file ->
+            file.isFile && file.name.startsWith("XingmuTV-$appVersion") &&
+                (file.extension == "msi" || file.extension == "exe")
+        }?.sortedBy { it.name }?.forEach { file ->
+            val sha256 = MessageDigest.getInstance("SHA-256")
+                .digest(file.readBytes())
+                .joinToString("") { byte: Byte -> "%02x".format(byte) }
+            println("RELEASE ${file.absolutePath} size=${file.length()} sha256=$sha256")
+        }
+    }
 }
 
 compose.desktop {
@@ -64,7 +117,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Msi, TargetFormat.Exe, TargetFormat.Dmg)
             packageName = "XingmuTV"
-            packageVersion = "0.1.0"
+            packageVersion = appVersion
             description = "星幕 TV · 直播与点播桌面客户端"
             vendor = "Xingmu TV"
             copyright = "© 2026 Xingmu TV · MIT License"
@@ -83,7 +136,7 @@ compose.desktop {
             macOS {
                 bundleID = "com.tvbox.xingmu.desktop"
                 dockName = "星幕 TV"
-                // jpackage 的 macOS 版本号要求 MAJOR > 0；应用内展示的版本仍是 0.1.0
+                // jpackage 的 macOS 版本号要求 MAJOR > 0；应用内展示的版本取自构建（0.2.0）
                 packageVersion = "1.0.0"
                 dmgPackageVersion = "1.0.0"
             }

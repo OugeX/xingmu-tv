@@ -3,6 +3,7 @@ package com.tvbox.desktop.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +31,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tvbox.desktop.data.VodSummary
+import com.tvbox.desktop.data.WatchProgress
 
 @Composable
 fun BrowsePane(vm: AppViewModel) {
@@ -43,6 +46,8 @@ fun BrowsePane(vm: AppViewModel) {
             },
         )
         Spacer(Modifier.height(10.dp))
+        ContinueWatchingRow(vm)
+        if (vm.continueWatching.isNotEmpty()) Spacer(Modifier.height(10.dp))
         if (vm.browseNotes.isNotEmpty()) {
             Text(
                 "源状态：" + vm.browseNotes.joinToString("；"),
@@ -75,6 +80,74 @@ fun BrowsePane(vm: AppViewModel) {
             }
             Spacer(Modifier.weight(1f))
             Text("第 ${vm.browsePage} 页 · 数据来自内置/导入的 MacCMS 源", style = AppText.caption)
+        }
+    }
+}
+
+@Composable
+private fun ContinueWatchingRow(vm: AppViewModel) {
+    val items = vm.continueWatching
+    if (items.isEmpty()) return
+    Column(Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("继续观看", style = AppText.section)
+            Spacer(Modifier.width(8.dp))
+            Text("最近 ${items.size} 条 · 点击卡片直接续播", style = AppText.caption.copy(fontSize = 10.sp))
+        }
+        Spacer(Modifier.height(6.dp))
+        Row(
+            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            items.forEach { progress -> ContinueCard(progress, vm) }
+        }
+    }
+}
+
+@Composable
+private fun ContinueCard(progress: WatchProgress, vm: AppViewModel) {
+    Row(
+        Modifier
+            .width(258.dp)
+            .background(AppColors.surfaceHigh, RoundedCornerShape(8.dp))
+            .clickable { vm.continueWatching(progress) }
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RemoteImage(
+            progress.pic,
+            Modifier.width(46.dp).height(68.dp).clip(RoundedCornerShape(5.dp)),
+            contentDescription = progress.name,
+        )
+        Spacer(Modifier.width(8.dp))
+        Column(Modifier.weight(1f)) {
+            Text(
+                progress.name,
+                style = AppText.bodyStrong.copy(fontSize = 12.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Spacer(Modifier.height(3.dp))
+            Text(
+                "继续观看 · 第${progress.episodeIndex}集 ${formatTime(progress.positionMs)}",
+                style = AppText.caption.copy(fontSize = 10.sp, color = AppColors.accent),
+                maxLines = 1,
+            )
+            Text(
+                progress.episodeTitle.ifBlank { "第${progress.episodeIndex}集" },
+                style = AppText.caption.copy(fontSize = 9.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        Box(
+            Modifier
+                .width(22.dp)
+                .height(22.dp)
+                .clickable { vm.removeProgress(progress) },
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("×", style = AppText.caption.copy(color = AppColors.textMuted, fontSize = 15.sp))
         }
     }
 }

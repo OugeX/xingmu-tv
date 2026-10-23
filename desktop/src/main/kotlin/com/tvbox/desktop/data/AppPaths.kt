@@ -22,6 +22,9 @@ class AppPaths private constructor(
 ) {
     val userSourcesFile: Path get() = configDir.resolve("sources.user.json")
     val settingsFile: Path get() = configDir.resolve("settings.json")
+    val progressFile: Path get() = configDir.resolve("progress.json")
+    val favoritesFile: Path get() = configDir.resolve("favorites.json")
+    val recentFile: Path get() = configDir.resolve("recent.json")
 
     fun ensureDirectories() {
         listOf(configDir, cacheDir, logDir).forEach { dir ->

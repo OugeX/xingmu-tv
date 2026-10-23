@@ -26,15 +26,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.tvbox.desktop.data.LiveCategoryKind
 import com.tvbox.desktop.data.LiveChannel
 
 @Composable
 fun LivePane(vm: AppViewModel) {
+    val catalog = vm.liveCatalog
+    val category = vm.currentCategory
     Column(Modifier.fillMaxSize().padding(horizontal = 26.dp, vertical = 18.dp)) {
         SectionHeader(
             kicker = "LIVE",
             title = "直播频道",
-            subtitle = "${vm.live?.channels?.size ?: 0} 个频道 · ${vm.live?.groups?.size ?: 0} 个分组 · ${vm.live?.source ?: ""}",
+            subtitle = "${vm.liveChannelCount} 个频道 · ${catalog?.categories?.size ?: 0} 个分组 · ${vm.live?.source ?: ""}",
             actions = {
                 SearchField(
                     value = vm.liveQuery,
@@ -51,9 +54,21 @@ fun LivePane(vm: AppViewModel) {
             modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Chip("全部", vm.liveGroupId == null, { vm.setLiveGroup(null) })
-            vm.live?.groups?.forEach { group ->
-                Chip("${group.name} ${group.count}", vm.liveGroupId == group.id, { vm.setLiveGroup(group.id) })
+            catalog?.categories?.forEach { item ->
+                val label = if (item.kind == LiveCategoryKind.HD) "高清专区 ${item.count}" else "${item.name} ${item.count}"
+                Chip(label, vm.liveCategoryId == item.id, { vm.setLiveCategory(item.id) })
+            }
+        }
+
+        if (vm.liveCategoryId == "local" && vm.localPageCount > 1) {
+            Spacer(Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                GhostButton("上一页", { vm.previousLocalPage() }, enabled = vm.localPage > 0)
+                Text(
+                    "第 ${vm.localPageNumber}/${vm.localPageCount} 页 · 每页 60 台",
+                    style = AppText.caption,
+                )
+                GhostButton("下一页", { vm.nextLocalPage() }, enabled = vm.localPageNumber < vm.localPageCount)
             }
         }
 
@@ -63,22 +78,35 @@ fun LivePane(vm: AppViewModel) {
             Text("画质", style = AppText.caption, modifier = Modifier.width(64.dp))
             Text("线路", style = AppText.caption, modifier = Modifier.width(58.dp))
             Text("延迟", style = AppText.caption, modifier = Modifier.width(70.dp))
-            Spacer(Modifier.width(64.dp))
+            Spacer(Modifier.width(138.dp))
         }
         Divider(color = AppColors.divider)
 
-        val channels = vm.filteredChannels
+        val channels = vm.visibleChannels
         when {
             vm.live == null -> LoadingRow("加载直播频道…")
-            channels.isEmpty() -> EmptyState("没有匹配的频道", "换个分组或搜索词试试")
+            channels.isEmpty() -> EmptyState(
+                when (category?.kind) {
+                    LiveCategoryKind.FAVORITES -> "还没有收藏频道"
+                    LiveCategoryKind.RECENT -> "还没有直播观看记录"
+                    else -> "没有匹配的频道"
+                },
+                if (category?.kind == LiveCategoryKind.FAVORITES || category?.kind == LiveCategoryKind.RECENT) {
+                    "在右侧频道信息里点「收藏」，收看的频道会自动进入最近"
+                } else {
+                    "换个分组或搜索词试试"
+                },
+            )
             else -> LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 items(channels, key = { it.id }) { channel ->
                     ChannelRow(
                         channel = channel,
                         selected = vm.selectedChannel?.id == channel.id,
                         playing = vm.player.state.active && vm.player.state.isLive && vm.playback?.title == channel.name,
+                        favorite = vm.isLiveFavorite(channel.id),
                         onSelect = { vm.selectChannel(channel) },
                         onPlay = { vm.startLive(channel) },
+                        onToggleFavorite = { vm.toggleLiveFavorite(channel) },
                     )
                 }
             }
@@ -91,8 +119,10 @@ private fun ChannelRow(
     channel: LiveChannel,
     selected: Boolean,
     playing: Boolean,
+    favorite: Boolean,
     onSelect: () -> Unit,
     onPlay: () -> Unit,
+    onToggleFavorite: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -141,6 +171,9 @@ private fun ChannelRow(
         Box(Modifier.width(70.dp)) {
             val latency = channel.lines.firstOrNull()?.latencyMs
             Text(if (latency != null) "$latency ms" else "—", style = AppText.caption)
+        }
+        Box(Modifier.width(68.dp)) {
+            GhostButton(if (favorite) "★ 已藏" else "☆ 收藏", onToggleFavorite)
         }
         Box(Modifier.width(64.dp)) {
             GhostButton("播放", onPlay)

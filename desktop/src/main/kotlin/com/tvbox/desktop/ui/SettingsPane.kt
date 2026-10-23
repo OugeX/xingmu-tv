@@ -140,12 +140,14 @@ fun SettingsPane(vm: AppViewModel) {
         }
 
         Spacer(Modifier.height(12.dp))
-        SettingsCard("关于", "星幕 TV 桌面端 v0.1") {
+        SettingsCard("关于", "星幕 TV 桌面端 v${com.tvbox.desktop.BuildInfo.version}") {
             Text("Compose Multiplatform Desktop 1.7.3 · Kotlin 2.0.21 · libVLC(vlcj 4.8.2) · JDK 17", style = AppText.caption)
             Spacer(Modifier.height(6.dp))
             Text("与 Android 端共用 tvapp.source.v1.1 协议、assets 内置数据与 UA/Referer 约定；UI 按桌面三栏式重做。", style = AppText.caption)
             Spacer(Modifier.height(6.dp))
-            Text("画中画（PiP）列为 v0.2 计划；v0.1 提供全屏与多显示器窗口拖动。", style = AppText.caption)
+            Text("v0.2：播放进度/继续观看、收藏、直播最近、直播分组与地方分页。", style = AppText.caption)
+            Spacer(Modifier.height(6.dp))
+            Text("画中画（PiP）列为后续计划；macOS 包未在本机构建（PENDING_DEVICE）。", style = AppText.caption)
         }
         Spacer(Modifier.height(20.dp))
     }

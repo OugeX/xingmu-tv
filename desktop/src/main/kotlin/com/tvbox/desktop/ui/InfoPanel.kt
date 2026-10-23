@@ -78,7 +78,13 @@ private fun ChannelInfo(vm: AppViewModel) {
         Text(channel.desc, style = AppText.body.copy(fontSize = 12.sp))
     }
     Spacer(Modifier.height(16.dp))
-    PrimaryButton("播放主线路", { vm.playLive(channel) }, Modifier.fillMaxWidth())
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        PrimaryButton("播放主线路", { vm.playLive(channel) }, Modifier.weight(1f))
+        GhostButton(
+            if (vm.isLiveFavorite(channel.id)) "★ 已收藏" else "☆ 收藏",
+            { vm.toggleLiveFavorite(channel) },
+        )
+    }
     Spacer(Modifier.height(14.dp))
 
     Text("可用线路 · ${channel.lines.size}（按实测清晰度排序）", style = AppText.caption)
@@ -190,7 +196,23 @@ private fun VodInfo(vm: AppViewModel) {
     }
 
     Spacer(Modifier.height(14.dp))
-    PrimaryButton("播放第 1 集", { vm.playFirstEpisode() }, Modifier.fillMaxWidth())
+    val progress = vm.progressFor(detail.sourceId, detail.vodId)
+    val favorite = vm.isVodFavorite(detail.sourceId, detail.vodId)
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (progress != null) {
+            PrimaryButton(
+                "继续观看 · 第${progress.episodeIndex}集 ${formatTime(progress.positionMs)}",
+                { vm.resumeCurrentDetail() },
+                Modifier.weight(1f),
+            )
+        } else {
+            PrimaryButton("播放第 1 集", { vm.playFirstEpisode() }, Modifier.weight(1f))
+        }
+        GhostButton(
+            if (favorite) "★ 已收藏" else "☆ 收藏",
+            { vm.toggleVodFavorite(detail.sourceId, detail.vodId, detail.name, detail.pic) },
+        )
+    }
     Spacer(Modifier.height(10.dp))
 
     if (summary != null && summary.refs.size > 1) {
@@ -222,6 +244,7 @@ private fun VodInfo(vm: AppViewModel) {
                     EpisodeChip(
                         episode = episode,
                         playing = vm.player.state.active && vm.playingEpisodeTitle == episode.title,
+                        watched = episode.index in vm.watchedEpisodes,
                         modifier = Modifier.weight(1f),
                         onClick = { vm.startVod(episode, detail) },
                     )
@@ -242,7 +265,13 @@ private fun VodInfo(vm: AppViewModel) {
 }
 
 @Composable
-private fun EpisodeChip(episode: Episode, playing: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun EpisodeChip(
+    episode: Episode,
+    playing: Boolean,
+    watched: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
     Box(
         modifier = modifier
             .height(30.dp)
@@ -259,10 +288,14 @@ private fun EpisodeChip(episode: Episode, playing: Boolean, modifier: Modifier =
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            episode.title,
+            episode.title + if (watched) " ✓" else "",
             style = AppText.caption.copy(
                 fontSize = 10.sp,
-                color = if (playing) AppColors.accent else AppColors.textSecondary,
+                color = when {
+                    playing -> AppColors.accent
+                    watched -> AppColors.success
+                    else -> AppColors.textSecondary
+                },
             ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -305,7 +338,7 @@ private fun PlaybackInfo(vm: AppViewModel, onToggleFullscreen: () -> Unit) {
     )
     Spacer(Modifier.height(14.dp))
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        PrimaryButton(if (vm.player.state.paused) "继续" else "暂停", { vm.player.togglePause() })
+        PrimaryButton(if (vm.player.state.paused) "继续" else "暂停", { vm.togglePause() })
         GhostButton(if (vm.player.state.isLive) "全屏" else "全屏", onToggleFullscreen)
     }
     Spacer(Modifier.height(8.dp))
@@ -359,6 +392,7 @@ private fun PlaybackInfo(vm: AppViewModel, onToggleFullscreen: () -> Unit) {
                         EpisodeChip(
                             episode = episode,
                             playing = vm.playingEpisodeTitle == episode.title,
+                            watched = episode.index in vm.watchedEpisodes,
                             modifier = Modifier.weight(1f),
                             onClick = { vm.startVod(episode, detail) },
                         )

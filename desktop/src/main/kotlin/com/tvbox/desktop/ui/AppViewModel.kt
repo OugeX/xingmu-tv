@@ -8,29 +8,42 @@ import com.tvbox.desktop.data.Aggregator
 import com.tvbox.desktop.data.AppPaths
 import com.tvbox.desktop.data.AppSettings
 import com.tvbox.desktop.data.Episode
+import com.tvbox.desktop.data.FavoritesStore
 import com.tvbox.desktop.data.FileCache
 import com.tvbox.desktop.data.Http
 import com.tvbox.desktop.data.ImportedSource
+import com.tvbox.desktop.data.LiveCatalog
+import com.tvbox.desktop.data.LiveCatalogBuilder
+import com.tvbox.desktop.data.LiveCategory
 import com.tvbox.desktop.data.LiveChannel
+import com.tvbox.desktop.data.LiveFavorite
+import com.tvbox.desktop.data.LiveHd
+import com.tvbox.desktop.data.LivePaging
 import com.tvbox.desktop.data.LiveSeedLoader
 import com.tvbox.desktop.data.LiveSnapshot
 import com.tvbox.desktop.data.MacCmsClient
 import com.tvbox.desktop.data.PlayLine
 import com.tvbox.desktop.data.PlaybackRequest
+import com.tvbox.desktop.data.RecentLive
+import com.tvbox.desktop.data.RecentStore
 import com.tvbox.desktop.data.SourceConfig
 import com.tvbox.desktop.data.SourceIssue
 import com.tvbox.desktop.data.SourceKind
 import com.tvbox.desktop.data.SourceSpecParser
 import com.tvbox.desktop.data.SourceStore
 import com.tvbox.desktop.data.VodDetail
+import com.tvbox.desktop.data.VodFavorite
 import com.tvbox.desktop.data.VodRef
 import com.tvbox.desktop.data.VodSummary
+import com.tvbox.desktop.data.WatchProgress
+import com.tvbox.desktop.data.WatchProgressStore
 import com.tvbox.desktop.player.PlayerController
 import com.tvbox.desktop.player.VlcLocator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.nio.file.Files
@@ -65,6 +78,9 @@ class AppViewModel(
     private val macCms = MacCmsClient(http, cache)
     private val aggregator = Aggregator(macCms)
     private val sourceStore = SourceStore(paths, http)
+    private val progressStore = WatchProgressStore(paths.progressFile)
+    private val favoritesStore = FavoritesStore(paths.favoritesFile)
+    private val recentStore = RecentStore(paths.recentFile)
     val player = PlayerController(scope)
 
     var settings by mutableStateOf(AppSettings.load(paths))
@@ -92,11 +108,16 @@ class AppViewModel(
     // 直播
     var live by mutableStateOf<LiveSnapshot?>(null)
         private set
-    var liveGroupId by mutableStateOf<String?>(null)
+    var liveCatalog by mutableStateOf<LiveCatalog?>(null)
+        private set
+    var liveCategoryId by mutableStateOf("hd")
+        private set
+    var localPage by mutableStateOf(0)
         private set
     var liveQuery by mutableStateOf("")
     var selectedChannel by mutableStateOf<LiveChannel?>(null)
         private set
+    private var hdKeys: Set<String> = emptySet()
 
     // 点播
     var browseItems by mutableStateOf<List<VodSummary>>(emptyList())
@@ -141,6 +162,36 @@ class AppViewModel(
     var playingEpisodeTitle by mutableStateOf<String?>(null)
         private set
 
+    // 进度 / 收藏 / 最近
+    var progressAll by mutableStateOf<List<WatchProgress>>(emptyList())
+        private set
+    var watchedEpisodes by mutableStateOf<Set<Int>>(emptySet())
+        private set
+    var vodFavorites by mutableStateOf<List<VodFavorite>>(emptyList())
+        private set
+    var liveFavorites by mutableStateOf<List<LiveFavorite>>(emptyList())
+        private set
+    var recentLive by mutableStateOf<List<RecentLive>>(emptyList())
+        private set
+
+    val continueWatching: List<WatchProgress>
+        get() = progressAll.take(CONTINUE_LIMIT)
+
+    private data class VodContext(
+        val sourceId: String,
+        val vodId: String,
+        val name: String,
+        val pic: String,
+        val playFrom: String,
+        val episodeIndex: Int,
+        val episodeTitle: String,
+        val nextEpisodeTitle: String?,
+        val finished: Boolean = false,
+    )
+
+    private var vodContext: VodContext? = null
+    private var progressTicker: Job? = null
+
     // 源导入
     var sourceImportText by mutableStateOf("")
     var sourceImportIssues by mutableStateOf<List<SourceIssue>>(emptyList())
@@ -160,27 +211,44 @@ class AppViewModel(
     val activeMacCmsSources: List<SourceConfig>
         get() = sources.filter { it.enabled && it.kind == SourceKind.MACCMS }
 
-    val filteredChannels: List<LiveChannel>
+    val currentCategory: LiveCategory?
+        get() = liveCatalog?.category(liveCategoryId)
+
+    private fun filterChannels(channels: List<LiveChannel>): List<LiveChannel> {
+        val query = liveQuery.trim().lowercase()
+        if (query.isEmpty()) return channels
+        return channels.filter { channel ->
+            channel.name.lowercase().contains(query) || channel.group.lowercase().contains(query)
+        }
+    }
+
+    /** 当前分组列表；地方组按每页 60 台分页。 */
+    val visibleChannels: List<LiveChannel>
         get() {
-            val snapshot = live ?: return emptyList()
-            val group = liveGroupId
-            val query = liveQuery.trim().lowercase()
-            return snapshot.channels.filter { channel ->
-                (group == null || channel.groupId == group) &&
-                    (query.isEmpty() ||
-                        channel.name.lowercase().contains(query) ||
-                        channel.group.lowercase().contains(query))
-            }
+            val channels = filterChannels(liveCatalog?.channelsFor(liveCategoryId).orEmpty())
+            return if (liveCategoryId == LOCAL_GROUP_ID) LivePaging.page(channels, localPage) else channels
         }
 
-    val currentGroupName: String
-        get() = live?.groups?.firstOrNull { it.id == liveGroupId }?.name ?: "全部频道"
+    val localPageCount: Int
+        get() {
+            val total = filterChannels(liveCatalog?.channelsFor(LOCAL_GROUP_ID).orEmpty()).size
+            return LivePaging.pageCount(total)
+        }
+
+    val localPageNumber: Int
+        get() = (localPage + 1).coerceAtMost(localPageCount)
+
+    val currentCategoryName: String
+        get() = currentCategory?.name ?: "直播频道"
+
+    val liveChannelCount: Int
+        get() = live?.channels?.size ?: 0
 
     val statusLine: String
         get() = when {
             booting -> bootMessage
             player.state.active -> player.state.statusText.ifBlank { "播放中" }
-            else -> "就绪 · ${activeMacCmsSources.size} 个点播源 · ${live?.channels?.size ?: 0} 个直播频道"
+            else -> "就绪 · ${activeMacCmsSources.size} 个点播源 · $liveChannelCount 个直播频道"
         }
 
     init {
@@ -198,9 +266,17 @@ class AppViewModel(
         userImported = withContext(Dispatchers.IO) { sourceStore.loadUser() }
         reloadSources()
 
+        bootMessage = "加载续播/收藏/最近…"
+        progressAll = withContext(Dispatchers.IO) { progressStore.list() }
+        vodFavorites = withContext(Dispatchers.IO) { favoritesStore.vodList() }
+        liveFavorites = withContext(Dispatchers.IO) { favoritesStore.liveList() }
+        recentLive = withContext(Dispatchers.IO) { recentStore.list() }
+        hdKeys = withContext(Dispatchers.IO) { LiveHd.loadKeys(paths) }
+
         bootMessage = "加载直播频道…"
         live = withContext(Dispatchers.IO) { LiveSeedLoader.load(paths) }
-        liveGroupId = live?.groups?.firstOrNull()?.id
+        liveCategoryId = "hd"
+        rebuildLiveCatalog()
         selectedChannel = preferredLiveChannel()
 
         bootMessage = "检测 libVLC…"
@@ -280,9 +356,25 @@ class AppViewModel(
             newSection.isBrowse -> loadBrowse(reset = true)
             newSection == Section.LIVE && live == null -> scope.launch {
                 live = withContext(Dispatchers.IO) { LiveSeedLoader.load(paths) }
-                liveGroupId = live?.groups?.firstOrNull()?.id
+                hdKeys = withContext(Dispatchers.IO) { LiveHd.loadKeys(paths) }
+                liveCategoryId = "hd"
+                rebuildLiveCatalog()
                 selectedChannel = preferredLiveChannel()
             }
+        }
+    }
+
+    private fun rebuildLiveCatalog() {
+        val snapshot = live ?: return
+        val catalog = LiveCatalogBuilder.build(
+            snapshot = snapshot,
+            hdKeys = hdKeys,
+            favoriteIds = liveFavorites.map { it.channelId },
+            recentIds = recentLive.map { it.channelId },
+        )
+        liveCatalog = catalog
+        if (catalog.category(liveCategoryId) == null) {
+            liveCategoryId = catalog.categories.firstOrNull()?.id ?: "hd"
         }
     }
 
@@ -295,9 +387,25 @@ class AppViewModel(
             ?: snapshot.channels.firstOrNull()
     }
 
-    fun setLiveGroup(groupId: String?) {
-        liveGroupId = groupId
-        selectedChannel = filteredChannels.firstOrNull()
+    fun setLiveCategory(categoryId: String) {
+        if (liveCategoryId == categoryId) return
+        liveCategoryId = categoryId
+        localPage = 0
+        selectedChannel = visibleChannels.firstOrNull()
+    }
+
+    fun nextLocalPage() {
+        if (localPage + 1 < localPageCount) {
+            localPage += 1
+            selectedChannel = visibleChannels.firstOrNull()
+        }
+    }
+
+    fun previousLocalPage() {
+        if (localPage > 0) {
+            localPage -= 1
+            selectedChannel = visibleChannels.firstOrNull()
+        }
     }
 
     fun selectChannel(channel: LiveChannel) {
@@ -308,6 +416,9 @@ class AppViewModel(
         when {
             section == Section.LIVE -> scope.launch {
                 live = withContext(Dispatchers.IO) { LiveSeedLoader.load(paths) }
+                hdKeys = withContext(Dispatchers.IO) { LiveHd.loadKeys(paths) }
+                rebuildLiveCatalog()
+                selectedChannel = preferredLiveChannel()
                 showToast("直播频道已刷新")
             }
             section.isBrowse -> loadBrowse(reset = true)
@@ -388,6 +499,9 @@ class AppViewModel(
             detail = result.value
             detailError = result.error?.message
             detailLoading = false
+            watchedEpisodes = result.value?.let {
+                withContext(Dispatchers.IO) { progressStore.watchedEpisodes(it.sourceId, it.vodId) }
+            }.orEmpty()
         }
     }
 
@@ -432,6 +546,7 @@ class AppViewModel(
             showToast("频道「${channel.name}」没有可用线路", error = true)
             return
         }
+        finishVodContextForSwitch()
         val rotated = channel.lines.drop(startLine) + channel.lines.take(startLine)
         val lines = rotated.mapIndexed { index, line ->
             PlayLine("线路 ${startLine + index + 1}", line.url, line.quality)
@@ -443,6 +558,9 @@ class AppViewModel(
             lines = lines,
             sourceId = "live",
         )
+        recentStore.record(channel.id, channel.name, channel.group)
+        recentLive = recentStore.list()
+        rebuildLiveCatalog()
         selectedChannel = channel
         playingEpisodeTitle = null
         playback = request
@@ -458,13 +576,14 @@ class AppViewModel(
         startVod(first)
     }
 
-    fun startVod(episode: Episode, fromDetail: VodDetail? = null) {
+    fun startVod(episode: Episode, fromDetail: VodDetail? = null, startPositionMs: Long = 0L) {
         val d = fromDetail ?: detail ?: return
         if (vlcRuntime == null) {
             showToast("未找到 libVLC。请安装 VLC 3.x，或在「设置」中指定路径。", error = true)
             section = Section.SETTINGS
             return
         }
+        finishVodContextForSwitch()
         val source = sources.firstOrNull { it.id == d.sourceId }
         val alternates = d.playFroms
             .filter { it != episode.playFrom }
@@ -481,11 +600,197 @@ class AppViewModel(
             lines = lines,
             headers = source?.headers.orEmpty(),
             sourceId = d.sourceId,
+            startPositionMs = startPositionMs.coerceAtLeast(0L),
         )
+        vodContext = buildVodContext(d, episode)
         playingEpisodeTitle = episode.title
         playback = request
         player.play(request, settings)
+        startProgressTicker()
     }
+
+    private fun buildVodContext(detail: VodDetail, episode: Episode): VodContext {
+        val episodes = detail.episodesByFrom[episode.playFrom]
+            ?: detail.episodesByFrom.values.firstOrNull().orEmpty()
+        val position = episodes.indexOfFirst { it.index == episode.index && it.title == episode.title }
+            .takeIf { it >= 0 }
+            ?: (episode.index - 1).coerceIn(0, (episodes.size - 1).coerceAtLeast(0))
+        return VodContext(
+            sourceId = detail.sourceId,
+            vodId = detail.vodId,
+            name = detail.name,
+            pic = detail.pic,
+            playFrom = episode.playFrom,
+            episodeIndex = episode.index,
+            episodeTitle = episode.title,
+            nextEpisodeTitle = episodes.getOrNull(position + 1)?.title,
+        )
+    }
+
+    private fun startProgressTicker() {
+        progressTicker?.cancel()
+        progressTicker = scope.launch {
+            while (isActive) {
+                delay(PROGRESS_INTERVAL_MS)
+                if (vodContext != null && player.state.active && player.state.playing && !player.state.paused) {
+                    recordProgress()
+                }
+            }
+        }
+    }
+
+    /** 切集/切直播/退出前落盘，并结束当前进度上下文。 */
+    private fun finishVodContextForSwitch() {
+        recordProgress()
+        progressTicker?.cancel()
+        progressTicker = null
+        vodContext = null
+    }
+
+    private fun recordProgress() {
+        val context = vodContext ?: return
+        if (context.finished) return
+        val position = player.state.timeMs
+        val duration = player.state.lengthMs
+        val outcome = progressStore.save(
+            WatchProgress(
+                vodId = context.vodId,
+                sourceId = context.sourceId,
+                name = context.name,
+                pic = context.pic,
+                playFrom = context.playFrom,
+                episodeIndex = context.episodeIndex,
+                episodeTitle = context.episodeTitle,
+                positionMs = position,
+                durationMs = duration,
+                updatedAt = System.currentTimeMillis(),
+            ),
+            nextEpisodeTitle = context.nextEpisodeTitle,
+        )
+        if (outcome.skipped) return
+        progressAll = progressStore.list()
+        if (outcome.markedWatched) {
+            refreshWatchedForSelection(context.sourceId, context.vodId)
+        }
+        if (outcome.advancedEpisode) {
+            vodContext = context.copy(
+                episodeIndex = context.episodeIndex + 1,
+                episodeTitle = context.nextEpisodeTitle.orEmpty(),
+                nextEpisodeTitle = null,
+                finished = true,
+            )
+        }
+    }
+
+    private fun refreshWatchedForSelection(sourceId: String, vodId: String) {
+        val selected = selectedVod
+        if (selected?.sourceId == sourceId && selected.vodId == vodId) {
+            watchedEpisodes = progressStore.watchedEpisodes(sourceId, vodId)
+        }
+    }
+
+    fun togglePause() {
+        if (!player.state.active) return
+        val wasPaused = player.state.paused
+        player.togglePause()
+        if (!wasPaused) recordProgress()
+    }
+
+    fun progressFor(sourceId: String, vodId: String): WatchProgress? =
+        progressAll.firstOrNull { it.sourceId == sourceId && it.vodId == vodId }
+
+    fun removeProgress(progress: WatchProgress) {
+        progressStore.remove(progress.sourceId, progress.vodId)
+        progressAll = progressStore.list()
+        showToast("已移除续播记录：${progress.name}")
+    }
+
+    /** 首页「继续观看」条目：拉详情后按保存的集数与位置起播。 */
+    fun continueWatching(progress: WatchProgress) {
+        scope.launch {
+            val source = sources.firstOrNull { it.id == progress.sourceId }
+            if (source == null) {
+                showToast("续播失败：源 ${progress.sourceId} 不存在", error = true)
+                return@launch
+            }
+            val result = withContext(Dispatchers.IO) { macCms.detail(source, progress.vodId) }
+            val d = result.value
+            if (d == null) {
+                showToast("续播失败：${result.error?.message ?: "没有详情"}", error = true)
+                return@launch
+            }
+            detail = d
+            selectedVod = summaryFromDetail(d)
+            watchedEpisodes = withContext(Dispatchers.IO) {
+                progressStore.watchedEpisodes(d.sourceId, d.vodId)
+            }
+            val episodes = d.episodesByFrom[progress.playFrom]
+                ?: d.episodesByFrom.values.firstOrNull().orEmpty()
+            val episode = episodes.firstOrNull { it.index == progress.episodeIndex }
+                ?: episodes.getOrNull(progress.episodeIndex - 1)
+                ?: episodes.firstOrNull()
+            if (episode == null) {
+                showToast("《${d.name}》没有可播放剧集", error = true)
+                return@launch
+            }
+            val seek = if (episode.index == progress.episodeIndex) progress.positionMs else 0L
+            startVod(episode, d, seek)
+        }
+    }
+
+    /** 详情页「继续观看」按钮：不重新拉详情。 */
+    fun resumeCurrentDetail() {
+        val d = detail ?: return
+        val progress = progressStore.lastFor(d.sourceId, d.vodId)
+        if (progress == null) {
+            playFirstEpisode()
+            return
+        }
+        val episodes = d.episodesByFrom[progress.playFrom]
+            ?: d.episodesByFrom.values.firstOrNull().orEmpty()
+        val episode = episodes.firstOrNull { it.index == progress.episodeIndex }
+            ?: episodes.getOrNull(progress.episodeIndex - 1)
+            ?: episodes.firstOrNull()
+        if (episode == null) {
+            showToast("《${d.name}》没有可播放剧集", error = true)
+            return
+        }
+        val seek = if (episode.index == progress.episodeIndex) progress.positionMs else 0L
+        startVod(episode, d, seek)
+    }
+
+    private fun summaryFromDetail(d: VodDetail): VodSummary = VodSummary(
+        vodId = d.vodId,
+        sourceId = d.sourceId,
+        sourceName = d.sourceName,
+        name = d.name,
+        pic = d.pic,
+        remarks = d.remarks,
+        year = d.year,
+        typeId = "",
+        typeName = d.typeName,
+        score = d.score,
+        refs = listOf(VodRef(d.sourceId, d.sourceName, d.vodId)),
+    )
+
+    fun toggleVodFavorite(sourceId: String, vodId: String, name: String, pic: String) {
+        val favorite = favoritesStore.toggleVod(sourceId, vodId, name, pic)
+        vodFavorites = favoritesStore.vodList()
+        showToast(if (favorite) "已收藏《$name》" else "已取消收藏《$name》")
+    }
+
+    fun toggleLiveFavorite(channel: LiveChannel) {
+        val favorite = favoritesStore.toggleLive(channel.id, channel.name, channel.group)
+        liveFavorites = favoritesStore.liveList()
+        rebuildLiveCatalog()
+        showToast(if (favorite) "已收藏频道「${channel.name}」" else "已取消收藏「${channel.name}」")
+    }
+
+    fun isVodFavorite(sourceId: String, vodId: String): Boolean =
+        vodFavorites.any { it.sourceId == sourceId && it.vodId == vodId }
+
+    fun isLiveFavorite(channelId: String): Boolean =
+        liveFavorites.any { it.channelId == channelId }
 
     fun playEpisodeAt(index: Int) {
         val d = detail ?: return
@@ -494,6 +799,10 @@ class AppViewModel(
     }
 
     fun stopPlayback() {
+        recordProgress()
+        progressTicker?.cancel()
+        progressTicker = null
+        vodContext = null
         player.stop()
         playback = null
         playingEpisodeTitle = null
@@ -625,6 +934,15 @@ class AppViewModel(
     }
 
     fun shutdown() {
+        recordProgress()
+        progressTicker?.cancel()
+        vodContext = null
         player.release()
+    }
+
+    private companion object {
+        const val CONTINUE_LIMIT = 8
+        const val PROGRESS_INTERVAL_MS = 15_000L
+        const val LOCAL_GROUP_ID = "local"
     }
 }

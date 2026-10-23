@@ -23,6 +23,8 @@ _probe/
 Thumbs.db
 .DS_Store
 
-# 冻结产物（APK 不入库，FROZEN.json 入库）
+# 冻结产物（二进制不入库，FROZEN.json 入库）
 release/*.apk
+release/*.msi
+release/*.exe
 nul

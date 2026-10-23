@@ -71,7 +71,7 @@ fun AppRoot(vm: AppViewModel, windowState: WindowState, onClose: () -> Unit) {
                     } else {
                         when (event.keyCode) {
                             java.awt.event.KeyEvent.VK_SPACE -> {
-                                vm.player.togglePause()
+                                vm.togglePause()
                                 true
                             }
                             java.awt.event.KeyEvent.VK_LEFT -> {
@@ -122,7 +122,7 @@ fun AppRoot(vm: AppViewModel, windowState: WindowState, onClose: () -> Unit) {
             } else {
                 when (event.key) {
                     Key.Spacebar -> {
-                        vm.player.togglePause()
+                        vm.togglePause()
                         true
                     }
                     Key.DirectionLeft -> {
@@ -218,7 +218,7 @@ private fun LeftNav(vm: AppViewModel, modifier: Modifier = Modifier) {
             Spacer(Modifier.width(6.dp))
             Text("TV", style = AppText.brand)
         }
-        Text("XINGMU TV · PC v0.1", style = AppText.caption.copy(fontSize = 9.sp, letterSpacing = 1.sp))
+        Text("XINGMU TV · PC v${com.tvbox.desktop.BuildInfo.version}", style = AppText.caption.copy(fontSize = 9.sp, letterSpacing = 1.sp))
         Spacer(Modifier.height(22.dp))
 
         listOf(Section.LIVE, Section.MOVIE, Section.TV, Section.ANIME, Section.VARIETY).forEach { section ->

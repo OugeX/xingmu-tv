@@ -257,6 +257,7 @@ class PlayerController(private val scope: CoroutineScope) {
     private suspend fun watch(gen: Int, request: PlaybackRequest, attempt: PlaybackLadder.Attempt) {
         val startedAt = System.currentTimeMillis()
         var ready = false
+        var seekedToResume = false
         while (scope.isActive && gen == generation) {
             delay(POLL_MS)
             if (gen != generation) return
@@ -264,6 +265,18 @@ class PlayerController(private val scope: CoroutineScope) {
             val status = runCatching { p.status() }.getOrNull() ?: return
             val time = status.time()
             val length = status.length()
+
+            // 续播：媒体真正可 seek（拿到时长）后跳一次，失败不影响正常播放。
+            if (!seekedToResume && request.startPositionMs > 0 && length > 0) {
+                val target = request.startPositionMs.coerceIn(0L, length)
+                runCatching { p.controls().setTime(target) }
+                    .onSuccess {
+                        seekedToResume = true
+                        state.timeMs = target
+                    }
+                    .onFailure { Log.w("Player", "续播 seek 失败：${it.message}") }
+            }
+
             state.timeMs = time
             state.lengthMs = length
             state.playing = status.isPlaying

@@ -130,13 +130,15 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 ## PC 客户端（desktop/）
 
-Windows / macOS 桌面客户端 v0.1：**Compose Multiplatform Desktop + libVLC(vlcj)**，独立 Gradle 工程 `desktop/`，
+Windows / macOS 桌面客户端 v0.2.0：**Compose Multiplatform Desktop + libVLC(vlcj)**，独立 Gradle 工程 `desktop/`，
 不修改 Android 构建、`app/` 与仓库根构建脚本。
 
 ![PC 客户端 · 直播](screenshots/desktop_t15_live.png)
 
 - **三栏式桌面布局**：左侧导航（直播/电影/电视剧/动漫/综艺/搜索/源管理/设置）、中部列表或播放器、右侧详情与线路/剧集。
+- **续播 / 收藏 / 最近（v0.2）**：播放进度 15s 落盘、继续观看横排、已看集 ✓；点播与直播收藏；直播最近 20 条。
 - **直播 + 点播**：复用 `assets/live_seed.json`（266 频道）与 MacCMS 源；libVLC 播放 HLS 直播与 mp4/m3u8 点播，支持暂停、seek、音量、0.5×–2× 倍速、全屏。
+- **直播分组对齐 Android（v0.2）**：高清专区 114 → 央视 28 → 卫视 26 → 地方 212（每页 60，共 4 页）→ 收藏 → 最近。
 - **1080p 黑屏降级**：每条线路按「硬解 → 软解 → 更低清晰度线路」自动重试，并在右侧展示降级阶梯。
 - **键盘快捷键**：`空格` 暂停、`←/→` 快退/快进 10s、`↑/↓` 音量、`F` 全屏、`Esc` 退出。
 - **源管理**：本地 JSON / 粘贴文本 / URL 导入，错误码与 `tools/validate_sources.py` 一致。
@@ -150,11 +152,13 @@ cd desktop
 ./gradlew run                      # 起窗
 ./gradlew run --args="--smoke"     # 非交互自检（数据链路 + 实播直播/点播）
 ./gradlew packageMsi               # Windows 安装包（Compose 插件自动下载 WiX 3）
+./gradlew packageExe               # Windows EXE 安装包
+./gradlew stageRelease             # 打两个包 + 复制到仓库 release/，打印 size/sha256
 ./gradlew packageDmg               # macOS .dmg（需在 macOS 上执行）
 ```
 
-本机验证产物：`desktop/build/compose/binaries/main/msi/XingmuTV-0.1.0.msi`（57,760,138 bytes）、
-`desktop/build/compose/binaries/main/exe/XingmuTV-0.1.0.exe`（58,420,736 bytes）。
+本机验证产物：`release/XingmuTV-0.2.0.msi`（57,878,919 bytes）、
+`release/XingmuTV-0.2.0.exe`（58,539,520 bytes）。
 
 详细说明、验证记录与已知限制见 [`desktop/README.md`](desktop/README.md)。
 

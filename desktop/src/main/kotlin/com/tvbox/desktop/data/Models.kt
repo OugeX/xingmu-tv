@@ -142,4 +142,6 @@ data class PlaybackRequest(
     val lines: List<PlayLine>,
     val headers: Map<String, String> = emptyMap(),
     val sourceId: String = "",
+    /** 续播：libVLC 起播、拿到时长后 seek 到此位置。 */
+    val startPositionMs: Long = 0L,
 )
