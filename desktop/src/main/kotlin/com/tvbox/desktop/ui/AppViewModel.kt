@@ -3,6 +3,7 @@ package com.tvbox.desktop.ui
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.tvbox.desktop.BuildInfo
 import com.tvbox.desktop.core.Log
 import com.tvbox.desktop.data.Aggregator
 import com.tvbox.desktop.data.AppPaths
@@ -39,6 +40,9 @@ import com.tvbox.desktop.data.WatchProgress
 import com.tvbox.desktop.data.WatchProgressStore
 import com.tvbox.desktop.player.PlayerController
 import com.tvbox.desktop.player.VlcLocator
+import com.tvbox.desktop.update.ReleaseClient
+import com.tvbox.desktop.update.UpdateCenter
+import com.tvbox.desktop.update.UpdateState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -74,6 +78,7 @@ class AppViewModel(
     data class Toast(val id: Long, val message: String, val error: Boolean)
 
     val http = Http()
+    private val updateHttp = Http(defaultReferer = null, connectTimeoutMs = 3_000L)
     private val cache = FileCache(paths.cacheDir.resolve("http"))
     private val macCms = MacCmsClient(http, cache)
     private val aggregator = Aggregator(macCms)
@@ -85,6 +90,21 @@ class AppViewModel(
 
     var settings by mutableStateOf(AppSettings.load(paths))
         private set
+
+    /** 更新中心：检查失败静默回 Idle；下载/打开安装包由设置页驱动。 */
+    val updateCenter = UpdateCenter(
+        fetcher = ReleaseClient(BuildInfo.version, updateHttp),
+        http = updateHttp,
+        updateDir = paths.updateDir,
+        currentVersion = { BuildInfo.version },
+        lastCheckAt = { settings.lastUpdateCheckAt },
+        onCheckedAt = { checkedAt ->
+            settings = settings.copy(lastUpdateCheckAt = checkedAt).also { it.save(paths) }
+        },
+        autoCheckEnabled = { settings.autoCheckUpdate },
+        scope = scope,
+    )
+    private var updateLoopJob: Job? = null
     var sources by mutableStateOf<List<SourceConfig>>(emptyList())
         private set
     private var builtinImported: List<ImportedSource> = emptyList()
@@ -285,10 +305,28 @@ class AppViewModel(
         booting = false
         bootMessage = "就绪"
         Log.i("App", "bootstrap done: sources=${sources.size}, live=${live?.channels?.size}")
+        startAutoUpdateLoop()
 
         if (autoplayLive) {
             delay(700)
             selectedChannel?.let { startLive(it) }
+        }
+    }
+
+    /**
+     * 启动后 8s 后台检查一次，之后每 24h 一次；只有 autoCheckUpdate 打开才真正请求。
+     * UpdateCenter 内部还有 24h 节流与异常静默，循环本身不会产生 UI。
+     */
+    private fun startAutoUpdateLoop() {
+        if (updateLoopJob != null) return
+        updateLoopJob = scope.launch {
+            delay(8_000)
+            while (isActive) {
+                if (settings.autoCheckUpdate) {
+                    updateCenter.autoCheckIfDue(settings.includePrereleaseUpdate)
+                }
+                delay(UPDATE_DAY_MS)
+            }
         }
     }
 
@@ -333,6 +371,47 @@ class AppViewModel(
     fun setVolume(volume: Int) {
         settings = settings.copy(volume = volume.coerceIn(0, 100)).also { it.save(paths) }
         player.setVolume(settings.volume)
+    }
+
+    fun setAutoCheckUpdate(enabled: Boolean) {
+        settings = settings.copy(autoCheckUpdate = enabled).also { it.save(paths) }
+        if (enabled && updateCenter.state is UpdateState.Idle) {
+            updateCenter.autoCheckIfDue(settings.includePrereleaseUpdate)
+        }
+    }
+
+    fun setIncludePrereleaseUpdate(enabled: Boolean) {
+        settings = settings.copy(includePrereleaseUpdate = enabled).also { it.save(paths) }
+    }
+
+    fun checkForUpdates() {
+        scope.launch {
+            updateCenter.checkNow(
+                manual = true,
+                includePrerelease = settings.includePrereleaseUpdate,
+            )
+        }
+    }
+
+    fun downloadUpdate() {
+        updateCenter.startDownload()
+    }
+
+    fun cancelUpdateDownload() {
+        updateCenter.cancelDownload()
+    }
+
+    fun openDownloadedInstaller() {
+        if (!updateCenter.openInstaller()) {
+            // 失败路径只写日志，不弹窗；设置页状态回 Idle。
+            Log.w("Update", "打开安装包失败或没有就绪文件")
+        }
+    }
+
+    fun openUpdateReleasePage() {
+        val url = (updateCenter.state as? UpdateState.Available)?.candidate?.release?.pageUrl
+            ?: "https://github.com/OugeX/xingmu-tv/releases"
+        updateCenter.openReleasePage(url)
     }
 
     fun clearCache() {
@@ -937,11 +1016,14 @@ class AppViewModel(
         recordProgress()
         progressTicker?.cancel()
         vodContext = null
+        updateLoopJob?.cancel()
+        updateLoopJob = null
         player.release()
     }
 
     private companion object {
         const val CONTINUE_LIMIT = 8
+        const val UPDATE_DAY_MS = 24L * 60 * 60 * 1000
         const val PROGRESS_INTERVAL_MS = 15_000L
         const val LOCAL_GROUP_ID = "local"
     }

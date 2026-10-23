@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Slider
 import androidx.compose.material.SliderDefaults
 import androidx.compose.material.Switch
@@ -27,6 +28,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.tvbox.desktop.BuildInfo
+import com.tvbox.desktop.update.UpdateState
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun SettingsPane(vm: AppViewModel) {
@@ -140,17 +146,145 @@ fun SettingsPane(vm: AppViewModel) {
         }
 
         Spacer(Modifier.height(12.dp))
-        SettingsCard("关于", "星幕 TV 桌面端 v${com.tvbox.desktop.BuildInfo.version}") {
+        SettingsCard("关于", "星幕 TV 桌面端 v${BuildInfo.version}") {
+            UpdateAboutRows(vm)
+            Spacer(Modifier.height(10.dp))
             Text("Compose Multiplatform Desktop 1.7.3 · Kotlin 2.0.21 · libVLC(vlcj 4.8.2) · JDK 17", style = AppText.caption)
             Spacer(Modifier.height(6.dp))
             Text("与 Android 端共用 tvapp.source.v1.1 协议、assets 内置数据与 UA/Referer 约定；UI 按桌面三栏式重做。", style = AppText.caption)
             Spacer(Modifier.height(6.dp))
-            Text("v0.2：播放进度/继续观看、收藏、直播最近、直播分组与地方分页。", style = AppText.caption)
+            Text("v0.2：播放进度/继续观看、收藏、直播最近、直播分组与地方分页；更新检查与 Android 同规则：访问失败静默。", style = AppText.caption)
             Spacer(Modifier.height(6.dp))
             Text("画中画（PiP）列为后续计划；macOS 包未在本机构建（PENDING_DEVICE）。", style = AppText.caption)
         }
         Spacer(Modifier.height(20.dp))
     }
+}
+
+@Composable
+private fun UpdateAboutRows(vm: AppViewModel) {
+    val state = vm.updateCenter.state
+    val checking = state is UpdateState.Checking
+
+    InfoRow("当前版本", "v${BuildInfo.version}")
+    Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text("检查更新", style = AppText.caption, modifier = Modifier.width(80.dp))
+        PrimaryButton(
+            text = if (checking) "检查中…" else "检查更新",
+            onClick = { vm.checkForUpdates() },
+            enabled = !checking,
+        )
+        Spacer(Modifier.width(10.dp))
+        Text(updateStatusText(state), style = AppText.caption.copy(color = AppColors.textSecondary), maxLines = 1)
+    }
+    Row(Modifier.fillMaxWidth().padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text("自动检查", style = AppText.caption, modifier = Modifier.width(80.dp))
+        Switch(
+            checked = vm.settings.autoCheckUpdate,
+            onCheckedChange = { vm.setAutoCheckUpdate(it) },
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = AppColors.accentOn,
+                checkedTrackColor = AppColors.accent,
+                uncheckedThumbColor = AppColors.textMuted,
+                uncheckedTrackColor = AppColors.surfaceHigh,
+            ),
+        )
+        Spacer(Modifier.width(10.dp))
+        Text("启动 8s 后检查，之后每 24h 一次", style = AppText.caption.copy(fontSize = 10.sp))
+    }
+    Row(Modifier.fillMaxWidth().padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text("包含测试版", style = AppText.caption, modifier = Modifier.width(80.dp))
+        Switch(
+            checked = vm.settings.includePrereleaseUpdate,
+            onCheckedChange = { vm.setIncludePrereleaseUpdate(it) },
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = AppColors.accentOn,
+                checkedTrackColor = AppColors.accent,
+                uncheckedThumbColor = AppColors.textMuted,
+                uncheckedTrackColor = AppColors.surfaceHigh,
+            ),
+        )
+        Spacer(Modifier.width(10.dp))
+        Text("预发布版本默认不提示", style = AppText.caption.copy(fontSize = 10.sp))
+    }
+    InfoRow("上次检查", formatCheckTime(vm.settings.lastUpdateCheckAt))
+
+    when (state) {
+        is UpdateState.Available -> {
+            Spacer(Modifier.height(6.dp))
+            Text(
+                if (state.candidate.pageOnly) {
+                    "发现 ${state.candidate.release.tag}（Release 暂无桌面安装包）"
+                } else {
+                    "发现 v${state.candidate.displayVersion}（${state.candidate.asset?.name ?: "安装包"}）"
+                },
+                style = AppText.body.copy(fontSize = 11.sp, color = AppColors.accent),
+            )
+            Spacer(Modifier.height(6.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (state.candidate.pageOnly) {
+                    PrimaryButton("打开 Release 页面", { vm.openUpdateReleasePage() })
+                } else {
+                    PrimaryButton("下载并安装", { vm.downloadUpdate() })
+                }
+            }
+        }
+        is UpdateState.Downloading -> {
+            Spacer(Modifier.height(6.dp))
+            Text("正在下载 ${state.percent}%", style = AppText.body.copy(fontSize = 11.sp))
+            Spacer(Modifier.height(4.dp))
+            LinearProgressIndicator(
+                progress = state.percent / 100f,
+                modifier = Modifier.fillMaxWidth().height(4.dp),
+                color = AppColors.accent,
+                backgroundColor = AppColors.surfaceHigh,
+            )
+            Spacer(Modifier.height(6.dp))
+            GhostButton("取消下载", { vm.cancelUpdateDownload() })
+        }
+        is UpdateState.Ready -> {
+            Spacer(Modifier.height(6.dp))
+            Text("安装包已就绪", style = AppText.body.copy(fontSize = 11.sp, color = AppColors.success))
+            Text(state.file.toString(), style = AppText.mono.copy(fontSize = 9.sp), maxLines = 1)
+            Spacer(Modifier.height(6.dp))
+            PrimaryButton("打开安装包", { vm.openDownloadedInstaller() })
+        }
+        is UpdateState.Failed -> {
+            Spacer(Modifier.height(6.dp))
+            Text(state.message, style = AppText.caption.copy(color = AppColors.danger))
+            Spacer(Modifier.height(6.dp))
+            GhostButton("重新检查", { vm.checkForUpdates() })
+        }
+        is UpdateState.UpToDate -> {
+            Spacer(Modifier.height(6.dp))
+            Text("已是最新（${formatCheckTime(state.checkedAt)}）", style = AppText.caption)
+        }
+        else -> Unit
+    }
+
+    Spacer(Modifier.height(8.dp))
+    Text(
+        "更新检查走 GitHub API，国内网络可能访问不了；失败时静默跳过，不影响使用。" +
+            "桌面端只做「下载 + 打开安装包交给系统安装器」，不静默安装。",
+        style = AppText.caption.copy(fontSize = 10.sp),
+    )
+}
+
+private fun updateStatusText(state: UpdateState): String = when (state) {
+    is UpdateState.Idle -> "手动检查不受频率限制"
+    is UpdateState.Checking -> "检查中…"
+    is UpdateState.UpToDate -> "已是最新"
+    is UpdateState.Available ->
+        if (state.candidate.pageOnly) "发现 ${state.candidate.release.tag}（仅 Release 页面）"
+        else "发现 v${state.candidate.displayVersion}"
+    is UpdateState.Downloading -> "正在下载 ${state.percent}%"
+    is UpdateState.Ready -> "安装包已就绪"
+    is UpdateState.Failed -> state.message
+}
+
+private fun formatCheckTime(at: Long): String {
+    if (at <= 0L) return "从未"
+    return SimpleDateFormat("MM-dd HH:mm", Locale.getDefault()).format(Date(at))
 }
 
 @Composable

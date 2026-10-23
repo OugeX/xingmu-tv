@@ -87,6 +87,17 @@ pwsh -NoProfile -File tools/package-windows.ps1
 - Gradle `version = "0.2.0"`，jpackage `packageVersion = "0.2.0"`；
 - 构建时生成 `XingmuTV-version.properties`，`BuildInfo.version` 从 classpath 读取，设置/关于与左侧导航不再硬编码版本号。
 
+### 应用内检查更新（连不上就静默）
+- 设置 → 关于：当前版本 / 检查更新 / 上次检查时间 / 自动检查（默认开）/ 包含测试版（默认关）/ 中文状态行。
+- 启动 8s 后检查一次，之后 24h 一次；异常只写日志回 Idle，**不弹窗、不自动重试**。
+- 资产选择**按资产自己的版本号**，不看 release tag（安卓线 tag 是 v0.3.4，桌面是 0.2.0，按 tag 比会永远误报）：
+  在 latest release 里找 `XingmuTV-<x.y.z>.(msi|exe)`，取版本最高的一个；同版本 Windows 选 `.msi`、其它平台选 `.exe`；
+  `.apk` / `.zip` / `*.sha256` 一律忽略；文件名必须严格匹配（`XingmuTV-0.2.0.exe.sha256` 不会误判）。
+- 没有可用桌面包但 tag 比当前新 → 只给「打开 Release 页面」，不假装能下载安装包。
+- 下载到 `AppPaths.cacheDir/update`，有进度、可取消；校验 Content-Length + 文件头（msi `D0CF11E0` / exe `4D5A`），
+  失败删 `.part` 只重试一次，第二次回 Idle 写日志。
+- 下载完成后必须由用户点**「打开安装包」**（`Desktop.open` 交给系统安装器），不做静默自动安装。
+
 ## 已实现（v0.1 基线 + v0.2）
 
 ### 工程
@@ -177,15 +188,19 @@ cd desktop
 - **续播/继续观看、点播收藏的 GUI 交互未实测 → PENDING_DEVICE**（本任务不要求 GUI 实拍）；
   v0.1 曾实测直播/点播播放、`F` 全屏、空格暂停（截图见上），数据层链路以单元测试与 smoke 为准。
 
-### v0.2.0 产物（本机 Windows 构建）
+### v0.2.0 产物（本机 Windows 构建，含应用内更新器）
 
 | 文件 | 大小 | SHA256 |
 | --- | --- | --- |
-| `release/XingmuTV-0.2.0.msi` | 57,878,919 bytes | `0241f02d054e402bd8f19d16c718ea46f9b27f236e0044f4d440ee868e4f152d` |
-| `release/XingmuTV-0.2.0.exe` | 58,539,520 bytes | `a5228a49075a903a421d0ad3e5777f57955e7fd2253106cd49c0c03629b35ac5` |
+| `release/XingmuTV-0.2.0.msi` | 57,964,937 bytes | `066162ad71f42f0a5eb32abc6ed182a4ba5b86aaf14fcb7b622df4c8f8c02821` |
+| `release/XingmuTV-0.2.0.exe` | 58,621,440 bytes | `bb9ccf9e774570637aaf9e3c497eaf405c84b4ec9c245fac94de2d63f3bd75a2` |
 
-构建命令：`./gradlew stageRelease`（依赖 `packageMsi` + `packageExe`，复制到仓库根 `release/` 并打印校验值），
-日志：`.artifacts/desktop/t35-package1.log`。
+> 文件头 `D0CF11E0`（MSI）/ `4D5A`（EXE）已按更新器同一口径校验；安装包内 app jar 为
+> `xingmu-tv-desktop-0.2.0-*.jar`，含 `com/tvbox/desktop/update/{AssetPicker,UpdateCenter,…}.class`
+> 与 `XingmuTV-version.properties`。
+
+构建命令：`./gradlew packageMsi packageExe`（再复制到仓库根 `release/`），
+日志：`.artifacts/desktop/t35-package1.log`、`t36-final-test-run2.log`。
 
 ## 已知限制
 

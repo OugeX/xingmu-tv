@@ -11,6 +11,9 @@ data class AppSettings(
     val maxQuality: String = "auto",
     val hardwareDecode: Boolean = true,
     val disabledSourceIds: Set<String> = emptySet(),
+    val autoCheckUpdate: Boolean = true,
+    val includePrereleaseUpdate: Boolean = false,
+    val lastUpdateCheckAt: Long = 0L,
 ) {
     fun save(paths: AppPaths) {
         val json = JSONObject()
@@ -20,6 +23,9 @@ data class AppSettings(
             .put("maxQuality", maxQuality)
             .put("hardwareDecode", hardwareDecode)
             .put("disabledSourceIds", disabledSourceIds.toList())
+            .put("autoCheckUpdate", autoCheckUpdate)
+            .put("includePrereleaseUpdate", includePrereleaseUpdate)
+            .put("lastUpdateCheckAt", lastUpdateCheckAt)
         runCatching {
             Files.createDirectories(paths.configDir)
             Files.writeString(paths.settingsFile, json.toString(2))
@@ -43,6 +49,9 @@ data class AppSettings(
                     maxQuality = json.optString("maxQuality", "auto").ifBlank { "auto" },
                     hardwareDecode = json.optBoolean("hardwareDecode", true),
                     disabledSourceIds = disabled,
+                    autoCheckUpdate = json.optBoolean("autoCheckUpdate", true),
+                    includePrereleaseUpdate = json.optBoolean("includePrereleaseUpdate", false),
+                    lastUpdateCheckAt = json.optLong("lastUpdateCheckAt", 0L),
                 )
             }
         } catch (t: Throwable) {

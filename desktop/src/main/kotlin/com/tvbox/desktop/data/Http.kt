@@ -1,14 +1,17 @@
 package com.tvbox.desktop.data
 
 import com.tvbox.desktop.core.Log
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 import java.time.Duration
-import java.util.concurrent.CompletableFuture
 
 class HttpException(val kind: String, message: String, cause: Throwable? = null) : Exception(message, cause)
 
@@ -17,10 +20,11 @@ class HttpException(val kind: String, message: String, cause: Throwable? = null)
  */
 class Http(
     private val defaultUa: String = DEFAULT_UA,
-    private val defaultReferer: String = DEFAULT_REFERER,
+    private val defaultReferer: String? = DEFAULT_REFERER,
+    connectTimeoutMs: Long = 8_000L,
 ) {
     private val client: HttpClient = HttpClient.newBuilder()
-        .connectTimeout(Duration.ofSeconds(8))
+        .connectTimeout(Duration.ofMillis(connectTimeoutMs.coerceAtLeast(500L)))
         .followRedirects(HttpClient.Redirect.NORMAL)
         .version(HttpClient.Version.HTTP_1_1)
         .build()
@@ -28,7 +32,7 @@ class Http(
     fun headersWithDefaults(headers: Map<String, String>): Map<String, String> {
         val merged = LinkedHashMap<String, String>()
         merged["User-Agent"] = defaultUa
-        merged["Referer"] = defaultReferer
+        if (!defaultReferer.isNullOrBlank()) merged["Referer"] = defaultReferer
         headers.forEach { (k, v) ->
             if (k.isNotBlank() && v.isNotBlank()) {
                 val existing = merged.keys.firstOrNull { it.equals(k, ignoreCase = true) }
@@ -57,6 +61,73 @@ class Http(
         timeoutMs: Int = 20_000,
         maxBytes: Int = 8 * 1024 * 1024,
     ): ByteArray = withContext(Dispatchers.IO) { download(url, headers, timeoutMs, maxBytes) }
+
+    data class DownloadResult(val bytes: Long, val contentLength: Long)
+
+    /**
+     * 流式下载到文件（更新包用）：支持进度回调与协作式取消。
+     * @return 实际字节数 + 响应 Content-Length（服务端未提供为 -1）
+     */
+    suspend fun downloadToFile(
+        url: String,
+        headers: Map<String, String> = emptyMap(),
+        target: Path,
+        timeoutMs: Int = 10 * 60 * 1000,
+        onProgress: (received: Long, total: Long) -> Unit = { _, _ -> },
+        cancelled: () -> Boolean = { false },
+    ): DownloadResult = withContext(Dispatchers.IO) {
+        val builder = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .timeout(Duration.ofMillis(timeoutMs.coerceIn(1_000, 30 * 60_000).toLong()))
+            .GET()
+        headersWithDefaults(headers).forEach { (k, v) -> runCatching { builder.header(k, v) } }
+        val response: HttpResponse<java.io.InputStream>
+        try {
+            response = client.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream())
+        } catch (t: java.net.http.HttpTimeoutException) {
+            throw HttpException("TIMEOUT", "下载超时：${hostOf(url)}", t)
+        } catch (t: InterruptedException) {
+            Thread.currentThread().interrupt()
+            throw HttpException("NETWORK", "下载被中断：$url", t)
+        } catch (t: Exception) {
+            throw HttpException("NETWORK", "下载失败：${hostOf(url)} ${t.message.orEmpty()}", t)
+        }
+        if (response.statusCode() !in 200..299) {
+            runCatching { response.body().close() }
+            throw HttpException("HTTP", "HTTP ${response.statusCode()}：${hostOf(url)}")
+        }
+        val total = response.headers().firstValueAsLong("Content-Length").orElse(-1L)
+        val parent = target.toAbsolutePath().parent
+        if (parent != null) Files.createDirectories(parent)
+        var received = 0L
+        try {
+            Files.newOutputStream(
+                target,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.WRITE,
+            ).use { out ->
+                response.body().use { input ->
+                    val buffer = ByteArray(64 * 1024)
+                    while (true) {
+                        if (cancelled()) throw CancellationException("下载已取消")
+                        val read = input.read(buffer)
+                        if (read < 0) break
+                        out.write(buffer, 0, read)
+                        received += read
+                        onProgress(received, total)
+                    }
+                }
+            }
+        } catch (t: CancellationException) {
+            runCatching { Files.deleteIfExists(target) }
+            throw t
+        } catch (t: Throwable) {
+            runCatching { Files.deleteIfExists(target) }
+            throw if (t is HttpException) t else HttpException("NETWORK", "写入更新包失败：${t.message}", t)
+        }
+        DownloadResult(received, total)
+    }
 
     private fun download(url: String, headers: Map<String, String>, timeoutMs: Int, maxBytes: Int): ByteArray {
         val builder = HttpRequest.newBuilder()

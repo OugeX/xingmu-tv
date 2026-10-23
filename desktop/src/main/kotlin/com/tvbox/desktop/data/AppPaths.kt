@@ -26,6 +26,9 @@ class AppPaths private constructor(
     val favoritesFile: Path get() = configDir.resolve("favorites.json")
     val recentFile: Path get() = configDir.resolve("recent.json")
 
+    /** 更新包下载目录（系统缓存目录，可随时清空）。 */
+    val updateDir: Path get() = cacheDir.resolve("update")
+
     fun ensureDirectories() {
         listOf(configDir, cacheDir, logDir).forEach { dir ->
             runCatching { Files.createDirectories(dir) }

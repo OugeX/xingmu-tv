@@ -137,6 +137,7 @@ Windows / macOS 桌面客户端 v0.2.0：**Compose Multiplatform Desktop + libVL
 
 - **三栏式桌面布局**：左侧导航（直播/电影/电视剧/动漫/综艺/搜索/源管理/设置）、中部列表或播放器、右侧详情与线路/剧集。
 - **续播 / 收藏 / 最近（v0.2）**：播放进度 15s 落盘、继续观看横排、已看集 ✓；点播与直播收藏；直播最近 20 条。
+- **应用内检查更新（v0.2）**：设置 → 关于一键检查，按资产版本自动挑 `.msi`/`.exe` 下载并校验；连不上 GitHub 只写日志，不弹窗。
 - **直播 + 点播**：复用 `assets/live_seed.json`（266 频道）与 MacCMS 源；libVLC 播放 HLS 直播与 mp4/m3u8 点播，支持暂停、seek、音量、0.5×–2× 倍速、全屏。
 - **直播分组对齐 Android（v0.2）**：高清专区 114 → 央视 28 → 卫视 26 → 地方 212（每页 60，共 4 页）→ 收藏 → 最近。
 - **1080p 黑屏降级**：每条线路按「硬解 → 软解 → 更低清晰度线路」自动重试，并在右侧展示降级阶梯。
@@ -157,8 +158,8 @@ cd desktop
 ./gradlew packageDmg               # macOS .dmg（需在 macOS 上执行）
 ```
 
-本机验证产物：`release/XingmuTV-0.2.0.msi`（57,878,919 bytes）、
-`release/XingmuTV-0.2.0.exe`（58,539,520 bytes）。
+本机验证产物（含应用内更新器）：`release/XingmuTV-0.2.0.msi`（57,964,937 bytes，
+sha256 `066162ad…`）、`release/XingmuTV-0.2.0.exe`（58,621,440 bytes，sha256 `bb9ccf9e…`）。
 
 详细说明、验证记录与已知限制见 [`desktop/README.md`](desktop/README.md)。
 
