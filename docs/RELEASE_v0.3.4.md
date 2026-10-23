@@ -39,7 +39,7 @@
 | --- | --- | --- |
 | 安卓电视/盒子（主包） | `xingmu-tv-v0.3.4-e6f5d3dd.apk` | 12.32 MB |
 | 安卓电视/盒子（R8 精简，更新器优先选它） | `xingmu-tv-v0.3.4-r8-170c539d.apk` | 2.94 MB |
-| Windows | `XingmuTV-0.1.0.exe` / `.msi` | 55.7 / 55.1 MB |
+| Windows 桌面端 | `XingmuTV-0.2.0.msi` / `.exe` | 55.3 / 55.9 MB |
 | 预置详情数据包 | `detail-seed-v1.zip` | 378 KB |
 
 ### 验证
